@@ -196,11 +196,37 @@ def render_time_invariance_experiment(system_name, signal_name, t0, key_prefix="
 
 
 def render():
+    # Chapter cover: force the banner to use the same full content width
+    # as the tabs/text below it. The PNG keeps its natural aspect ratio.
     banner_path = Path(__file__).resolve().parent.parent / "assets" / "lti_banner.png"
+
+    st.markdown(
+        """
+        <style>
+        /* Only the chapter-cover image: remove Streamlit's intrinsic image width cap. */
+        .ee207-lti-cover-marker + div[data-testid="stImage"],
+        .ee207-lti-cover-marker + div[data-testid="stImage"] > div {
+            width: 100% !important;
+            max-width: none !important;
+        }
+        .ee207-lti-cover-marker + div[data-testid="stImage"] img {
+            width: 100% !important;
+            max-width: none !important;
+            height: auto !important;
+            display: block !important;
+            object-fit: contain !important;
+        }
+        </style>
+        <div class="ee207-lti-cover-marker"></div>
+        """,
+        unsafe_allow_html=True,
+    )
+
     if banner_path.exists():
         st.image(str(banner_path), use_container_width=True)
     else:
         st.title("EE-207 : LTI Systems")
+
     st.caption("Signals and Systems | Explore linearity and time invariance graphically")
     def reveal_cards(linear=None, time_invariant=None, lti=None):
         """Show large YES/NO answer cards consistently in every lab."""

@@ -1,0 +1,209 @@
+import streamlit as st
+import numpy as np
+import matplotlib.pyplot as plt
+
+st.set_page_config(page_title="EE-207 Signals and Systems Lab", page_icon="📈", layout="wide")
+
+st.markdown("""
+<style>
+.block-container {padding-top: 1.5rem; padding-bottom: 2rem;}
+div[data-testid="stMetric"] {background:#f7f7f9; border:1px solid #ddd; padding:10px; border-radius:10px;}
+div[data-testid="stMetric"] * {color:#111827 !important;}
+.result-pass {padding:14px;border-radius:10px;background:#eaf7ee;border:1px solid #87c99a;font-weight:700;color:#14532d !important;}
+.result-fail {padding:14px;border-radius:10px;background:#fdecec;border:1px solid #e39a9a;font-weight:700;color:#7f1d1d !important;}
+.note {padding:12px;border-radius:10px;background:#f5f7fb;border:1px solid #d9dfeb;color:#111827 !important;}
+.note * {color:#111827 !important;}
+</style>
+""", unsafe_allow_html=True)
+
+# ---------- Core signal definitions ----------
+def unit_step(t):
+    return (t >= 0).astype(float)
+
+def get_signal(name, t):
+    if name == "sin(t)": return np.sin(t)
+    if name == "cos(2t)": return np.cos(2*t)
+    if name == "Gaussian exp(-t²)": return np.exp(-t**2)
+    if name == "Rectangular pulse": return (np.abs(t) <= 1).astype(float)
+    if name == "Triangular pulse": return np.maximum(1-np.abs(t), 0)
+    if name == "Unit step u(t)": return unit_step(t)
+    if name == "Decaying exponential e^(-t)u(t)": return np.exp(-t)*unit_step(t)
+    raise ValueError("Unknown signal")
+
+def apply_system(name, t, x_func):
+    x = x_func(t)
+    if name == "y(t) = 3x(t)": return 3*x
+    if name == "y(t) = 3x(t) + 1": return 3*x + 1
+    if name == "y(t) = t x(t)": return t*x
+    if name == "y(t) = x(-t)": return x_func(-t)
+    if name == "y(t) = x(t)u(t)": return x*unit_step(t)
+    if name == "y(t) = sin[x(t)]": return np.sin(x)
+    if name == "y(t) = x(t - 1)": return x_func(t-1)
+    if name == "y(t) = dx(t)/dt":
+        dt = t[1]-t[0]
+        return np.gradient(x, dt)
+    raise ValueError("Unknown system")
+
+SIGNALS = ["sin(t)", "cos(2t)", "Gaussian exp(-t²)", "Rectangular pulse", "Triangular pulse", "Unit step u(t)", "Decaying exponential e^(-t)u(t)"]
+SYSTEMS = ["y(t) = 3x(t)", "y(t) = 3x(t) + 1", "y(t) = t x(t)", "y(t) = x(-t)", "y(t) = x(t)u(t)", "y(t) = sin[x(t)]", "y(t) = x(t - 1)", "y(t) = dx(t)/dt"]
+KNOWN = {
+    "y(t) = 3x(t)": (True, True),
+    "y(t) = 3x(t) + 1": (False, True),
+    "y(t) = t x(t)": (True, False),
+    "y(t) = x(-t)": (True, False),
+    "y(t) = x(t)u(t)": (True, False),
+    "y(t) = sin[x(t)]": (False, True),
+    "y(t) = x(t - 1)": (True, True),
+    "y(t) = dx(t)/dt": (True, True),
+}
+
+t = np.linspace(-6, 6, 2401)
+
+# ---------- Consistent visual language ----------
+# x1-related quantities stay blue, x2-related quantities stay orange.
+# Newly produced combined/final results use green.
+C_X1 = "tab:blue"
+C_X2 = "tab:orange"
+C_RESULT = "tab:green"
+C_PATH2 = "tab:purple"
+C_INPUT = "tab:blue"
+
+def finish_plot(title):
+    plt.title(title)
+    plt.xlabel("Time t")
+    plt.ylabel("Amplitude")
+    plt.grid(True, alpha=.3)
+    plt.legend()
+    plt.xlim(-6, 6)
+    plt.tight_layout()
+
+SIGNAL_LATEX = {
+    "sin(t)": r"\sin(t)",
+    "cos(2t)": r"\cos(2t)",
+    "Gaussian exp(-t²)": r"e^{-t^2}",
+    "Rectangular pulse": r"\operatorname{rect}(t/2)",
+    "Triangular pulse": r"\max(1-|t|,0)",
+    "Unit step u(t)": r"u(t)",
+    "Decaying exponential e^(-t)u(t)": r"e^{-t}u(t)",
+}
+
+def fmt_num(v):
+    if abs(v-round(v)) < 1e-12:
+        return str(int(round(v)))
+    return f"{v:.2f}".rstrip("0").rstrip(".")
+
+def signal_eq(name):
+    return SIGNAL_LATEX[name]
+
+def system_of_expr(system_name, expr, var="t"):
+    if system_name == "y(t) = 3x(t)": return rf"3\left[{expr}\right]"
+    if system_name == "y(t) = 3x(t) + 1": return rf"3\left[{expr}\right]+1"
+    if system_name == "y(t) = t x(t)": return rf"{var}\left[{expr}\right]"
+    if system_name == "y(t) = x(-t)": return rf"\left.{expr}\right|_{{t\to -t}}"
+    if system_name == "y(t) = x(t)u(t)": return rf"\left[{expr}\right]u({var})"
+    if system_name == "y(t) = sin[x(t)]": return rf"\sin\!\left({expr}\right)"
+    if system_name == "y(t) = x(t - 1)": return rf"\left.{expr}\right|_{{t\to t-1}}"
+    if system_name == "y(t) = dx(t)/dt": return rf"\frac{{d}}{{dt}}\left[{expr}\right]"
+    return rf"T\{{{expr}\}}"
+
+def small_plot(series, title):
+    fig, ax = plt.subplots(figsize=(4.8, 2.45))
+    for y, label, color, style, width in series:
+        ax.plot(t, y, linestyle=style, color=color, linewidth=width, label=label)
+    ax.set_title(title, fontsize=10)
+    ax.set_xlabel("Time t", fontsize=9)
+    ax.set_ylabel("Amplitude", fontsize=9)
+    ax.tick_params(labelsize=8)
+    ax.grid(True, alpha=.3)
+    ax.legend(fontsize=8)
+    ax.set_xlim(-6,6)
+    fig.tight_layout()
+    st.pyplot(fig, clear_figure=True, use_container_width=True)
+
+
+
+def render_time_invariance_experiment(system_name, signal_name, t0, key_prefix="ti"):
+    """Render the time-invariance test in two-column, step-by-step format."""
+    xf = lambda z: get_signal(signal_name, z)
+    xd = lambda z: xf(z - t0)
+    y = apply_system(system_name, t, xf)
+    path1 = apply_system(system_name, t, xd)
+    path2 = apply_system(system_name, t - t0, xf)
+
+    sig_current = signal_eq(signal_name)
+    delayed_current = rf"\left.{sig_current}\right|_{{t\to t-{fmt_num(t0)}}}"
+
+    st.markdown("#### Path 1 — Delay the input first, then apply the system")
+    st.latex(r"\boxed{y_{P1}(t)=T\{x(t-t_0)\}}")
+    st.latex(rf"\text{{Current example:}}\quad y_{{P1}}(t)={system_of_expr(system_name, delayed_current)}")
+
+    c1, c2 = st.columns(2, gap="large")
+    with c1:
+        st.markdown("##### Step 1 — Original input")
+        st.latex(rf"x(t)={sig_current}")
+        small_plot([(xf(t), "x(t)", C_INPUT, "-", 2.5)], "Original input")
+    with c2:
+        st.markdown("##### Step 2 — Delay the input")
+        st.latex(rf"x_d(t)=x(t-{fmt_num(t0)})")
+        small_plot([
+            (xf(t), "previous: x(t)", C_INPUT, "--", 1.8),
+            (xd(t), "new: x(t-t0)", C_RESULT, "-", 2.7),
+        ], "Delayed input")
+
+    st.markdown("##### Final — Apply the system")
+    _, c3, _ = st.columns([1, 1.65, 1], gap="large")
+    with c3:
+        st.latex(r"y_{P1}(t)=T\{x(t-t_0)\}")
+        small_plot([
+            (xd(t), "previous: delayed input", C_RESULT, "--", 1.8),
+            (path1, "new: Path 1 output", C_RESULT, "-", 2.8),
+        ], "Path 1 final output")
+    st.markdown("##### Path 1 — Final result")
+    st.latex(rf"\boxed{{y_{{P1}}(t)={system_of_expr(system_name, delayed_current)}}}")
+
+    st.markdown("---")
+    st.markdown("#### Path 2 — Apply the system first, then delay the output")
+    st.latex(r"\boxed{y_{P2}(t)=y(t-t_0),\qquad y(t)=T\{x(t)\}}")
+    st.latex(rf"\text{{Current example:}}\quad y(t)={system_of_expr(system_name, sig_current)}")
+
+    c4, c5 = st.columns(2, gap="large")
+    with c4:
+        st.markdown("##### Step 1 — Original input")
+        st.latex(rf"x(t)={sig_current}")
+        small_plot([(xf(t), "x(t)", C_INPUT, "-", 2.5)], "Original input")
+    with c5:
+        st.markdown("##### Step 2 — Apply the system")
+        st.latex(r"y(t)=T\{x(t)\}")
+        small_plot([
+            (xf(t), "previous: x(t)", C_INPUT, "--", 1.8),
+            (y, "new: y(t)", C_PATH2, "-", 2.7),
+        ], "System output")
+
+    st.markdown("##### Final — Delay the output")
+    _, c6, _ = st.columns([1, 1.65, 1], gap="large")
+    with c6:
+        st.latex(rf"y_{{P2}}(t)=y(t-{fmt_num(t0)})")
+        small_plot([
+            (y, "previous: y(t)", C_PATH2, "--", 1.8),
+            (path2, "new: Path 2 output", C_RESULT, "-", 2.8),
+        ], "Path 2 final output")
+    st.markdown("##### Path 2 — Final result")
+    st.latex(rf"\boxed{{y_{{P2}}(t)=y(t-{fmt_num(t0)})}}")
+
+    st.markdown("### Step 3 — Compare the two paths")
+    maxerr = float(np.max(np.abs(path1 - path2)))
+    relation = r"=" if maxerr <= 1e-6 else r"\ne"
+    st.latex(rf"\boxed{{y_{{P1}}(t)\;{relation}\;y_{{P2}}(t)}}")
+    fig, ax = plt.subplots(figsize=(6.2, 2.55))
+    ax.plot(t, path1, color=C_RESULT, linewidth=2.7, label="Path 1")
+    ax.plot(t, path2, "--", color=C_PATH2, linewidth=2.2, label="Path 2")
+    ax.set_title("MATCH" if maxerr <= 1e-6 else "MISMATCH", fontweight="bold")
+    ax.set_xlabel("Time t"); ax.set_ylabel("Amplitude")
+    ax.grid(True, alpha=.3); ax.legend(); ax.set_xlim(-6,6)
+    fig.tight_layout()
+    _, cmp_col, _ = st.columns([1, 1.75, 1])
+    with cmp_col:
+        st.pyplot(fig, clear_figure=True, use_container_width=True)
+    return maxerr
+
+

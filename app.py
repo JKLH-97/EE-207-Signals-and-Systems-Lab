@@ -1,7 +1,7 @@
 import streamlit as st
 from pathlib import Path
 import numpy as np
-from modules import lti, placeholder
+from modules import lti, convolution, placeholder
 
 st.set_page_config(page_title="EE-207 Signals and Systems Lab", page_icon="📈", layout="wide")
 

@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
+import base64
 
 # ---------- Core signal definitions ----------
 def unit_step(t):
@@ -198,7 +199,17 @@ def render_time_invariance_experiment(system_name, signal_name, t0, key_prefix="
 def render():
     banner_path = Path(__file__).resolve().parent.parent / "assets" / "lti_banner.png"
     if banner_path.exists():
-        st.image(str(banner_path), use_container_width=True)
+        encoded_banner = base64.b64encode(banner_path.read_bytes()).decode("ascii")
+        st.markdown(
+            f"""
+            <div style="width:100%; display:flex; justify-content:center; margin:0 0 18px 0;">
+                <img src="data:image/png;base64,{encoded_banner}"
+                     style="width:100%; height:auto; object-fit:contain; display:block; border-radius:10px;"
+                     alt="LTI Systems banner">
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
     else:
         st.title("EE-207 : LTI Systems")
     st.caption("Signals and Systems | Explore linearity and time invariance graphically")

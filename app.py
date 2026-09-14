@@ -1,6 +1,5 @@
 import streamlit as st
 from pathlib import Path
-import base64
 import numpy as np
 from modules import lti, placeholder
 
@@ -42,37 +41,33 @@ with st.sidebar:
 
 
 def home():
-    # Main course cover: replaces the previous title, intro box, and waveform plot.
+    # Main course cover: use the exact same full-width rendering strategy as the LTI chapter.
     home_banner = Path(__file__).resolve().parent / "assets" / "home_banner.png"
+
+    st.markdown(
+        """
+        <style>
+        /* Only the Home cover image: remove Streamlit's intrinsic image width cap. */
+        .ee207-home-cover-marker + div[data-testid="stImage"],
+        .ee207-home-cover-marker + div[data-testid="stImage"] > div {
+            width: 100% !important;
+            max-width: none !important;
+        }
+        .ee207-home-cover-marker + div[data-testid="stImage"] img {
+            width: 100% !important;
+            max-width: none !important;
+            height: auto !important;
+            display: block !important;
+            object-fit: contain !important;
+        }
+        </style>
+        <div class="ee207-home-cover-marker"></div>
+        """,
+        unsafe_allow_html=True,
+    )
+
     if home_banner.exists():
-        # Render the complete cover at full content width.
-        # No fixed height, no cropping, and no object-fit: cover.
-        encoded = base64.b64encode(home_banner.read_bytes()).decode("ascii")
-        st.markdown(
-            f"""
-            <div style="
-                width:100%;
-                margin:0 0 1.25rem 0;
-                padding:0;
-            ">
-                <img
-                    src="data:image/png;base64,{encoded}"
-                    alt="EE-207 Signals and Systems"
-                    style="
-                        width:100%;
-                        max-width:100%;
-                        height:auto;
-                        aspect-ratio:auto;
-                        object-fit:contain;
-                        object-position:center;
-                        display:block;
-                        border-radius:14px;
-                    "
-                />
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        st.image(str(home_banner), use_container_width=True)
     else:
         st.title("EE-207 : Signals and Systems")
 

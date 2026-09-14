@@ -1,6 +1,6 @@
 import streamlit as st
+from pathlib import Path
 import numpy as np
-import matplotlib.pyplot as plt
 from modules import lti, placeholder
 
 st.set_page_config(page_title="EE-207 Signals and Systems Lab", page_icon="📈", layout="wide")
@@ -39,29 +39,15 @@ with st.sidebar:
     st.caption("Interactive modules will be added as the course progresses.")
 
 
-def signal_hero():
-    t = np.linspace(-2*np.pi, 2*np.pi, 900)
-    y = np.sin(t) + 0.35*np.sin(3*t)
-    fig, ax = plt.subplots(figsize=(10, 2.5))
-    ax.plot(t, y, linewidth=2.7)
-    ax.axhline(0, linewidth=.8, alpha=.4)
-    ax.set_xlabel("Time")
-    ax.set_ylabel("Amplitude")
-    ax.set_title("Signals connect time, frequency, systems, and information")
-    ax.grid(True, alpha=.22)
-    fig.tight_layout()
-    st.pyplot(fig, clear_figure=True, use_container_width=True)
-
 
 def home():
-    st.title("EE-207 : Signals and Systems Lab")
-    st.markdown("""
-    <div class="hero">
-    <h3>Interactive course workspace</h3>
-    Explore each chapter through graphical demonstrations, experiments, and practice activities.
-    </div>
-    """, unsafe_allow_html=True)
-    signal_hero()
+    # Main course cover: replaces the previous title, intro box, and waveform plot.
+    home_banner = Path(__file__).resolve().parent / "assets" / "home_banner.png"
+    if home_banner.exists():
+        st.image(str(home_banner), use_container_width=True)
+    else:
+        st.title("EE-207 : Signals and Systems")
+
     st.markdown("## Course Modules")
 
     modules = [

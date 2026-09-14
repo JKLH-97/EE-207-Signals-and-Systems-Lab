@@ -63,9 +63,9 @@ def render_chapter_header(title, subtitle):
         """, unsafe_allow_html=True)
 
 def base_axes(ax,title,xlabel):
-    ax.set_title(title,fontsize=10,fontweight="bold")
-    ax.set_xlabel(xlabel,fontsize=9); ax.set_ylabel("Amplitude",fontsize=9)
-    ax.tick_params(labelsize=8); ax.grid(True,alpha=.28); ax.set_xlim(-6,6)
+    ax.set_title(title,fontsize=9,fontweight="bold")
+    ax.set_xlabel(xlabel,fontsize=8); ax.set_ylabel("Amplitude",fontsize=8)
+    ax.tick_params(labelsize=7); ax.grid(True,alpha=.28); ax.set_xlim(-6,6)
 
 def live_figure(xname,hname,tcur):
     x=sig(xname,TAU)
@@ -75,8 +75,8 @@ def live_figure(xname,hname,tcur):
     ycur=float(np.interp(tcur,TAU,y))
     area=float(np.trapezoid(prod,TAU))
 
-    fig=plt.figure(figsize=(10.5,7.2))
-    gs=fig.add_gridspec(3,1,hspace=.52)
+    fig=plt.figure(figsize=(9.4,5.35))
+    gs=fig.add_gridspec(3,1,hspace=.43)
 
     ax1=fig.add_subplot(gs[0,0])
     ax1.plot(TAU,x,color=C_X,linewidth=2.5,label=r"$x(\tau)$")
@@ -135,10 +135,52 @@ def render():
         c3.markdown("### 3. Multiply\n$x(\\tau)h(t-\\tau)$")
         c4.markdown("### 4. Integrate\n$y(t)=\\int(\\cdot)d\\tau$")
         st.divider()
-        st.markdown("## Visual intuition")
-        st.write("As the flipped impulse response slides across the input, the overlap changes. The integral of the product at each position becomes one point of the output y(t).")
-        fig,_,_=live_figure("Rectangular pulse (centered)","Wide rectangular pulse",0.0)
-        st.pyplot(fig,clear_figure=True,use_container_width=True)
+        st.markdown("## Worked graphical example")
+        st.write("We will use two simple causal rectangular pulses so every graphical operation is easy to see.")
+        st.latex(r"x(t)=u(t)-u(t-2)")
+        st.latex(r"h(t)=u(t)-u(t-3)")
+        st.write("Therefore, x(t)=1 on 0≤t≤2 and h(t)=1 on 0≤t≤3.")
+
+        xex=rect_causal(TAU,2.0)
+        hex_=rect_causal(TAU,3.0)
+        example_t=2.0
+        hflip=rect_causal(-TAU,3.0)
+        hshift=rect_causal(example_t-TAU,3.0)
+        product=xex*hshift
+        area=float(np.trapezoid(product,TAU))
+
+        st.markdown("### Step 1 — Flip h(τ)")
+        st.latex(r"h(\tau)=u(\tau)-u(\tau-3)\quad\Longrightarrow\quad h(-\tau)=u(-\tau)-u(-\tau-3)")
+        _,cc,_=st.columns([1,1.7,1])
+        with cc:
+            step_plot([(hex_,r"$h(\tau)$",C_H,"--",1.7),
+                       (hflip,r"$h(-\tau)$",C_H,"-",2.7)],"Flip h(τ)")
+
+        st.markdown("### Step 2 — Shift the flipped signal")
+        st.write("For this snapshot choose t = 2.")
+        st.latex(r"h(t-\tau)=h(2-\tau)")
+        _,cc,_=st.columns([1,1.7,1])
+        with cc:
+            step_plot([(hflip,r"$h(-\tau)$",C_H,"--",1.7),
+                       (hshift,r"$h(2-\tau)$",C_H,"-",2.7)],"Shift to t = 2")
+
+        st.markdown("### Step 3 — Overlay x(τ) and h(2−τ)")
+        st.latex(r"x(\tau)=u(\tau)-u(\tau-2)")
+        _,cc,_=st.columns([1,1.7,1])
+        with cc:
+            step_plot([(xex,r"$x(\tau)$",C_X,"-",2.6),
+                       (hshift,r"$h(2-\tau)$",C_H,"-",2.6)],"Overlap at t = 2")
+
+        st.markdown("### Step 4 — Multiply")
+        st.latex(r"x(\tau)h(2-\tau)")
+        _,cc,_=st.columns([1,1.7,1])
+        with cc:
+            step_plot([(product,r"$x(\tau)h(2-\tau)$",C_RESULT,"-",2.8)],"Product")
+
+        st.markdown("### Step 5 — Integrate the overlap")
+        st.latex(r"y(2)=\int_{-\infty}^{\infty}x(\tau)h(2-\tau)\,d\tau")
+        st.latex(rf"\boxed{{y(2)\approx {area:.2f}}}")
+        st.success("At t = 2, the overlap has width 2 and height 1, so the convolution value is 2.")
 
     with live:
         st.header("Live Convolution Lab")
@@ -152,47 +194,52 @@ def render():
 
         if "conv_t" not in st.session_state:
             st.session_state.conv_t=-5.0
-        if "conv_play" not in st.session_state:
-            st.session_state.conv_play=False
 
-        b1,b2,b3,b4=st.columns([1,1,1,2])
+        b1,b2,b3=st.columns([1,1,2])
         with b1:
-            if st.button("↺ Reset",use_container_width=True,key="conv_reset"):
-                st.session_state.conv_t=-5.0
-                st.session_state.conv_play=False
-                st.rerun()
+            reset_clicked=st.button("↺ Reset",use_container_width=True,key="conv_reset")
         with b2:
-            if st.button("▶ Play",use_container_width=True,key="conv_play_btn"):
-                st.session_state.conv_play=True
+            play_clicked=st.button("▶ Play",use_container_width=True,key="conv_play_btn")
         with b3:
-            if st.button("⏸ Pause",use_container_width=True,key="conv_pause"):
-                st.session_state.conv_play=False
-        with b4:
             speed=st.select_slider("Speed",options=[0.5,1.0,2.0],value=1.0,key="conv_speed")
 
-        tcur=st.slider("Current time t",-5.0,5.0,float(st.session_state.conv_t),0.1,key="conv_t_slider")
+        if reset_clicked:
+            st.session_state.conv_t=-5.0
+
+        tcur=st.slider("Current time t",-5.0,5.0,float(st.session_state.conv_t),0.1,key="conv_t_slider_v3")
         st.session_state.conv_t=tcur
 
-        fig,area,ycur=live_figure(xname,hname,tcur)
-        st.pyplot(fig,clear_figure=True,use_container_width=True)
+        plot_slot=st.empty()
+        metrics_slot=st.empty()
+        equation_slot=st.empty()
 
-        m1,m2,m3=st.columns(3)
-        m1.metric("Current t",f"{tcur:.2f}")
-        m2.metric("Overlap integral",f"{area:.4f}")
-        m3.metric("Current y(t)",f"{ycur:.4f}")
+        def draw_live_frame(frame_t):
+            fig,area,ycur=live_figure(xname,hname,frame_t)
+            with plot_slot.container():
+                st.pyplot(fig,clear_figure=True,use_container_width=True)
+            with metrics_slot.container():
+                m1,m2,m3=st.columns(3)
+                m1.metric("Current t",f"{frame_t:.2f}")
+                m2.metric("Overlap integral",f"{area:.4f}")
+                m3.metric("Current y(t)",f"{ycur:.4f}")
+            with equation_slot.container():
+                st.latex(
+                    rf"y({frame_t:.2f})=\int_{{-\infty}}^{{\infty}}"
+                    rf"x(\tau)h({frame_t:.2f}-\tau)\,d\tau\approx {area:.4f}"
+                )
+            return area,ycur
 
-        st.latex(rf"y({tcur:.2f})=\int_{{-\infty}}^{{\infty}}x(\tau)h({tcur:.2f}-\tau)\,d\tau\approx {area:.4f}")
+        draw_live_frame(tcur)
 
-        if st.session_state.conv_play:
-            if tcur < 5.0:
-                st.session_state.conv_t=min(5.0,tcur+0.1*speed)
-                # update widget state before rerun
-                st.session_state.conv_t_slider=st.session_state.conv_t
-                time.sleep(max(0.04,0.16/speed))
-                st.rerun()
-            else:
-                st.session_state.conv_play=False
-                st.success("Animation complete. Press Reset to run it again.")
+        if play_clicked:
+            # Animate directly inside the same placeholders instead of rerunning the app.
+            # This makes the movement visible and keeps all three synchronized plots on screen.
+            frames=np.arange(tcur,5.0001,0.1*speed)
+            for frame_t in frames:
+                draw_live_frame(float(frame_t))
+                time.sleep(max(0.035,0.11/speed))
+            st.session_state.conv_t=5.0
+            st.success("Animation complete. Press Reset to start again.")
 
     with steps:
         st.header("Step-by-Step — One Position at a Time")

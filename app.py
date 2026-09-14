@@ -75,7 +75,7 @@ def home():
 
     modules = [
         ("LTI Systems", "Linearity, time invariance, system grapher, and mini exam.", True),
-        ("Convolution", "Graphical interpretation and step-by-step convolution.", False),
+        ("Convolution", "Graphical interpretation and step-by-step convolution.", True),
         ("Laplace Transform", "Transforms, poles and zeros, and system analysis.", False),
         ("Fourier Analysis", "Fourier series and Fourier transform visualization.", False),
         ("Filters", "Frequency-selective systems and filter behavior.", False),
@@ -96,5 +96,7 @@ if page == "Home":
     home()
 elif page == "LTI Systems":
     lti.render()
+elif page == "Convolution":
+    convolution.render()
 else:
     placeholder.render(page)

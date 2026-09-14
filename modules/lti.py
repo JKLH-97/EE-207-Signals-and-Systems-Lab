@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
+from pathlib import Path
 
 # ---------- Core signal definitions ----------
 def unit_step(t):
@@ -195,7 +196,11 @@ def render_time_invariance_experiment(system_name, signal_name, t0, key_prefix="
 
 
 def render():
-    st.title("EE-207 : LTI Systems")
+    banner_path = Path(__file__).resolve().parent.parent / "assets" / "lti_banner.png"
+    if banner_path.exists():
+        st.image(str(banner_path), use_container_width=True)
+    else:
+        st.title("EE-207 : LTI Systems")
     st.caption("Signals and Systems | Explore linearity and time invariance graphically")
     def reveal_cards(linear=None, time_invariant=None, lti=None):
         """Show large YES/NO answer cards consistently in every lab."""
@@ -259,7 +264,7 @@ def render():
         st.latex(r"\boxed{\text{LTI}=\text{Linear AND Time-Invariant}}")
     
         st.divider()
-        st.markdown("## Systems to Try")
+        st.markdown("## Examples")
         st.write("Use the labs to test the following examples.")
     
         e1, e2 = st.columns(2, gap="large")

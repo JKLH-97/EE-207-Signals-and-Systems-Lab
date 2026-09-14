@@ -54,29 +54,31 @@ def centered_plot(series, title, xlabel="Time"):
         small_plot(series,title,xlabel)
 
 def render_cover():
-    banner = Path(__file__).resolve().parent.parent / "assets" / "convolution_banner.png"
-    if banner.exists():
-        st.markdown(
-            """
-            <style>
-            .ee207-conv-cover-marker + div[data-testid="stImage"],
-            .ee207-conv-cover-marker + div[data-testid="stImage"] > div {
-                width:100% !important; max-width:none !important;
-            }
-            .ee207-conv-cover-marker + div[data-testid="stImage"] img {
-                width:100% !important; max-width:none !important;
-                height:auto !important; display:block !important;
-                object-fit:contain !important;
-            }
-            </style>
-            <div class="ee207-conv-cover-marker"></div>
-            """,
-            unsafe_allow_html=True,
-        )
-        st.image(str(banner), use_container_width=True)
-    else:
-        st.title("EE-207 : Convolution")
-    st.caption("Signals and Systems | Understand convolution graphically through flip, shift, multiply, and integrate")
+
+    st.markdown(
+        """
+        <div style="text-align:center; padding:2.35rem 0 1.45rem 0;">
+            <div style="
+                font-family: Georgia, 'Times New Roman', serif;
+                font-size: clamp(2.8rem, 5vw, 4.9rem);
+                font-weight: 600;
+                letter-spacing: 0.075em;
+                line-height: 1.08;
+                color: inherit;">
+                CONVOLUTION
+            </div>
+            <div style="
+                width:92px; height:2px; margin:1.15rem auto 0.95rem auto;
+                background:currentColor; opacity:0.32;"></div>
+            <div style="
+                font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                font-size:1rem; font-weight:400; letter-spacing:0.015em; opacity:0.68;">
+                Signals and Systems | Understand convolution graphically through flip, shift, multiply, and integrate
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 def render():
     render_cover()

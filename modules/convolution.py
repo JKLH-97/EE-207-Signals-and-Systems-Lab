@@ -128,7 +128,7 @@ def render():
             h_flip=sig(hn,-T)
             h_shift=sig(hn,tv-T)
             product=x_tau*h_shift
-            area=float(np.trapz(product,T))
+            area=float(np.trapezoid(product, T))
             y=conv_same(x_tau,h_tau)
             y_at=float(np.interp(tv,T,y))
 

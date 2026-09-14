@@ -1,5 +1,6 @@
 import streamlit as st
 from pathlib import Path
+import base64
 import numpy as np
 from modules import lti, placeholder
 
@@ -44,7 +45,34 @@ def home():
     # Main course cover: replaces the previous title, intro box, and waveform plot.
     home_banner = Path(__file__).resolve().parent / "assets" / "home_banner.png"
     if home_banner.exists():
-        st.image(str(home_banner), use_container_width=True)
+        # Render the complete cover at full content width.
+        # No fixed height, no cropping, and no object-fit: cover.
+        encoded = base64.b64encode(home_banner.read_bytes()).decode("ascii")
+        st.markdown(
+            f"""
+            <div style="
+                width:100%;
+                margin:0 0 1.25rem 0;
+                padding:0;
+            ">
+                <img
+                    src="data:image/png;base64,{encoded}"
+                    alt="EE-207 Signals and Systems"
+                    style="
+                        width:100%;
+                        max-width:100%;
+                        height:auto;
+                        aspect-ratio:auto;
+                        object-fit:contain;
+                        object-position:center;
+                        display:block;
+                        border-radius:14px;
+                    "
+                />
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
     else:
         st.title("EE-207 : Signals and Systems")
 

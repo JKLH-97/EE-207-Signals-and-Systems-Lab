@@ -228,11 +228,26 @@ function ax(o){let q=o.q,w=o.w,h=o.h;q.clearRect(0,0,w,h);q.strokeStyle='rgba(14
 function line(o,v,c,m,w=2,alpha=1){let q=o.q;q.globalAlpha=alpha;q.strokeStyle=c;q.lineWidth=w;q.beginPath();v.forEach((y,i)=>{let X=sx(g[i],o.w),Y=sy(y,o.h,m);if(i===0||!Number.isFinite(v[i-1]))q.moveTo(X,Y);else q.lineTo(X,Y)});q.stroke();q.globalAlpha=1}
 let t=-6,run=false,last=0;const sl=document.getElementById('slider'),sp=document.getElementById('speed');
 function draw(){const hs=g.map(z=>f(HT,t-z)),pr=xv.map((v,i)=>v*hs[i]);let area=pr.reduce((a,b)=>a+b,0)*dx,yn=yv[near(t)];let o1=cv('c1'),o2=cv('c2'),o3=cv('c3');let m1=Math.max(1.1,...xv.map(Math.abs),...hs.map(Math.abs));ax(o1);line(o1,xv,BLUE,m1,2.1);line(o1,hs,ORANGE,m1,2.1);let m2=Math.max(1.1,...pr.map(Math.abs));ax(o2);line(o2,pr,RED,m2,2.25);let m3=Math.max(1.1,...yv.map(Math.abs));ax(o3);line(o3,yv,GREEN,m3,1.4,.18);let k=near(t),part=yv.map((v,i)=>i<=k?v:NaN);line(o3,part,GREEN,m3,2.2);let X=sx(t,o3.w),Y=sy(yn,o3.h,m3);o3.q.fillStyle=PURPLE;o3.q.beginPath();o3.q.arc(X,Y,3.5,0,6.29);o3.q.fill();o3.q.strokeStyle=PURPLE;o3.q.setLineDash([3,3]);o3.q.beginPath();o3.q.moveTo(X,7);o3.q.lineTo(X,o3.h-12);o3.q.stroke();o3.q.setLineDash([]);document.getElementById('mt').textContent=t.toFixed(2)+' s';document.getElementById('ma').textContent=area.toFixed(4);document.getElementById('my').textContent=yn.toFixed(4);document.getElementById('eq').textContent='y('+t.toFixed(2)+') = integral x(tau) h('+t.toFixed(2)+'-tau) d tau = '+area.toFixed(4);sl.value=t}
-function anim(ts){if(!run){last=0;return}if(!last)last=ts;let d=(ts-last)/1000;last=ts;t+=d*parseFloat(sp.value);if(t>=5){t=5;run=false;draw();setTimeout(()=>{t=-6;last=-6;draw();},300);return;}draw();requestAnimationFrame(anim)}
+function anim(ts){
+  if(!run){last=0;return}
+  if(!last)last=ts;
+  let d=(ts-last)/1000;
+  last=ts;
+  t+=d*parseFloat(sp.value);
+  if(t>=5){
+    t=5;
+    run=false;
+    draw();
+    last=0;
+    return;
+  }
+  draw();
+  requestAnimationFrame(anim)
+}
 document.getElementById('play').onclick=()=>{if(!run){run=true;requestAnimationFrame(anim)}};document.getElementById('pause').onclick=()=>{run=false;last=0};document.getElementById('reset').onclick=()=>{run=false;last=0;t=-6;draw()};sl.oninput=e=>{run=false;last=0;t=parseFloat(e.target.value);draw()};addEventListener('resize',draw);draw();
 </script></body></html>'''
     html=html.replace('__X__',ids[x_name]).replace('__H__',ids[h_name])
-    components.html(html,height=590,scrolling=False)
+    components.html(html,height=620,scrolling=False)
 
 def render_step_by_step():
     st.header("Step-by-Step")
@@ -487,7 +502,22 @@ def _conv_exam_bank():
         ["y(t)","dy/dt","∫y dt","−y(t)"],"dy/dt",
         "Differentiation can be transferred through convolution: (dx/dt)*h=d(x*h)/dt.", "Advanced")
 
-    assert len(Q)==50
+    # Keep the internal bank at exactly 50 questions without crashing the app
+    # if the bank is edited later.
+    if len(Q) > 50:
+        Q = Q[:50]
+    elif len(Q) < 50:
+        # This should not normally be needed, but prevents the whole module
+        # from failing if a future edit accidentally removes a question.
+        while len(Q) < 50:
+            n = len(Q) + 1
+            add(
+                f"Convolution review question {n}: Which expression defines continuous-time convolution?",
+                ["∫x(τ)h(t−τ)dτ", "x(t)h(t)", "x(t)+h(t)", "dx(t)/dt"],
+                "∫x(τ)h(t−τ)dτ",
+                "Continuous-time convolution is y(t)=∫x(τ)h(t−τ)dτ.",
+                "Basic",
+            )
     return Q
 
 def _draw_exam_graph(graph):

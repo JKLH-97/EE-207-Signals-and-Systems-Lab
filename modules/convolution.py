@@ -1,4 +1,4 @@
-# EE-207 Convolution source version: v19-custom-step-fix
+# EE-207 Convolution source version: v20-step-parser-fixed
 import streamlit as st
 import streamlit.components.v1 as components
 import numpy as np
@@ -430,31 +430,54 @@ def render_step_by_step():
             h_expr = st.text_input("h(t) =", "exp(-t)*u(t)", key="sb_h_expr")
 
         def _eval_np(expr, t):
-            """Evaluate the same equation notation accepted by Live Convolution."""
+            """Evaluate the same student notation used in Live Convolution."""
+            t_arr = np.asarray(t, dtype=float)
+
             def u(z):
-                return np.where(np.asarray(z, dtype=float) >= 0.0, 1.0, 0.0)
+                z_arr = np.asarray(z, dtype=float)
+                return (z_arr >= 0.0).astype(float)
+
             def rect(z):
-                return np.where(np.abs(np.asarray(z, dtype=float)) <= 0.5, 1.0, 0.0)
+                z_arr = np.asarray(z, dtype=float)
+                return (np.abs(z_arr) <= 0.5).astype(float)
+
             def tri(z):
-                return np.maximum(1.0 - np.abs(np.asarray(z, dtype=float)), 0.0)
+                z_arr = np.asarray(z, dtype=float)
+                return np.maximum(1.0 - np.abs(z_arr), 0.0)
 
             env = {
-                "t": np.asarray(t, dtype=float),
-                "u": u, "rect": rect, "tri": tri,
-                "exp": np.exp, "sin": np.sin, "cos": np.cos,
-                "sqrt": np.sqrt, "abs": np.abs,
+                "t": t_arr,
+                "u": u,
+                "rect": rect,
+                "tri": tri,
+                "exp": np.exp,
+                "sin": np.sin,
+                "cos": np.cos,
+                "sqrt": np.sqrt,
+                "abs": np.abs,
                 "pi": np.pi,
             }
+
             safe = expr.strip().replace("^", "**")
-            # Allow only the mathematical notation documented above.
-            if not re.fullmatch(r"[0-9A-Za-z_+\\-*/().,\\s]+", safe):
+
+            # Validate by tokens instead of the previous regex, which incorrectly
+            # rejected the minus sign in perfectly valid expressions such as u(t)-u(t-2).
+            if "__" in safe or "[" in safe or "]" in safe or "{" in safe or "}" in safe:
+                raise ValueError("Unsupported expression")
+            if not re.fullmatch(r"[0-9A-Za-z_+\-*/().,\s]+", safe):
                 raise ValueError("Unsupported characters")
+
+            names = set(re.findall(r"[A-Za-z_]+", safe))
+            allowed = {"t","u","rect","tri","exp","sin","cos","sqrt","abs","pi"}
+            if not names.issubset(allowed):
+                raise ValueError("Unsupported function")
+
             value = eval(safe, {"__builtins__": {}}, env)
             arr = np.asarray(value, dtype=float)
             if arr.ndim == 0:
-                arr = np.full_like(TAU, float(arr), dtype=float)
-            if arr.shape != TAU.shape:
-                arr = np.broadcast_to(arr, TAU.shape).astype(float)
+                arr = np.full_like(t_arr, float(arr), dtype=float)
+            else:
+                arr = np.broadcast_to(arr, t_arr.shape).astype(float)
             if not np.all(np.isfinite(arr)):
                 raise ValueError("Non-finite result")
             return arr
@@ -465,8 +488,11 @@ def render_step_by_step():
             if x_tau.ndim == 0: x_tau = np.full_like(TAU,float(x_tau))
             if h_tau.ndim == 0: h_tau = np.full_like(TAU,float(h_tau))
             x_label, h_label = x_expr, h_expr
-        except Exception:
-            st.error("Check the equation format. Use only the supported functions shown above.")
+        except Exception as exc:
+            st.error(
+                "Check the equation format. Examples that are accepted: "
+                "`u(t)-u(t-2)`, `2*exp(-t)*u(t)`, `sin(2*t)`, `rect(t-1)`."
+            )
             return
 
     st.markdown("### Signals used in the simulation")

@@ -1,7 +1,6 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-import time
 
 # ============================================================
 # EE-207 — Convolution
@@ -95,8 +94,8 @@ def compact_live_figure(x_name, h_name, t_now):
     area = float(np.trapezoid(product, TAU))
     y_now = float(np.interp(t_now, TAU, y))
 
-    fig, axes = plt.subplots(3, 1, figsize=(8.7, 4.55))
-    fig.subplots_adjust(hspace=0.72, left=0.09, right=0.98, top=0.96, bottom=0.09)
+    fig, axes = plt.subplots(3, 1, figsize=(8.0, 3.75))
+    fig.subplots_adjust(hspace=0.72, left=0.09, right=0.98, top=0.95, bottom=0.10)
 
     ax = axes[0]
     ax.plot(TAU, x_tau, color=C_X, lw=2.0, label=r"$x(\tau)$")
@@ -128,13 +127,14 @@ def compact_live_figure(x_name, h_name, t_now):
 
 def mini_plot(series, title, xlabel=r"$\tau$"):
     """Small teaching plot used in Concept and Step-by-Step."""
-    fig, ax = plt.subplots(figsize=(4.0, 1.85))
+    fig, ax = plt.subplots(figsize=(3.8, 1.45))
     for values, label, color, style, width in series:
         ax.plot(TAU, values, label=label, color=color, ls=style, lw=width)
     format_axes(ax, title, xlabel)
     ax.legend(fontsize=6.5, loc="upper right")
     fig.tight_layout(pad=0.65)
-    st.pyplot(fig, clear_figure=True, use_container_width=True)
+    st.pyplot(fig, clear_figure=False, use_container_width=True)
+    plt.close(fig)
 
 def worked_example():
     st.markdown("## Worked example — graphical convolution")
@@ -196,8 +196,8 @@ def worked_example():
 def render_live_lab():
     st.header("Live Convolution Lab")
     st.write(
-        "Watch the same three quantities change together in real time: "
-        "the sliding signals, their product, and the output being built."
+        "Press Play and watch all three plots update together: "
+        "the sliding signals, the overlap product, and the convolution output."
     )
 
     c1, c2 = st.columns(2)
@@ -226,50 +226,45 @@ def render_live_lab():
             st.session_state.rt_playing = False
     with b4:
         st.session_state.rt_speed = st.select_slider(
-            "Speed", options=[0.5, 1.0, 2.0], value=st.session_state.rt_speed, key="rt_speed_widget"
+            "Speed", options=[0.5, 1.0, 2.0],
+            value=st.session_state.rt_speed, key="rt_speed_widget"
         )
 
-    # Manual slider when paused.
     if not st.session_state.rt_playing:
         st.session_state.rt_t = st.slider(
-            "Current time t", -5.0, 5.0, float(st.session_state.rt_t), 0.1, key="rt_manual_t"
+            "Current time t", -5.0, 5.0,
+            float(st.session_state.rt_t), 0.1, key="rt_manual_t"
+        )
+    else:
+        st.caption("Animation running — press Pause at any time.")
+
+    @st.fragment(run_every=0.12)
+    def realtime_frame():
+        if st.session_state.rt_playing:
+            step = 0.06 * float(st.session_state.rt_speed)
+            st.session_state.rt_t = min(5.0, float(st.session_state.rt_t) + step)
+            if st.session_state.rt_t >= 5.0:
+                st.session_state.rt_playing = False
+
+        t_now = float(st.session_state.rt_t)
+        fig, area, y_now = compact_live_figure(x_name, h_name, t_now)
+        st.pyplot(fig, clear_figure=False, use_container_width=True)
+        plt.close(fig)
+
+        m1, m2, m3 = st.columns(3)
+        m1.metric("Current t", f"{t_now:.2f}")
+        m2.metric("Overlap integral", f"{area:.4f}")
+        m3.metric("Current y(t)", f"{y_now:.4f}")
+
+        st.latex(
+            rf"y({t_now:.2f})=\int_{{-\infty}}^{{\infty}}"
+            rf"x(\tau)h({t_now:.2f}-\tau)\,d\tau\approx {area:.4f}"
         )
 
-    # Native Streamlit animation area.
-    chart = st.empty()
-    values = st.empty()
-    equation = st.empty()
+        if (not st.session_state.rt_playing) and t_now >= 5.0:
+            st.success("Animation complete. Press Reset to run it again.")
 
-    def paint(t_now):
-        fig, area, y_now = compact_live_figure(x_name, h_name, t_now)
-        chart.pyplot(fig, clear_figure=True, use_container_width=True)
-        with values.container():
-            m1, m2, m3 = st.columns(3)
-            m1.metric("Current t", f"{t_now:.2f}")
-            m2.metric("Overlap integral", f"{area:.4f}")
-            m3.metric("Current y(t)", f"{y_now:.4f}")
-        with equation.container():
-            st.latex(
-                rf"y({t_now:.2f})=\int_{{-\infty}}^{{\infty}}"
-                rf"x(\tau)h({t_now:.2f}-\tau)\,d\tau\approx {area:.4f}"
-            )
-
-    paint(float(st.session_state.rt_t))
-
-    if st.session_state.rt_playing:
-        # Deliberately animate in this run so the three Matplotlib axes visibly update
-        # in the same Streamlit placeholders. This is native Streamlit/Matplotlib,
-        # not the HTML/JS format from the reference demo.
-        step = 0.10
-        delay = {0.5: 0.16, 1.0: 0.085, 2.0: 0.045}[float(st.session_state.rt_speed)]
-        t0 = float(st.session_state.rt_t)
-        for t_now in np.arange(t0, 5.0001, step):
-            st.session_state.rt_t = float(t_now)
-            paint(float(t_now))
-            time.sleep(delay)
-        st.session_state.rt_t = 5.0
-        st.session_state.rt_playing = False
-        st.success("Animation complete. Press Reset to run it again.")
+    realtime_frame()
 
 def render_step_by_step():
     st.header("Step-by-Step")
@@ -315,14 +310,15 @@ def render_step_by_step():
 
     _, center, _ = st.columns([1, 1.55, 1])
     with center:
-        fig, ax = plt.subplots(figsize=(4.8, 2.0))
+        fig, ax = plt.subplots(figsize=(4.5, 1.65))
         ax.plot(TAU, y, color=C_Y, lw=2.1, label="y(t)")
         ax.scatter([t_now], [np.interp(t_now, TAU, y)], s=30, color=C_NOW, zorder=5)
         ax.axvline(t_now, ls="--", color=C_NOW, lw=1.0)
         format_axes(ax, "Complete convolution output", "Time t")
         ax.legend(fontsize=6.5)
         fig.tight_layout(pad=0.7)
-        st.pyplot(fig, clear_figure=True, use_container_width=True)
+        st.pyplot(fig, clear_figure=False, use_container_width=True)
+        plt.close(fig)
 
 def render_properties():
     st.header("Convolution Properties")

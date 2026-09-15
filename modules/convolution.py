@@ -1,4 +1,4 @@
-# EE-207 Convolution source version: v20-step-parser-fixed
+# EE-207 Convolution source version: v21-adaptive-step-range
 import streamlit as st
 import streamlit.components.v1 as components
 import numpy as np
@@ -387,164 +387,128 @@ def render_step_by_step():
     mode = st.radio(
         "How would you like to define the signals?",
         ["Choose signals", "Build custom signals"],
-        index=0,
-        horizontal=True,
-        key="sb_mode_v18",
+        index=0, horizontal=True, key="sb_mode_v21",
     )
 
-    if mode == "Choose signals":
-        c1, c2 = st.columns(2)
-        with c1:
-            x_name = st.selectbox("Choose x(t)", list(SIGNALS), index=0, key="sb_x")
-        with c2:
-            h_name = st.selectbox("Choose h(t)", list(SIGNALS), index=1, key="sb_h")
-        x_tau = sig(x_name, TAU)
-        h_tau = sig(h_name, TAU)
+    def evaluator(expr, grid):
+        grid=np.asarray(grid,dtype=float)
+        def u(z): return (np.asarray(z,dtype=float)>=0).astype(float)
+        def rect(z): return (np.abs(np.asarray(z,dtype=float))<=.5).astype(float)
+        def tri(z): return np.maximum(1-np.abs(np.asarray(z,dtype=float)),0)
+        env={"t":grid,"u":u,"rect":rect,"tri":tri,"exp":np.exp,"sin":np.sin,
+             "cos":np.cos,"sqrt":np.sqrt,"abs":np.abs,"pi":np.pi}
+        safe=expr.strip().replace("^","**")
+        if "__" in safe or not re.fullmatch(r"[0-9A-Za-z_+\-*/().,\s]+",safe):
+            raise ValueError
+        names=set(re.findall(r"[A-Za-z_]+",safe))
+        if not names.issubset(set(env)): raise ValueError
+        val=eval(safe,{"__builtins__":{}},env)
+        arr=np.asarray(val,dtype=float)
+        if arr.ndim==0: arr=np.full_like(grid,float(arr))
+        else: arr=np.broadcast_to(arr,grid.shape).astype(float)
+        if not np.all(np.isfinite(arr)): raise ValueError
+        return arr
 
-        equation_labels = {
-            "Unit step u(t)": "u(t)",
-            "Rectangular pulse (centered)": "u(t+1)-u(t-1)",
-            "Wide rectangular pulse": "u(t+2)-u(t-2)",
-            "Causal rectangular pulse": "u(t)-u(t-2)",
-            "Triangular pulse": "tri(t/2)",
-            "Gaussian exp(-t²)": "exp(-t^2)",
-            "Decaying exponential e^(-t)u(t)": "exp(-t)*u(t)",
-        }
-        x_label = equation_labels.get(x_name, x_name)
-        h_label = equation_labels.get(h_name, h_name)
+    if mode=="Choose signals":
+        grid=TAU
+        dt=DT
+        c1,c2=st.columns(2)
+        with c1: x_name=st.selectbox("Choose x(t)",list(SIGNALS),index=0,key="sb_x_v21")
+        with c2: h_name=st.selectbox("Choose h(t)",list(SIGNALS),index=1,key="sb_h_v21")
+        x=evaluator("0*t",grid)+sig(x_name,grid)
+        h=evaluator("0*t",grid)+sig(h_name,grid)
+        labels={
+            "Unit step u(t)":"u(t)",
+            "Rectangular pulse (centered)":"u(t+1)-u(t-1)",
+            "Wide rectangular pulse":"u(t+2)-u(t-2)",
+            "Causal rectangular pulse":"u(t)-u(t-2)",
+            "Triangular pulse":"tri(t/2)",
+            "Gaussian exp(-t²)":"exp(-t^2)",
+            "Decaying exponential e^(-t)u(t)":"exp(-t)*u(t)"}
+        xl=labels.get(x_name,x_name); hl=labels.get(h_name,h_name)
+        tlo,thi=-5.,5.
     else:
         st.markdown("### Write your own signals")
-        st.write(
-            "Enter each equation using `t` as the time variable. Supported forms include "
-            "`u(t)`, `u(t-a)`, `rect(t)`, `tri(t)`, `exp(-a*t)*u(t)`, "
-            "`sin(w*t)`, `cos(w*t)`, constants, +, -, *, /, and parentheses."
-        )
-        st.caption(
-            "Examples:  `u(t)-u(t-2)`   |   `2*exp(-t)*u(t)`   |   "
-            "`sin(2*t)`   |   `rect(t-1)`"
-        )
-        c1, c2 = st.columns(2)
-        with c1:
-            x_expr = st.text_input("x(t) =", "u(t)-u(t-2)", key="sb_x_expr")
-        with c2:
-            h_expr = st.text_input("h(t) =", "exp(-t)*u(t)", key="sb_h_expr")
+        st.write("Enter each equation using `t` as the time variable. Supported forms include `u(t)`, `u(t-a)`, `rect(t)`, `tri(t)`, `exp(-a*t)*u(t)`, `sin(w*t)`, `cos(w*t)`, constants, +, -, *, /, and parentheses.")
+        st.caption("Examples:  `u(t)-u(t-2)`   |   `2*exp(-t)*u(t)`   |   `sin(2*t)`   |   `rect(t-1)`")
+        c1,c2=st.columns(2)
+        with c1: xl=st.text_input("x(t) =","u(t)-u(t-2)",key="sb_x_expr_v21")
+        with c2: hl=st.text_input("h(t) =","exp(-t)*u(t)",key="sb_h_expr_v21")
 
-        def _eval_np(expr, t):
-            """Evaluate the same student notation used in Live Convolution."""
-            t_arr = np.asarray(t, dtype=float)
-
-            def u(z):
-                z_arr = np.asarray(z, dtype=float)
-                return (z_arr >= 0.0).astype(float)
-
-            def rect(z):
-                z_arr = np.asarray(z, dtype=float)
-                return (np.abs(z_arr) <= 0.5).astype(float)
-
-            def tri(z):
-                z_arr = np.asarray(z, dtype=float)
-                return np.maximum(1.0 - np.abs(z_arr), 0.0)
-
-            env = {
-                "t": t_arr,
-                "u": u,
-                "rect": rect,
-                "tri": tri,
-                "exp": np.exp,
-                "sin": np.sin,
-                "cos": np.cos,
-                "sqrt": np.sqrt,
-                "abs": np.abs,
-                "pi": np.pi,
-            }
-
-            safe = expr.strip().replace("^", "**")
-
-            # Validate by tokens instead of the previous regex, which incorrectly
-            # rejected the minus sign in perfectly valid expressions such as u(t)-u(t-2).
-            if "__" in safe or "[" in safe or "]" in safe or "{" in safe or "}" in safe:
-                raise ValueError("Unsupported expression")
-            if not re.fullmatch(r"[0-9A-Za-z_+\-*/().,\s]+", safe):
-                raise ValueError("Unsupported characters")
-
-            names = set(re.findall(r"[A-Za-z_]+", safe))
-            allowed = {"t","u","rect","tri","exp","sin","cos","sqrt","abs","pi"}
-            if not names.issubset(allowed):
-                raise ValueError("Unsupported function")
-
-            value = eval(safe, {"__builtins__": {}}, env)
-            arr = np.asarray(value, dtype=float)
-            if arr.ndim == 0:
-                arr = np.full_like(t_arr, float(arr), dtype=float)
-            else:
-                arr = np.broadcast_to(arr, t_arr.shape).astype(float)
-            if not np.all(np.isfinite(arr)):
-                raise ValueError("Non-finite result")
-            return arr
-
+        # Detect explicit time shifts and expand both the plotting domain and t slider.
+        shifts=[0.]
+        for expr in (xl,hl):
+            for sign,num in re.findall(r"t\s*([+-])\s*(\d+(?:\.\d+)?)",expr):
+                v=float(num); shifts.append(v if sign=="-" else -v)
+        sig_lo=min(shifts); sig_hi=max(shifts)
+        # generous margin around shifted features; convolution support can extend further.
+        base_lo=min(-6.,sig_lo-6.)
+        base_hi=max(6.,sig_hi+6.)
+        span=base_hi-base_lo
+        tlo=float(np.floor(base_lo))
+        thi=float(np.ceil(base_hi))
+        # Wider grid covers both signals and the useful convolution range.
+        grid=np.linspace(tlo,thi,max(1601,int((thi-tlo)*160)+1))
+        dt=grid[1]-grid[0]
         try:
-            x_tau = _eval_np(x_expr, TAU)
-            h_tau = _eval_np(h_expr, TAU)
-            if x_tau.ndim == 0: x_tau = np.full_like(TAU,float(x_tau))
-            if h_tau.ndim == 0: h_tau = np.full_like(TAU,float(h_tau))
-            x_label, h_label = x_expr, h_expr
-        except Exception as exc:
-            st.error(
-                "Check the equation format. Examples that are accepted: "
-                "`u(t)-u(t-2)`, `2*exp(-t)*u(t)`, `sin(2*t)`, `rect(t-1)`."
-            )
+            x=evaluator(xl,grid); h=evaluator(hl,grid)
+        except Exception:
+            st.error("Check the equation format. Accepted examples: `u(t)-u(t-2)`, `2*exp(-t)*u(t)`, `sin(2*t)`, `rect(t-1)`.")
             return
 
     st.markdown("### Signals used in the simulation")
     a,b=st.columns(2)
-    with a: st.code(f"x(t) = {x_label}",language=None)
-    with b: st.code(f"h(t) = {h_label}",language=None)
+    with a: st.code(f"x(t) = {xl}",language=None)
+    with b: st.code(f"h(t) = {hl}",language=None)
 
-    t_now = st.slider("Choose t", -5.0, 5.0, 0.0, 0.25, key="sb_t")
+    t_now=st.slider("Choose t",tlo,thi,float(np.clip(0,tlo,thi)),0.25,key="sb_t_v21")
 
-    # Use interpolation so custom signals can be reversed and shifted numerically.
-    h_flip = np.interp(-TAU, TAU, h_tau, left=0.0, right=0.0)
-    h_shift = np.interp(t_now-TAU, TAU, h_tau, left=0.0, right=0.0)
-    product = x_tau*h_shift
-    area = float(np.trapezoid(product,TAU))
-    full=np.convolve(x_tau,h_tau,mode="full")*DT
-    tfull=np.linspace(TAU[0]+TAU[0],TAU[-1]+TAU[-1],len(full))
-    y=np.interp(TAU,tfull,full)
+    # Dynamic interpolation on the actual grid.
+    hflip=np.interp(-grid,grid,h,left=0,right=0)
+    hshift=np.interp(t_now-grid,grid,h,left=0,right=0)
+    product=x*hshift
+    area=float(np.trapezoid(product,grid))
+    full=np.convolve(x,h,mode="full")*dt
+    tfull=np.linspace(grid[0]+grid[0],grid[-1]+grid[-1],len(full))
+    y=np.interp(grid,tfull,full)
+
+    def local_plot(series,title):
+        fig,ax=plt.subplots(figsize=(3.8,1.45))
+        for vals,label,color,style,width in series:
+            ax.plot(grid,vals,label=label,color=color,ls=style,lw=width)
+        ax.set_title(title,fontsize=9,fontweight="bold",pad=5)
+        ax.set_xlabel("Time",fontsize=7);ax.set_ylabel("Amplitude",fontsize=7)
+        ax.tick_params(labelsize=6.5);ax.grid(True,alpha=.25);ax.set_xlim(grid[0],grid[-1])
+        ax.legend(fontsize=6.5,loc="upper right");fig.tight_layout(pad=.65)
+        st.pyplot(fig,clear_figure=False,use_container_width=True);plt.close(fig)
 
     r1,r2=st.columns(2,gap="large")
     with r1:
-        st.markdown("#### 1 — Flip")
-        st.latex(r"h(\tau)\rightarrow h(-\tau)")
-        mini_plot([(h_tau,r"$h(\tau)$",C_H,"--",1.4),
-                   (h_flip,r"$h(-\tau)$",C_H,"-",2.1)],"Flip")
+        st.markdown("#### 1 — Flip");st.latex(r"h(\tau)\rightarrow h(-\tau)")
+        local_plot([(h,r"$h(\tau)$",C_H,"--",1.4),(hflip,r"$h(-\tau)$",C_H,"-",2.1)],"Flip")
     with r2:
-        st.markdown("#### 2 — Shift")
-        st.latex(r"h(-\tau)\rightarrow h(t-\tau)")
-        mini_plot([(h_flip,r"$h(-\tau)$",C_H,"--",1.4),
-                   (h_shift,r"$h(t-\tau)$",C_H,"-",2.1)],f"Shift: t={t_now:.2f}")
-
+        st.markdown("#### 2 — Shift");st.latex(r"h(-\tau)\rightarrow h(t-\tau)")
+        local_plot([(hflip,r"$h(-\tau)$",C_H,"--",1.4),(hshift,r"$h(t-\tau)$",C_H,"-",2.1)],f"Shift: t={t_now:.2f}")
     r3,r4=st.columns(2,gap="large")
     with r3:
         st.markdown("#### 3 — Overlay")
-        mini_plot([(x_tau,r"$x(\tau)$",C_X,"-",2.1),
-                   (h_shift,r"$h(t-\tau)$",C_H,"-",2.1)],"Overlap")
+        local_plot([(x,r"$x(\tau)$",C_X,"-",2.1),(hshift,r"$h(t-\tau)$",C_H,"-",2.1)],"Overlap")
     with r4:
         st.markdown("#### 4 — Multiply")
-        mini_plot([(product,r"$x(\tau)h(t-\tau)$",C_Y,"-",2.2)],"Product")
-
+        local_plot([(product,r"$x(\tau)h(t-\tau)$",C_Y,"-",2.2)],"Product")
     st.markdown("#### 5 — Integrate")
     st.latex(rf"\boxed{{y({t_now:.2f})\approx {area:.4f}}}")
-
     _,center,_=st.columns([1,1.55,1])
     with center:
         fig,ax=plt.subplots(figsize=(4.5,1.65))
-        ax.plot(TAU,y,color=C_Y,lw=2.1,label="y(t)")
-        ax.scatter([t_now],[np.interp(t_now,TAU,y)],s=30,color=C_NOW,zorder=5)
-        ax.axvline(t_now,ls="--",color=C_NOW,lw=1.0)
-        format_axes(ax,"Complete convolution output","Time t")
+        ax.plot(grid,y,color=C_Y,lw=2.1,label="y(t)")
+        ax.scatter([t_now],[np.interp(t_now,grid,y)],s=30,color=C_NOW,zorder=5)
+        ax.axvline(t_now,ls="--",color=C_NOW,lw=1)
+        ax.set_title("Complete convolution output",fontsize=9,fontweight="bold")
+        ax.set_xlabel("Time t",fontsize=7);ax.set_ylabel("Amplitude",fontsize=7)
+        ax.tick_params(labelsize=6.5);ax.grid(True,alpha=.25);ax.set_xlim(grid[0],grid[-1])
         ax.legend(fontsize=6.5);fig.tight_layout(pad=.7)
-        st.pyplot(fig,clear_figure=False,use_container_width=True)
-        plt.close(fig)
+        st.pyplot(fig,clear_figure=False,use_container_width=True);plt.close(fig)
 
 def render_properties():
     st.header("Convolution Properties")
@@ -825,7 +789,7 @@ def _draw_exam_graph(graph):
 
 def render_mini_exam():
     st.header("Mini Exam — Convolution")
-    st.write("Ten questions are selected randomly from an internal bank of 50 questions. The difficulty ranges from graphical fundamentals to convolution properties and analytical applications.")
+    st.write("Ten questions are selected randomly from an internal bank of 50 questions.")
 
     bank=_conv_exam_bank()
 

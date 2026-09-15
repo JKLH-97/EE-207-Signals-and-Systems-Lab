@@ -2,6 +2,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 import numpy as np
 import random
+import json
 import matplotlib.pyplot as plt
 
 # ============================================================
@@ -139,7 +140,7 @@ def mini_plot(series, title, xlabel=r"$\tau$"):
     plt.close(fig)
 
 def worked_example():
-    st.markdown("## Worked example — graphical convolution")
+    st.markdown("## Example — graphical convolution")
     st.write("Use two causal rectangular pulses:")
     e1, e2 = st.columns(2)
     with e1:
@@ -242,6 +243,8 @@ def render_live_lab():
     }
 
     custom = None
+    x_display = ''
+    h_display = ''
 
     if mode == "Choose signals":
         c1, c2 = st.columns(2)
@@ -251,6 +254,8 @@ def render_live_lab():
         with c2:
             h_name = st.selectbox("Impulse response h(t)", names, index=1, key="smooth_h_v14")
         x_id, h_id = base_signals[x_name]["id"], base_signals[h_name]["id"]
+        x_display = base_signals[x_name]["label"]
+        h_display = base_signals[h_name]["label"]
 
     elif mode == "Try an example":
         st.markdown("### Examples to try")
@@ -258,6 +263,8 @@ def render_live_lab():
         ex_name = st.selectbox("Choose an example", list(examples.keys()), key="conv_example")
         x_name, h_name = examples[ex_name]
         x_id, h_id = base_signals[x_name]["id"], base_signals[h_name]["id"]
+        x_display = base_signals[x_name]["label"]
+        h_display = base_signals[h_name]["label"]
         e1, e2 = st.columns(2)
         with e1:
             st.markdown(f"**x(t):** `{base_signals[x_name]['label']}`")
@@ -265,46 +272,39 @@ def render_live_lab():
             st.markdown(f"**h(t):** `{base_signals[h_name]['label']}`")
 
     else:
-        st.markdown("### Build custom signals")
-        st.caption(
-            "Build x(t) and h(t) independently by changing their type and parameters."
+        st.markdown("### Write your own signals")
+        st.write(
+            "Enter each equation using `t` as the time variable. Supported forms include "
+            "`u(t)`, `u(t-a)`, `rect(t)`, `tri(t)`, `exp(-a*t)*u(t)`, "
+            "`sin(w*t)`, `cos(w*t)`, constants, +, -, *, /, and parentheses."
         )
+        st.caption(
+            "Examples:  `u(t)-u(t-2)`   |   `2*exp(-t)*u(t)`   |   "
+            "`sin(2*t)`   |   `rect(t-1)`"
+        )
+
         c1, c2 = st.columns(2)
-
-        def custom_controls(prefix, title):
-            st.markdown(f"#### {title}")
-            family = st.selectbox(
-                "Signal type",
-                ["Rectangular pulse", "Triangular pulse", "Decaying exponential",
-                 "Gaussian", "Sinusoid"],
-                key=f"{prefix}_family",
-            )
-            amp = st.number_input("Amplitude A", -5.0, 5.0, 1.0, 0.25, key=f"{prefix}_amp")
-            shift = st.number_input("Time shift T", -4.0, 4.0, 0.0, 0.25, key=f"{prefix}_shift")
-            if family in ["Rectangular pulse", "Triangular pulse"]:
-                p = st.number_input("Width W", 0.25, 6.0, 2.0, 0.25, key=f"{prefix}_p")
-            elif family == "Decaying exponential":
-                p = st.number_input("Decay rate a", 0.1, 5.0, 1.0, 0.1, key=f"{prefix}_p")
-            elif family == "Gaussian":
-                p = st.number_input("Width parameter a", 0.1, 5.0, 1.0, 0.1, key=f"{prefix}_p")
-            else:
-                p = st.number_input("Angular frequency ω", 0.25, 8.0, 1.0, 0.25, key=f"{prefix}_p")
-            return family, float(amp), float(shift), float(p)
-
         with c1:
-            xf, xa, xs, xp = custom_controls("cx", "Custom x(t)")
+            x_expr = st.text_input("x(t) =", value="u(t)-u(t-2)", key="custom_x_expr")
+            st.markdown("**You entered:**")
+            st.code(f"x(t) = {x_expr}", language=None)
         with c2:
-            hf, ha, hs, hp = custom_controls("ch", "Custom h(t)")
+            h_expr = st.text_input("h(t) =", value="exp(-t)*u(t)", key="custom_h_expr")
+            st.markdown("**You entered:**")
+            st.code(f"h(t) = {h_expr}", language=None)
 
-        fmap = {
-            "Rectangular pulse":"custom_rect",
-            "Triangular pulse":"custom_tri",
-            "Decaying exponential":"custom_exp",
-            "Gaussian":"custom_gauss",
-            "Sinusoid":"custom_sin",
-        }
-        x_id, h_id = fmap[xf], fmap[hf]
-        custom = (xa, xs, xp, ha, hs, hp)
+        x_id, h_id = "expression", "expression"
+        x_display, h_display = x_expr, h_expr
+        custom = (1,0,1,1,0,1)
+
+    st.markdown("### Signals used in the simulation")
+    sx_col, sh_col = st.columns(2)
+    with sx_col:
+        st.markdown("**Input**")
+        st.code(f"x(t) = {x_display}", language=None)
+    with sh_col:
+        st.markdown("**Impulse response**")
+        st.code(f"h(t) = {h_display}", language=None)
 
     html = r'''<!doctype html><html><head><meta charset="utf-8"><style>
 *{box-sizing:border-box}body{margin:0;background:transparent;color:#ddd;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
@@ -318,11 +318,24 @@ button,select{height:34px;border:1px solid rgba(140,140,140,.45);border-radius:7
 <div class="panel"><div class="ttl">3. Build the output — y(t) = x(t) * h(t)</div><canvas id="c3"></canvas></div>
 <div class="metrics"><div class="metric"><div class="k">Current time</div><div class="v" id="mt"></div></div><div class="metric"><div class="k">Overlap integral</div><div class="v" id="ma"></div></div><div class="metric"><div class="k">Current y(t)</div><div class="v" id="my"></div></div></div><div class="eq" id="eq"></div>
 <script>
-const XT='__X__',HT='__H__',BLUE='#1f77b4',ORANGE='#ff7f0e',GREEN='#2ca02c',RED='#d62728',PURPLE='#9467bd';
+const XT='__X__',HT='__H__',XEXPR=__XEXPR__,HEXPR=__HEXPR__,BLUE='#1f77b4',ORANGE='#ff7f0e',GREEN='#2ca02c',RED='#d62728',PURPLE='#9467bd';
 const XAMP=__XA__,XSHIFT=__XS__,XP=__XP__,HAMP=__HA__,HSHIFT=__HS__,HP=__HP__;
 const lo=-6,hi=6,N=601,dx=(hi-lo)/(N-1),g=Array.from({length:N},(_,i)=>lo+i*dx);
 function impulse(x,c=0){const s=.055;return Math.exp(-Math.pow((x-c)/s,2))/(s*Math.sqrt(Math.PI))}
+function U(x){return x>=0?1:0}
+function RECT(x){return Math.abs(x)<=0.5?1:0}
+function TRI(x){return Math.max(1-Math.abs(x),0)}
+function evalExpr(expr,t){
+ let s=expr.toLowerCase().replace(/\s+/g,'');
+ s=s.replace(/\^/g,'**');
+ s=s.replace(/u\(/g,'U(').replace(/rect\(/g,'RECT(').replace(/tri\(/g,'TRI(');
+ s=s.replace(/exp\(/g,'Math.exp(').replace(/sin\(/g,'Math.sin(').replace(/cos\(/g,'Math.cos(');
+ s=s.replace(/sqrt\(/g,'Math.sqrt(').replace(/abs\(/g,'Math.abs(');
+ if(!/^[0-9t+\-*/().,_a-zA-Z*]+$/.test(s)) return 0;
+ try{return Function('t','U','RECT','TRI','return ('+s+')')(t,U,RECT,TRI)}catch(e){return 0}
+}
 function f(k,x,A=1,T=0,p=1){
+ if(k==='expression')return 0;
  if(k==='rect2')return Math.abs(x)<=1?1:0;if(k==='rect4')return Math.abs(x)<=2?1:0;
  if(k==='causal2')return x>=0&&x<=2?1:0;if(k==='tri4')return Math.max(1-Math.abs(x)/2,0);
  if(k==='gauss')return Math.exp(-x*x);if(k==='exp')return x>=0?Math.exp(-x):0;
@@ -333,7 +346,7 @@ function f(k,x,A=1,T=0,p=1){
  if(k==='custom_exp')return x>=T?A*Math.exp(-p*(x-T)):0;
  if(k==='custom_gauss')return A*Math.exp(-p*Math.pow(x-T,2));
  if(k==='custom_sin')return A*Math.sin(p*(x-T));return 0}
-function fx(x){return f(XT,x,XAMP,XSHIFT,XP)}function fh(x){return f(HT,x,HAMP,HSHIFT,HP)}
+function fx(x){return XT==='expression'?evalExpr(XEXPR,x):f(XT,x,XAMP,XSHIFT,XP)}function fh(x){return HT==='expression'?evalExpr(HEXPR,x):f(HT,x,HAMP,HSHIFT,HP)}
 const xv=g.map(x=>fx(x));const yv=g.map(t=>{let s=0;for(let i=0;i<N;i++)s+=xv[i]*fh(t-g[i]);return s*dx});
 function near(t){return Math.max(0,Math.min(N-1,Math.round((t-lo)/dx)))}function sx(x,w){return 32+(x-lo)/(hi-lo)*(w-42)}function sy(y,h,m){return h/2-y/m*(h*.34)}
 function cv(id){const c=document.getElementById(id),r=devicePixelRatio||1,w=Math.max(450,c.clientWidth),h=96;c.width=w*r;c.height=h*r;const q=c.getContext('2d');q.setTransform(r,0,0,r,0,0);return{q,w,h}}
@@ -347,7 +360,10 @@ document.getElementById('play').onclick=()=>{if(!run){run=true;requestAnimationF
 
     vals = (1,0,1,1,0,1) if custom is None else custom
     xa,xs,xp,ha,hs,hp = vals
+    x_expr_js = json.dumps(x_display if x_id == "expression" else "")
+    h_expr_js = json.dumps(h_display if h_id == "expression" else "")
     html=(html.replace('__X__',x_id).replace('__H__',h_id)
+              .replace('__XEXPR__',x_expr_js).replace('__HEXPR__',h_expr_js)
               .replace('__XA__',str(xa)).replace('__XS__',str(xs)).replace('__XP__',str(xp))
               .replace('__HA__',str(ha)).replace('__HS__',str(hs)).replace('__HP__',str(hp)))
     components.html(html,height=620,scrolling=False)

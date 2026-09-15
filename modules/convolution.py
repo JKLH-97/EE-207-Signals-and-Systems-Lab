@@ -197,57 +197,159 @@ def worked_example():
 
 def render_live_lab():
     st.header("Live Convolution Lab")
-    st.write("The EE-207 controls and visual style stay the same, while the three plots are drawn in the browser for smooth real-time motion.")
+    st.write(
+        "Choose the signals, load a ready-to-try example, or build your own x(t) and h(t). "
+        "The three plots update smoothly in real time."
+    )
 
-    c1,c2=st.columns(2)
-    live_names=["Rectangular pulse (centered)","Wide rectangular pulse","Causal rectangular pulse","Triangular pulse","Gaussian exp(-t^2)","Decaying exponential e^(-t)u(t)"]
-    with c1:
-        x_name=st.selectbox("Input x(t)",live_names,index=0,key="smooth_x")
-    with c2:
-        h_name=st.selectbox("Impulse response h(t)",live_names,index=1,key="smooth_h")
+    mode = st.radio(
+        "How would you like to define the signals?",
+        ["Choose signals", "Try an example", "Build custom signals"],
+        horizontal=True,
+        key="conv_live_mode",
+    )
 
-    ids={"Rectangular pulse (centered)":"rect2","Wide rectangular pulse":"rect4","Causal rectangular pulse":"causal2","Triangular pulse":"tri4","Gaussian exp(-t^2)":"gauss","Decaying exponential e^(-t)u(t)":"exp"}
-    html=r'''<!doctype html><html><head><meta charset="utf-8"><style>
+    base_signals = {
+        "Rectangular pulse (centered)": {"id":"rect2", "label":"rect(t/2)"},
+        "Wide rectangular pulse": {"id":"rect4", "label":"rect(t/4)"},
+        "Causal rectangular pulse": {"id":"causal2", "label":"u(t)-u(t-2)"},
+        "Triangular pulse": {"id":"tri4", "label":"tri(t/4)"},
+        "Gaussian exp(-t²)": {"id":"gauss", "label":"e^{-t²}"},
+        "Decaying exponential e^(-t)u(t)": {"id":"exp", "label":"e^{-t}u(t)"},
+        "Unit step u(t)": {"id":"step", "label":"u(t)"},
+        "Narrow impulse approximation": {"id":"impulse", "label":"δ(t)"},
+        "Delayed impulse approximation δ(t-2)": {"id":"impulse2", "label":"δ(t-2)"},
+        "Echo δ(t)+½δ(t-2)": {"id":"echo", "label":"δ(t)+0.5δ(t-2)"},
+    }
+
+    examples = {
+        "Pulse * Pulse → triangular/trapezoidal output":
+            ("Causal rectangular pulse", "Causal rectangular pulse"),
+        "Step * Decay → RC charging response":
+            ("Unit step u(t)", "Decaying exponential e^(-t)u(t)"),
+        "Pulse * Decay → RC charge/discharge":
+            ("Causal rectangular pulse", "Decaying exponential e^(-t)u(t)"),
+        "Pulse * Impulse → pulse unchanged":
+            ("Causal rectangular pulse", "Narrow impulse approximation"),
+        "Pulse * Echo → original pulse + delayed echo":
+            ("Causal rectangular pulse", "Echo δ(t)+½δ(t-2)"),
+        "Gaussian * Gaussian → wider smooth pulse":
+            ("Gaussian exp(-t²)", "Gaussian exp(-t²)"),
+        "Triangle * Pulse → piecewise smooth output":
+            ("Triangular pulse", "Causal rectangular pulse"),
+        "Wide pulse * Narrow pulse → trapezoidal output":
+            ("Wide rectangular pulse", "Causal rectangular pulse"),
+    }
+
+    custom = None
+
+    if mode == "Choose signals":
+        c1, c2 = st.columns(2)
+        names = list(base_signals.keys())
+        with c1:
+            x_name = st.selectbox("Input x(t)", names, index=0, key="smooth_x_v14")
+        with c2:
+            h_name = st.selectbox("Impulse response h(t)", names, index=1, key="smooth_h_v14")
+        x_id, h_id = base_signals[x_name]["id"], base_signals[h_name]["id"]
+
+    elif mode == "Try an example":
+        st.markdown("### Examples to try")
+        st.caption("Select an example and press Play to watch how the convolution is built.")
+        ex_name = st.selectbox("Choose an example", list(examples.keys()), key="conv_example")
+        x_name, h_name = examples[ex_name]
+        x_id, h_id = base_signals[x_name]["id"], base_signals[h_name]["id"]
+        e1, e2 = st.columns(2)
+        with e1:
+            st.markdown(f"**x(t):** `{base_signals[x_name]['label']}`")
+        with e2:
+            st.markdown(f"**h(t):** `{base_signals[h_name]['label']}`")
+
+    else:
+        st.markdown("### Build custom signals")
+        st.caption(
+            "Build x(t) and h(t) independently by changing their type and parameters."
+        )
+        c1, c2 = st.columns(2)
+
+        def custom_controls(prefix, title):
+            st.markdown(f"#### {title}")
+            family = st.selectbox(
+                "Signal type",
+                ["Rectangular pulse", "Triangular pulse", "Decaying exponential",
+                 "Gaussian", "Sinusoid"],
+                key=f"{prefix}_family",
+            )
+            amp = st.number_input("Amplitude A", -5.0, 5.0, 1.0, 0.25, key=f"{prefix}_amp")
+            shift = st.number_input("Time shift T", -4.0, 4.0, 0.0, 0.25, key=f"{prefix}_shift")
+            if family in ["Rectangular pulse", "Triangular pulse"]:
+                p = st.number_input("Width W", 0.25, 6.0, 2.0, 0.25, key=f"{prefix}_p")
+            elif family == "Decaying exponential":
+                p = st.number_input("Decay rate a", 0.1, 5.0, 1.0, 0.1, key=f"{prefix}_p")
+            elif family == "Gaussian":
+                p = st.number_input("Width parameter a", 0.1, 5.0, 1.0, 0.1, key=f"{prefix}_p")
+            else:
+                p = st.number_input("Angular frequency ω", 0.25, 8.0, 1.0, 0.25, key=f"{prefix}_p")
+            return family, float(amp), float(shift), float(p)
+
+        with c1:
+            xf, xa, xs, xp = custom_controls("cx", "Custom x(t)")
+        with c2:
+            hf, ha, hs, hp = custom_controls("ch", "Custom h(t)")
+
+        fmap = {
+            "Rectangular pulse":"custom_rect",
+            "Triangular pulse":"custom_tri",
+            "Decaying exponential":"custom_exp",
+            "Gaussian":"custom_gauss",
+            "Sinusoid":"custom_sin",
+        }
+        x_id, h_id = fmap[xf], fmap[hf]
+        custom = (xa, xs, xp, ha, hs, hp)
+
+    html = r'''<!doctype html><html><head><meta charset="utf-8"><style>
 *{box-sizing:border-box}body{margin:0;background:transparent;color:#ddd;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
 .ctrl{display:grid;grid-template-columns:90px 90px 90px 1fr 130px;gap:9px;align-items:end;margin:0 0 8px}
 button,select{height:34px;border:1px solid rgba(140,140,140,.45);border-radius:7px;background:#262730;color:#eee;font:inherit}button{cursor:pointer}button:hover{border-color:#ff4b4b}.field label{display:block;font-size:11px;opacity:.65;margin-bottom:3px}input[type=range]{width:100%;accent-color:#ff4b4b}
 .panel{border:1px solid rgba(130,130,130,.25);border-radius:9px;padding:3px 7px 1px;margin-bottom:6px;background:rgba(255,255,255,.015)}.ttl{font-size:12px;font-weight:600;margin:0 0 1px 3px}canvas{display:block;width:100%;height:110px}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:7px}.metric{border:1px solid rgba(130,130,130,.25);border-radius:8px;padding:6px 9px}.k{font-size:10px;opacity:.6}.v{font-size:17px;margin-top:1px}.eq{text-align:center;margin-top:7px;font-family:Georgia,"Times New Roman",serif;font-size:15px}@media(prefers-color-scheme:light){body{color:#222}button,select{background:white;color:#222}.panel,.metric{background:white}}
 </style></head><body>
 <div class="ctrl"><button id="reset">Reset</button><button id="play">Play</button><button id="pause">Pause</button><div class="field"><label>Current time t</label><input id="slider" type="range" min="-6" max="6" step="0.01" value="-6"></div><div class="field"><label>Speed</label><select id="speed"><option value="0.55">0.5x</option><option value="1.1" selected>1x</option><option value="1.65">1.5x</option><option value="2.2">2x</option></select></div></div>
-<div class="panel"><div class="ttl">1. Slide and overlap - x(tau) and h(t-tau)</div><canvas id="c1"></canvas></div>
-<div class="panel"><div class="ttl">2. Multiply and integrate - x(tau)h(t-tau)</div><canvas id="c2"></canvas></div>
-<div class="panel"><div class="ttl">3. Build the output - y(t) = x(t) * h(t)</div><canvas id="c3"></canvas></div>
+<div class="panel"><div class="ttl">1. Slide and overlap — x(τ) and h(t−τ)</div><canvas id="c1"></canvas></div>
+<div class="panel"><div class="ttl">2. Multiply and integrate — x(τ)h(t−τ)</div><canvas id="c2"></canvas></div>
+<div class="panel"><div class="ttl">3. Build the output — y(t) = x(t) * h(t)</div><canvas id="c3"></canvas></div>
 <div class="metrics"><div class="metric"><div class="k">Current time</div><div class="v" id="mt"></div></div><div class="metric"><div class="k">Overlap integral</div><div class="v" id="ma"></div></div><div class="metric"><div class="k">Current y(t)</div><div class="v" id="my"></div></div></div><div class="eq" id="eq"></div>
 <script>
-const XT='__X__',HT='__H__',BLUE='#1f77b4',ORANGE='#ff7f0e',GREEN='#2ca02c',RED='#d62728',PURPLE='#9467bd';const lo=-6,hi=6,N=601,dx=(hi-lo)/(N-1),g=Array.from({length:N},(_,i)=>lo+i*dx);
-function f(k,x){if(k==='rect2')return Math.abs(x)<=1?1:0;if(k==='rect4')return Math.abs(x)<=2?1:0;if(k==='causal2')return x>=0&&x<=2?1:0;if(k==='tri4')return Math.max(1-Math.abs(x)/2,0);if(k==='gauss')return Math.exp(-x*x);if(k==='exp')return x>=0?Math.exp(-x):0;return 0}
-const xv=g.map(x=>f(XT,x));const yv=g.map(t=>{let s=0;for(let i=0;i<N;i++)s+=xv[i]*f(HT,t-g[i]);return s*dx});
+const XT='__X__',HT='__H__',BLUE='#1f77b4',ORANGE='#ff7f0e',GREEN='#2ca02c',RED='#d62728',PURPLE='#9467bd';
+const XAMP=__XA__,XSHIFT=__XS__,XP=__XP__,HAMP=__HA__,HSHIFT=__HS__,HP=__HP__;
+const lo=-6,hi=6,N=601,dx=(hi-lo)/(N-1),g=Array.from({length:N},(_,i)=>lo+i*dx);
+function impulse(x,c=0){const s=.055;return Math.exp(-Math.pow((x-c)/s,2))/(s*Math.sqrt(Math.PI))}
+function f(k,x,A=1,T=0,p=1){
+ if(k==='rect2')return Math.abs(x)<=1?1:0;if(k==='rect4')return Math.abs(x)<=2?1:0;
+ if(k==='causal2')return x>=0&&x<=2?1:0;if(k==='tri4')return Math.max(1-Math.abs(x)/2,0);
+ if(k==='gauss')return Math.exp(-x*x);if(k==='exp')return x>=0?Math.exp(-x):0;
+ if(k==='step')return x>=0?1:0;if(k==='impulse')return impulse(x,0);
+ if(k==='impulse2')return impulse(x,2);if(k==='echo')return impulse(x,0)+.5*impulse(x,2);
+ if(k==='custom_rect')return A*(Math.abs(x-T)<=p/2?1:0);
+ if(k==='custom_tri')return A*Math.max(1-Math.abs(x-T)/(p/2),0);
+ if(k==='custom_exp')return x>=T?A*Math.exp(-p*(x-T)):0;
+ if(k==='custom_gauss')return A*Math.exp(-p*Math.pow(x-T,2));
+ if(k==='custom_sin')return A*Math.sin(p*(x-T));return 0}
+function fx(x){return f(XT,x,XAMP,XSHIFT,XP)}function fh(x){return f(HT,x,HAMP,HSHIFT,HP)}
+const xv=g.map(x=>fx(x));const yv=g.map(t=>{let s=0;for(let i=0;i<N;i++)s+=xv[i]*fh(t-g[i]);return s*dx});
 function near(t){return Math.max(0,Math.min(N-1,Math.round((t-lo)/dx)))}function sx(x,w){return 32+(x-lo)/(hi-lo)*(w-42)}function sy(y,h,m){return h/2-y/m*(h*.34)}
 function cv(id){const c=document.getElementById(id),r=devicePixelRatio||1,w=Math.max(450,c.clientWidth),h=96;c.width=w*r;c.height=h*r;const q=c.getContext('2d');q.setTransform(r,0,0,r,0,0);return{q,w,h}}
 function ax(o){let q=o.q,w=o.w,h=o.h;q.clearRect(0,0,w,h);q.strokeStyle='rgba(140,140,140,.23)';q.lineWidth=1;q.beginPath();q.moveTo(32,h/2);q.lineTo(w-10,h/2);q.stroke();q.fillStyle='rgba(140,140,140,.85)';q.font='9px Arial';for(let x=-6;x<=6;x+=2){let p=sx(x,w);q.beginPath();q.moveTo(p,8);q.lineTo(p,h-13);q.stroke();q.fillText(x,p-4,h-2)}}
 function line(o,v,c,m,w=2,alpha=1){let q=o.q;q.globalAlpha=alpha;q.strokeStyle=c;q.lineWidth=w;q.beginPath();v.forEach((y,i)=>{let X=sx(g[i],o.w),Y=sy(y,o.h,m);if(i===0||!Number.isFinite(v[i-1]))q.moveTo(X,Y);else q.lineTo(X,Y)});q.stroke();q.globalAlpha=1}
 let t=-6,run=false,last=0;const sl=document.getElementById('slider'),sp=document.getElementById('speed');
-function draw(){const hs=g.map(z=>f(HT,t-z)),pr=xv.map((v,i)=>v*hs[i]);let area=pr.reduce((a,b)=>a+b,0)*dx,yn=yv[near(t)];let o1=cv('c1'),o2=cv('c2'),o3=cv('c3');let m1=Math.max(1.1,...xv.map(Math.abs),...hs.map(Math.abs));ax(o1);line(o1,xv,BLUE,m1,2.1);line(o1,hs,ORANGE,m1,2.1);let m2=Math.max(1.1,...pr.map(Math.abs));ax(o2);line(o2,pr,RED,m2,2.25);let m3=Math.max(1.1,...yv.map(Math.abs));ax(o3);line(o3,yv,GREEN,m3,1.4,.18);let k=near(t),part=yv.map((v,i)=>i<=k?v:NaN);line(o3,part,GREEN,m3,2.2);let X=sx(t,o3.w),Y=sy(yn,o3.h,m3);o3.q.fillStyle=PURPLE;o3.q.beginPath();o3.q.arc(X,Y,3.5,0,6.29);o3.q.fill();o3.q.strokeStyle=PURPLE;o3.q.setLineDash([3,3]);o3.q.beginPath();o3.q.moveTo(X,7);o3.q.lineTo(X,o3.h-12);o3.q.stroke();o3.q.setLineDash([]);document.getElementById('mt').textContent=t.toFixed(2)+' s';document.getElementById('ma').textContent=area.toFixed(4);document.getElementById('my').textContent=yn.toFixed(4);document.getElementById('eq').textContent='y('+t.toFixed(2)+') = ∫ x(τ) h('+t.toFixed(2)+' − τ) dτ = '+area.toFixed(4);sl.value=t}
-function anim(ts){
-  if(!run){last=0;return}
-  if(!last)last=ts;
-  let d=(ts-last)/1000;
-  last=ts;
-  t+=d*parseFloat(sp.value);
-  if(t>=6){
-    t=6;
-    run=false;
-    draw();
-    last=0;
-    setTimeout(()=>{t=-6;draw();},250);
-    return;
-  }
-  draw();
-  requestAnimationFrame(anim)
-}
+function draw(){const hs=g.map(z=>fh(t-z)),pr=xv.map((v,i)=>v*hs[i]);let area=pr.reduce((a,b)=>a+b,0)*dx,yn=yv[near(t)];let o1=cv('c1'),o2=cv('c2'),o3=cv('c3');let m1=Math.max(1.1,...xv.map(Math.abs),...hs.map(Math.abs));ax(o1);line(o1,xv,BLUE,m1,2.1);line(o1,hs,ORANGE,m1,2.1);let m2=Math.max(1.1,...pr.map(Math.abs));ax(o2);line(o2,pr,RED,m2,2.25);let m3=Math.max(1.1,...yv.map(Math.abs));ax(o3);line(o3,yv,GREEN,m3,1.4,.18);let k=near(t),part=yv.map((v,i)=>i<=k?v:NaN);line(o3,part,GREEN,m3,2.2);let X=sx(t,o3.w),Y=sy(yn,o3.h,m3);o3.q.fillStyle=PURPLE;o3.q.beginPath();o3.q.arc(X,Y,3.5,0,6.29);o3.q.fill();o3.q.strokeStyle=PURPLE;o3.q.setLineDash([3,3]);o3.q.beginPath();o3.q.moveTo(X,7);o3.q.lineTo(X,o3.h-12);o3.q.stroke();o3.q.setLineDash([]);document.getElementById('mt').textContent=t.toFixed(2)+' s';document.getElementById('ma').textContent=area.toFixed(4);document.getElementById('my').textContent=yn.toFixed(4);document.getElementById('eq').textContent='y('+t.toFixed(2)+') = ∫ x(τ) h('+t.toFixed(2)+' − τ) dτ = '+area.toFixed(4);sl.value=t}
+function anim(ts){if(!run){last=0;return}if(!last)last=ts;let d=(ts-last)/1000;last=ts;t+=d*parseFloat(sp.value);if(t>=6){t=6;run=false;draw();last=0;setTimeout(()=>{t=-6;draw();},250);return}draw();requestAnimationFrame(anim)}
 document.getElementById('play').onclick=()=>{if(!run){run=true;requestAnimationFrame(anim)}};document.getElementById('pause').onclick=()=>{run=false;last=0};document.getElementById('reset').onclick=()=>{run=false;last=0;t=-6;draw()};sl.oninput=e=>{run=false;last=0;t=parseFloat(e.target.value);draw()};addEventListener('resize',draw);draw();
 </script></body></html>'''
-    html=html.replace('__X__',ids[x_name]).replace('__H__',ids[h_name])
+
+    vals = (1,0,1,1,0,1) if custom is None else custom
+    xa,xs,xp,ha,hs,hp = vals
+    html=(html.replace('__X__',x_id).replace('__H__',h_id)
+              .replace('__XA__',str(xa)).replace('__XS__',str(xs)).replace('__XP__',str(xp))
+              .replace('__HA__',str(ha)).replace('__HS__',str(hs)).replace('__HP__',str(hp)))
     components.html(html,height=620,scrolling=False)
 
 def render_step_by_step():
@@ -306,20 +408,60 @@ def render_step_by_step():
 
 def render_properties():
     st.header("Convolution Properties")
+    st.write("Each property includes a numerical example showing how it is used.")
+
     props = [
-        ("Commutative", r"x(t)*h(t)=h(t)*x(t)", "Interchanging x and h does not change the output."),
-        ("Associative", r"[g*h]*x=g*[h*x]", "The grouping of cascaded convolutions does not change the result."),
-        ("Distributive", r"x*[h_1+h_2]=x*h_1+x*h_2", "Parallel contributions may be handled separately."),
-        ("Causal", r"x,h\text{ causal}\Rightarrow y\text{ causal}", "Two causal signals produce a causal convolution."),
-        ("Time shift", r"h(t-T_1)*x(t-T_2)=y(t-T_1-T_2)", "The delays add in the output."),
-        ("Impulse", r"x(t)*\delta(t-T)=x(t-T)", "A shifted impulse shifts the signal."),
-        ("Area", r"A_y=A_xA_h", "The output area is the product of the input areas."),
-        ("Step / Integration", r"x(t)*u(t)=\int_{-\infty}^{t}x(\tau)d\tau", "A unit-step impulse response performs integration."),
+        ("Commutative", r"x(t)*h(t)=h(t)*x(t)",
+         "Interchanging x and h does not change the output.",
+         r"x(t)=u(t)-u(t-2),\quad h(t)=u(t)-u(t-1)",
+         r"x*h=h*x",
+         "Both orders produce exactly the same convolution."),
+        ("Associative", r"[g*h]*x=g*[h*x]",
+         "The grouping of cascaded convolutions does not change the result.",
+         r"x(t)=\delta(t),\quad g(t)=u(t),\quad h(t)=e^{-t}u(t)",
+         r"[\delta*u]*h=u*h=\delta*[u*h]",
+         "The impulse leaves the other signal unchanged, so both groupings agree."),
+        ("Distributive", r"x*[h_1+h_2]=x*h_1+x*h_2",
+         "Parallel contributions may be handled separately.",
+         r"x(t)=u(t),\quad h_1(t)=\delta(t),\quad h_2(t)=\delta(t-2)",
+         r"y(t)=u(t)+u(t-2)",
+         "Convolve with each impulse separately and add the responses."),
+        ("Causal", r"x,h\text{ causal}\Rightarrow y\text{ causal}",
+         "Two causal signals produce a causal convolution.",
+         r"x(t)=u(t)-u(t-1),\quad h(t)=e^{-t}u(t)",
+         r"y(t)=0\quad\text{for }t<0",
+         "Neither signal exists before t=0, so the convolution cannot begin before t=0."),
+        ("Time shift", r"h(t-T_1)*x(t-T_2)=y(t-T_1-T_2)",
+         "The delays add in the output.",
+         r"T_1=2\,s,\quad T_2=3\,s",
+         r"y_{\mathrm{shifted}}(t)=y(t-5)",
+         "A 2-s delay plus a 3-s delay gives a 5-s output delay."),
+        ("Impulse", r"x(t)*\delta(t-T)=x(t-T)",
+         "A shifted impulse shifts the signal.",
+         r"x(t)=u(t)-u(t-2),\quad T=3",
+         r"x(t)*\delta(t-3)=u(t-3)-u(t-5)",
+         "The pulse originally on [0,2] is shifted to [3,5]."),
+        ("Area", r"A_y=A_xA_h",
+         "The output area is the product of the input areas.",
+         r"A_x=2,\quad A_h=3",
+         r"A_y=(2)(3)=6",
+         "The total area under the convolution is 6."),
+        ("Step / Integration", r"x(t)*u(t)=\int_{-\infty}^{t}x(\tau)d\tau",
+         "A unit-step impulse response performs integration.",
+         r"x(t)=u(t)-u(t-2)",
+         r"y(t)=\begin{cases}0&t<0\\t&0\le t<2\\2&t\ge2\end{cases}",
+         "The output rises linearly from 0 to 2 and then remains at 2."),
     ]
-    for name, eq, desc in props:
+
+    for name, eq, desc, example, result, explanation in props:
         with st.expander(name):
             st.latex(eq)
             st.write(desc)
+            st.markdown("**Numerical example**")
+            st.latex(example)
+            st.markdown("**Result**")
+            st.latex(result)
+            st.caption(explanation)
 
 def _conv_exam_bank():
     """Fixed internal bank of 50 convolution questions, from introductory to advanced."""

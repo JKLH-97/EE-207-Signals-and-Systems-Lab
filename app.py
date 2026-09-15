@@ -12,46 +12,38 @@ st.markdown("""
 .course-card h3 {margin: 0 0 .35rem 0;}
 .hero {padding: 1.4rem 1.6rem; border: 1px solid #3b3f49; border-radius: 18px; margin-bottom: 1.2rem;}
 
-/* Sidebar course navigation: square tab cards, no radio circles */
-section[data-testid="stSidebar"] div[role="radiogroup"] {
-    gap: .42rem !important;
+/* Sidebar course navigation — real buttons, not radio controls */
+section[data-testid="stSidebar"] div[data-testid="stButton"] {
+    margin-bottom: .42rem;
 }
-section[data-testid="stSidebar"] div[role="radiogroup"] > label {
-    width: 100% !important;
-    min-height: 44px;
-    padding: .62rem .85rem !important;
-    border: 1px solid rgba(125,130,142,.36) !important;
-    border-radius: 4px !important;
-    background: transparent !important;
-    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
-    cursor: pointer;
-}
-/* Remove Streamlit's circular radio indicator completely. */
-section[data-testid="stSidebar"] div[role="radiogroup"] > label > div:first-child {
-    display: none !important;
-}
-section[data-testid="stSidebar"] div[role="radiogroup"] > label p {
-    margin: 0 !important;
-    color: inherit;
+section[data-testid="stSidebar"] div[data-testid="stButton"] > button {
+    width: 100%;
+    min-height: 46px;
+    justify-content: flex-start;
+    padding: .60rem .90rem;
+    border-radius: 4px;
     font-weight: 500;
-    transition: color .15s ease;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
 }
-/* Hover state */
-section[data-testid="stSidebar"] div[role="radiogroup"] > label:hover {
-    background: rgba(255,75,75,.055) !important;
-    border-color: rgba(255,75,75,.72) !important;
+section[data-testid="stSidebar"] div[data-testid="stButton"] > button[kind="secondary"] {
+    background: transparent;
+    border: 1px solid rgba(125,130,142,.38);
+    color: inherit;
 }
-section[data-testid="stSidebar"] div[role="radiogroup"] > label:hover p {
-    color: #ff4b4b !important;
+section[data-testid="stSidebar"] div[data-testid="stButton"] > button[kind="secondary"]:hover {
+    background: rgba(255,75,75,.055);
+    border-color: rgba(255,75,75,.72);
+    color: #ff4b4b;
 }
-/* Selected square tab */
-section[data-testid="stSidebar"] div[role="radiogroup"] > label:has(input:checked) {
-    background: rgba(255,75,75,.10) !important;
-    border-color: #ff4b4b !important;
+section[data-testid="stSidebar"] div[data-testid="stButton"] > button[kind="primary"] {
+    background: rgba(255,75,75,.10);
+    border: 1px solid #ff4b4b;
+    color: #ff4b4b;
 }
-section[data-testid="stSidebar"] div[role="radiogroup"] > label:has(input:checked) p {
-    color: #ff4b4b !important;
-    font-weight: 600;
+section[data-testid="stSidebar"] div[data-testid="stButton"] > button[kind="primary"]:hover {
+    background: rgba(255,75,75,.15);
+    border-color: #ff4b4b;
+    color: #ff4b4b;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -73,10 +65,17 @@ with st.sidebar:
     st.title("EE-207")
     st.caption("Signals & Systems")
     st.markdown("### Course Topics")
-    choice = st.radio("Select a topic", TOPICS, index=TOPICS.index(st.session_state.page), label_visibility="collapsed")
-    if choice != st.session_state.page:
-        st.session_state.page = choice
-        st.rerun()
+    for topic in TOPICS:
+        selected = (topic == st.session_state.page)
+        if st.button(
+            topic,
+            key=f"sidebar_topic_{topic}",
+            type="primary" if selected else "secondary",
+            use_container_width=True,
+        ):
+            if not selected:
+                st.session_state.page = topic
+                st.rerun()
     st.divider()
     st.caption("Interactive modules will be added as the course progresses.")
 

@@ -12,38 +12,43 @@ st.markdown("""
 .course-card h3 {margin: 0 0 .35rem 0;}
 .hero {padding: 1.4rem 1.6rem; border: 1px solid #3b3f49; border-radius: 18px; margin-bottom: 1.2rem;}
 
-/* Sidebar course navigation: text tabs, matching the chapter tab language */
+/* Sidebar course navigation: square tab cards, no radio circles */
 section[data-testid="stSidebar"] div[role="radiogroup"] {
-    gap: .12rem !important;
+    gap: .42rem !important;
 }
 section[data-testid="stSidebar"] div[role="radiogroup"] > label {
     width: 100% !important;
-    min-height: 34px;
-    padding: .38rem .45rem !important;
-    border: none !important;
-    border-radius: 4px;
+    min-height: 44px;
+    padding: .62rem .85rem !important;
+    border: 1px solid rgba(125,130,142,.36) !important;
+    border-radius: 4px !important;
     background: transparent !important;
-    transition: background-color .15s ease, color .15s ease;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
     cursor: pointer;
 }
-/* Hide Streamlit's circular radio marker completely. */
+/* Remove Streamlit's circular radio indicator completely. */
 section[data-testid="stSidebar"] div[role="radiogroup"] > label > div:first-child {
     display: none !important;
 }
 section[data-testid="stSidebar"] div[role="radiogroup"] > label p {
     margin: 0 !important;
-    font-weight: 500;
     color: inherit;
+    font-weight: 500;
     transition: color .15s ease;
 }
-/* Hover: subtle tab background + red text. */
+/* Hover state */
 section[data-testid="stSidebar"] div[role="radiogroup"] > label:hover {
     background: rgba(255,75,75,.055) !important;
+    border-color: rgba(255,75,75,.72) !important;
 }
 section[data-testid="stSidebar"] div[role="radiogroup"] > label:hover p {
     color: #ff4b4b !important;
 }
-/* Selected: only the word becomes red, like the internal chapter tabs. */
+/* Selected square tab */
+section[data-testid="stSidebar"] div[role="radiogroup"] > label:has(input:checked) {
+    background: rgba(255,75,75,.10) !important;
+    border-color: #ff4b4b !important;
+}
 section[data-testid="stSidebar"] div[role="radiogroup"] > label:has(input:checked) p {
     color: #ff4b4b !important;
     font-weight: 600;

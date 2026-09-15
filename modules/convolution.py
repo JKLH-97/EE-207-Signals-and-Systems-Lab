@@ -1,3 +1,4 @@
+# EE-207 Convolution source version: v18-verified-ui
 import streamlit as st
 import streamlit.components.v1 as components
 import numpy as np
@@ -209,7 +210,7 @@ def render_live_lab():
         ["Choose signals", "Try an example", "Build custom signals"],
         index=0,
         horizontal=True,
-        key="conv_live_mode",
+        key="conv_live_mode_v18",
     )
 
     base_signals = {
@@ -392,7 +393,7 @@ def render_step_by_step():
         ["Choose signals", "Build custom signals"],
         index=0,
         horizontal=True,
-        key="sb_mode_v16",
+        key="sb_mode_v18",
     )
 
     if mode == "Choose signals":
@@ -406,7 +407,7 @@ def render_step_by_step():
 
         equation_labels = {
             "Unit step u(t)": "u(t)",
-            "Rectangular pulse": "u(t+1)-u(t-1)",
+            "Rectangular pulse (centered)": "u(t+1)-u(t-1)",
             "Wide rectangular pulse": "u(t+2)-u(t-2)",
             "Causal rectangular pulse": "u(t)-u(t-2)",
             "Triangular pulse": "tri(t/2)",

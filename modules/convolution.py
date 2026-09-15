@@ -213,7 +213,7 @@ def render_live_lab():
 button,select{height:34px;border:1px solid rgba(140,140,140,.45);border-radius:7px;background:#262730;color:#eee;font:inherit}button{cursor:pointer}button:hover{border-color:#ff4b4b}.field label{display:block;font-size:11px;opacity:.65;margin-bottom:3px}input[type=range]{width:100%;accent-color:#ff4b4b}
 .panel{border:1px solid rgba(130,130,130,.25);border-radius:9px;padding:3px 7px 1px;margin-bottom:6px;background:rgba(255,255,255,.015)}.ttl{font-size:12px;font-weight:600;margin:0 0 1px 3px}canvas{display:block;width:100%;height:110px}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:7px}.metric{border:1px solid rgba(130,130,130,.25);border-radius:8px;padding:6px 9px}.k{font-size:10px;opacity:.6}.v{font-size:17px;margin-top:1px}.eq{text-align:center;margin-top:7px;font-family:Georgia,"Times New Roman",serif;font-size:15px}@media(prefers-color-scheme:light){body{color:#222}button,select{background:white;color:#222}.panel,.metric{background:white}}
 </style></head><body>
-<div class="ctrl"><button id="reset">Reset</button><button id="play">Play</button><button id="pause">Pause</button><div class="field"><label>Current time t</label><input id="slider" type="range" min="-6" max="5" step="0.01" value="-5"></div><div class="field"><label>Speed</label><select id="speed"><option value="0.55">0.5x</option><option value="1.1" selected>1x</option><option value="1.65">1.5x</option><option value="2.2">2x</option></select></div></div>
+<div class="ctrl"><button id="reset">Reset</button><button id="play">Play</button><button id="pause">Pause</button><div class="field"><label>Current time t</label><input id="slider" type="range" min="-6" max="6" step="0.01" value="-6"></div><div class="field"><label>Speed</label><select id="speed"><option value="0.55">0.5x</option><option value="1.1" selected>1x</option><option value="1.65">1.5x</option><option value="2.2">2x</option></select></div></div>
 <div class="panel"><div class="ttl">1. Slide and overlap - x(tau) and h(t-tau)</div><canvas id="c1"></canvas></div>
 <div class="panel"><div class="ttl">2. Multiply and integrate - x(tau)h(t-tau)</div><canvas id="c2"></canvas></div>
 <div class="panel"><div class="ttl">3. Build the output - y(t) = x(t) * h(t)</div><canvas id="c3"></canvas></div>
@@ -234,11 +234,12 @@ function anim(ts){
   let d=(ts-last)/1000;
   last=ts;
   t+=d*parseFloat(sp.value);
-  if(t>=5){
-    t=5;
+  if(t>=6){
+    t=6;
     run=false;
     draw();
     last=0;
+    setTimeout(()=>{t=-6;draw();},250);
     return;
   }
   draw();
@@ -577,7 +578,6 @@ def render_mini_exam():
         else:
             st.markdown(f"### {pos}. {q['prompt']}")
 
-        st.caption(f"Difficulty: {q['level']}")
         _draw_exam_graph(q.get("graph"))
 
         # Keep the student's answer visible after grading.

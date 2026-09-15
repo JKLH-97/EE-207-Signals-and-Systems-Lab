@@ -3,6 +3,7 @@ import streamlit.components.v1 as components
 import numpy as np
 import random
 import json
+import re
 import matplotlib.pyplot as plt
 
 # ============================================================
@@ -245,6 +246,7 @@ def render_live_lab():
     custom = None
     x_display = ''
     h_display = ''
+    sim_lo, sim_hi = -6.0, 6.0
 
     if mode == "Choose signals":
         c1, c2 = st.columns(2)
@@ -286,16 +288,32 @@ def render_live_lab():
         c1, c2 = st.columns(2)
         with c1:
             x_expr = st.text_input("x(t) =", value="u(t)-u(t-2)", key="custom_x_expr")
-            st.markdown("**You entered:**")
-            st.code(f"x(t) = {x_expr}", language=None)
         with c2:
             h_expr = st.text_input("h(t) =", value="exp(-t)*u(t)", key="custom_h_expr")
-            st.markdown("**You entered:**")
-            st.code(f"h(t) = {h_expr}", language=None)
 
         x_id, h_id = "expression", "expression"
         x_display, h_display = x_expr, h_expr
         custom = (1,0,1,1,0,1)
+
+        # Adapt the simulation window to time shifts appearing in the equations.
+        # Examples: u(t-10), rect(t+8), exp(-(t-12))*u(t-12).
+        def _suggest_range(*exprs):
+            vals = [0.0]
+            for expr in exprs:
+                # Capture numeric offsets written directly with t, such as t-10 or t+8.
+                for sign, number in re.findall(r"t\s*([+-])\s*(\d+(?:\.\d+)?)", expr):
+                    value = float(number)
+                    vals.append(value if sign == "-" else -value)
+            lo = min(-6.0, min(vals)-4.0)
+            hi = max(6.0, max(vals)+4.0)
+            return float(np.floor(lo)), float(np.ceil(hi))
+
+        auto_lo, auto_hi = _suggest_range(x_expr, h_expr)
+        sim_lo, sim_hi = auto_lo, auto_hi
+        st.caption(
+            f"Adaptive simulation window: {auto_lo:g} ≤ t ≤ {auto_hi:g}. "
+            "It expands automatically when your equations contain larger time shifts."
+        )
 
     st.markdown("### Signals used in the simulation")
     sx_col, sh_col = st.columns(2)
@@ -312,7 +330,7 @@ def render_live_lab():
 button,select{height:34px;border:1px solid rgba(140,140,140,.45);border-radius:7px;background:#262730;color:#eee;font:inherit}button{cursor:pointer}button:hover{border-color:#ff4b4b}.field label{display:block;font-size:11px;opacity:.65;margin-bottom:3px}input[type=range]{width:100%;accent-color:#ff4b4b}
 .panel{border:1px solid rgba(130,130,130,.25);border-radius:9px;padding:3px 7px 1px;margin-bottom:6px;background:rgba(255,255,255,.015)}.ttl{font-size:12px;font-weight:600;margin:0 0 1px 3px}canvas{display:block;width:100%;height:110px}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:7px}.metric{border:1px solid rgba(130,130,130,.25);border-radius:8px;padding:6px 9px}.k{font-size:10px;opacity:.6}.v{font-size:17px;margin-top:1px}.eq{text-align:center;margin-top:7px;font-family:Georgia,"Times New Roman",serif;font-size:15px}@media(prefers-color-scheme:light){body{color:#222}button,select{background:white;color:#222}.panel,.metric{background:white}}
 </style></head><body>
-<div class="ctrl"><button id="reset">Reset</button><button id="play">Play</button><button id="pause">Pause</button><div class="field"><label>Current time t</label><input id="slider" type="range" min="-6" max="6" step="0.01" value="-6"></div><div class="field"><label>Speed</label><select id="speed"><option value="0.55">0.5x</option><option value="1.1" selected>1x</option><option value="1.65">1.5x</option><option value="2.2">2x</option></select></div></div>
+<div class="ctrl"><button id="reset">Reset</button><button id="play">Play</button><button id="pause">Pause</button><div class="field"><label>Current time t</label><input id="slider" type="range" min="__LO__" max="__HI__" step="0.01" value="__LO__"></div><div class="field"><label>Speed</label><select id="speed"><option value="0.55">0.5x</option><option value="1.1" selected>1x</option><option value="1.65">1.5x</option><option value="2.2">2x</option></select></div></div>
 <div class="panel"><div class="ttl">1. Slide and overlap — x(τ) and h(t−τ)</div><canvas id="c1"></canvas></div>
 <div class="panel"><div class="ttl">2. Multiply and integrate — x(τ)h(t−τ)</div><canvas id="c2"></canvas></div>
 <div class="panel"><div class="ttl">3. Build the output — y(t) = x(t) * h(t)</div><canvas id="c3"></canvas></div>
@@ -320,7 +338,7 @@ button,select{height:34px;border:1px solid rgba(140,140,140,.45);border-radius:7
 <script>
 const XT='__X__',HT='__H__',XEXPR=__XEXPR__,HEXPR=__HEXPR__,BLUE='#1f77b4',ORANGE='#ff7f0e',GREEN='#2ca02c',RED='#d62728',PURPLE='#9467bd';
 const XAMP=__XA__,XSHIFT=__XS__,XP=__XP__,HAMP=__HA__,HSHIFT=__HS__,HP=__HP__;
-const lo=-6,hi=6,N=601,dx=(hi-lo)/(N-1),g=Array.from({length:N},(_,i)=>lo+i*dx);
+const lo=__LO__,hi=__HI__,N=801,dx=(hi-lo)/(N-1),g=Array.from({length:N},(_,i)=>lo+i*dx);
 function impulse(x,c=0){const s=.055;return Math.exp(-Math.pow((x-c)/s,2))/(s*Math.sqrt(Math.PI))}
 function U(x){return x>=0?1:0}
 function RECT(x){return Math.abs(x)<=0.5?1:0}
@@ -350,12 +368,12 @@ function fx(x){return XT==='expression'?evalExpr(XEXPR,x):f(XT,x,XAMP,XSHIFT,XP)
 const xv=g.map(x=>fx(x));const yv=g.map(t=>{let s=0;for(let i=0;i<N;i++)s+=xv[i]*fh(t-g[i]);return s*dx});
 function near(t){return Math.max(0,Math.min(N-1,Math.round((t-lo)/dx)))}function sx(x,w){return 32+(x-lo)/(hi-lo)*(w-42)}function sy(y,h,m){return h/2-y/m*(h*.34)}
 function cv(id){const c=document.getElementById(id),r=devicePixelRatio||1,w=Math.max(450,c.clientWidth),h=96;c.width=w*r;c.height=h*r;const q=c.getContext('2d');q.setTransform(r,0,0,r,0,0);return{q,w,h}}
-function ax(o){let q=o.q,w=o.w,h=o.h;q.clearRect(0,0,w,h);q.strokeStyle='rgba(140,140,140,.23)';q.lineWidth=1;q.beginPath();q.moveTo(32,h/2);q.lineTo(w-10,h/2);q.stroke();q.fillStyle='rgba(140,140,140,.85)';q.font='9px Arial';for(let x=-6;x<=6;x+=2){let p=sx(x,w);q.beginPath();q.moveTo(p,8);q.lineTo(p,h-13);q.stroke();q.fillText(x,p-4,h-2)}}
+function ax(o){let q=o.q,w=o.w,h=o.h;q.clearRect(0,0,w,h);q.strokeStyle='rgba(140,140,140,.23)';q.lineWidth=1;q.beginPath();q.moveTo(32,h/2);q.lineTo(w-10,h/2);q.stroke();q.fillStyle='rgba(140,140,140,.85)';q.font='9px Arial';let tick=(hi-lo)/6;for(let x=lo;x<=hi+tick*.1;x+=tick){let p=sx(x,w);q.beginPath();q.moveTo(p,8);q.lineTo(p,h-13);q.stroke();q.fillText(x.toFixed(Math.abs(tick)<1?1:0),p-7,h-2)}}
 function line(o,v,c,m,w=2,alpha=1){let q=o.q;q.globalAlpha=alpha;q.strokeStyle=c;q.lineWidth=w;q.beginPath();v.forEach((y,i)=>{let X=sx(g[i],o.w),Y=sy(y,o.h,m);if(i===0||!Number.isFinite(v[i-1]))q.moveTo(X,Y);else q.lineTo(X,Y)});q.stroke();q.globalAlpha=1}
-let t=-6,run=false,last=0;const sl=document.getElementById('slider'),sp=document.getElementById('speed');
+let t=lo,run=false,last=0;const sl=document.getElementById('slider'),sp=document.getElementById('speed');
 function draw(){const hs=g.map(z=>fh(t-z)),pr=xv.map((v,i)=>v*hs[i]);let area=pr.reduce((a,b)=>a+b,0)*dx,yn=yv[near(t)];let o1=cv('c1'),o2=cv('c2'),o3=cv('c3');let m1=Math.max(1.1,...xv.map(Math.abs),...hs.map(Math.abs));ax(o1);line(o1,xv,BLUE,m1,2.1);line(o1,hs,ORANGE,m1,2.1);let m2=Math.max(1.1,...pr.map(Math.abs));ax(o2);line(o2,pr,RED,m2,2.25);let m3=Math.max(1.1,...yv.map(Math.abs));ax(o3);line(o3,yv,GREEN,m3,1.4,.18);let k=near(t),part=yv.map((v,i)=>i<=k?v:NaN);line(o3,part,GREEN,m3,2.2);let X=sx(t,o3.w),Y=sy(yn,o3.h,m3);o3.q.fillStyle=PURPLE;o3.q.beginPath();o3.q.arc(X,Y,3.5,0,6.29);o3.q.fill();o3.q.strokeStyle=PURPLE;o3.q.setLineDash([3,3]);o3.q.beginPath();o3.q.moveTo(X,7);o3.q.lineTo(X,o3.h-12);o3.q.stroke();o3.q.setLineDash([]);document.getElementById('mt').textContent=t.toFixed(2)+' s';document.getElementById('ma').textContent=area.toFixed(4);document.getElementById('my').textContent=yn.toFixed(4);document.getElementById('eq').textContent='y('+t.toFixed(2)+') = ∫ x(τ) h('+t.toFixed(2)+' − τ) dτ = '+area.toFixed(4);sl.value=t}
-function anim(ts){if(!run){last=0;return}if(!last)last=ts;let d=(ts-last)/1000;last=ts;t+=d*parseFloat(sp.value);if(t>=6){t=6;run=false;draw();last=0;setTimeout(()=>{t=-6;draw();},250);return}draw();requestAnimationFrame(anim)}
-document.getElementById('play').onclick=()=>{if(!run){run=true;requestAnimationFrame(anim)}};document.getElementById('pause').onclick=()=>{run=false;last=0};document.getElementById('reset').onclick=()=>{run=false;last=0;t=-6;draw()};sl.oninput=e=>{run=false;last=0;t=parseFloat(e.target.value);draw()};addEventListener('resize',draw);draw();
+function anim(ts){if(!run){last=0;return}if(!last)last=ts;let d=(ts-last)/1000;last=ts;t+=d*parseFloat(sp.value);if(t>=hi){t=hi;run=false;draw();last=0;setTimeout(()=>{t=lo;draw();},250);return}draw();requestAnimationFrame(anim)}
+document.getElementById('play').onclick=()=>{if(!run){run=true;requestAnimationFrame(anim)}};document.getElementById('pause').onclick=()=>{run=false;last=0};document.getElementById('reset').onclick=()=>{run=false;last=0;t=lo;draw()};sl.oninput=e=>{run=false;last=0;t=parseFloat(e.target.value);draw()};addEventListener('resize',draw);draw();
 </script></body></html>'''
 
     vals = (1,0,1,1,0,1) if custom is None else custom
@@ -365,61 +383,115 @@ document.getElementById('play').onclick=()=>{if(!run){run=true;requestAnimationF
     html=(html.replace('__X__',x_id).replace('__H__',h_id)
               .replace('__XEXPR__',x_expr_js).replace('__HEXPR__',h_expr_js)
               .replace('__XA__',str(xa)).replace('__XS__',str(xs)).replace('__XP__',str(xp))
-              .replace('__HA__',str(ha)).replace('__HS__',str(hs)).replace('__HP__',str(hp)))
+              .replace('__HA__',str(ha)).replace('__HS__',str(hs)).replace('__HP__',str(hp))
+              .replace('__LO__',str(sim_lo)).replace('__HI__',str(sim_hi)))
     components.html(html,height=620,scrolling=False)
 
 def render_step_by_step():
     st.header("Step-by-Step")
-    st.write("Freeze the process at one value of t and inspect each operation.")
-    c1, c2 = st.columns(2)
-    with c1:
-        x_name = st.selectbox("Choose x(t)", list(SIGNALS), index=0, key="sb_x")
-    with c2:
-        h_name = st.selectbox("Choose h(t)", list(SIGNALS), index=1, key="sb_h")
+    st.write("Freeze the convolution at one value of t and inspect every graphical operation.")
+
+    mode = st.radio(
+        "How would you like to define the signals?",
+        ["Choose signals", "Write my equations"],
+        horizontal=True,
+        key="sb_mode_v16",
+    )
+
+    if mode == "Choose signals":
+        c1, c2 = st.columns(2)
+        with c1:
+            x_name = st.selectbox("Choose x(t)", list(SIGNALS), index=0, key="sb_x")
+        with c2:
+            h_name = st.selectbox("Choose h(t)", list(SIGNALS), index=1, key="sb_h")
+        x_tau = sig(x_name, TAU)
+        h_tau = sig(h_name, TAU)
+        x_label, h_label = x_name, h_name
+    else:
+        st.write(
+            "Use `t` as the time variable. Supported examples: "
+            "`u(t)-u(t-2)`, `2*exp(-t)*u(t)`, `sin(2*t)`, `rect(t-1)`."
+        )
+        c1, c2 = st.columns(2)
+        with c1:
+            x_expr = st.text_input("x(t) =", "u(t)-u(t-2)", key="sb_x_expr")
+        with c2:
+            h_expr = st.text_input("h(t) =", "exp(-t)*u(t)", key="sb_h_expr")
+
+        def _eval_np(expr, t):
+            # Restricted numerical evaluator for the teaching expressions used here.
+            env = {
+                "t": t, "np": np,
+                "u": lambda z: (np.asarray(z)>=0).astype(float),
+                "rect": lambda z: (np.abs(np.asarray(z))<=0.5).astype(float),
+                "tri": lambda z: np.maximum(1-np.abs(np.asarray(z)),0.0),
+                "exp": np.exp, "sin": np.sin, "cos": np.cos,
+                "sqrt": np.sqrt, "abs": np.abs,
+            }
+            safe = expr.replace("^","**")
+            if not re.fullmatch(r"[0-9A-Za-z_+\\-*/().,\\s*]+", safe):
+                raise ValueError("Unsupported characters")
+            return np.asarray(eval(safe, {"__builtins__":{}}, env), dtype=float)
+
+        try:
+            x_tau = _eval_np(x_expr, TAU)
+            h_tau = _eval_np(h_expr, TAU)
+            if x_tau.ndim == 0: x_tau = np.full_like(TAU,float(x_tau))
+            if h_tau.ndim == 0: h_tau = np.full_like(TAU,float(h_tau))
+            x_label, h_label = x_expr, h_expr
+        except Exception:
+            st.error("Check the equation format. Use only the supported functions shown above.")
+            return
+
+    st.markdown("### Signals used")
+    a,b=st.columns(2)
+    with a: st.code(f"x(t) = {x_label}",language=None)
+    with b: st.code(f"h(t) = {h_label}",language=None)
+
     t_now = st.slider("Choose t", -5.0, 5.0, 0.0, 0.25, key="sb_t")
 
-    x_tau = sig(x_name, TAU)
-    h_tau = sig(h_name, TAU)
-    h_flip = sig(h_name, -TAU)
-    h_shift = sig(h_name, t_now - TAU)
-    product = x_tau * h_shift
-    area = float(np.trapezoid(product, TAU))
-    y = convolution_output(x_name, h_name)
+    # Use interpolation so custom signals can be reversed and shifted numerically.
+    h_flip = np.interp(-TAU, TAU, h_tau, left=0.0, right=0.0)
+    h_shift = np.interp(t_now-TAU, TAU, h_tau, left=0.0, right=0.0)
+    product = x_tau*h_shift
+    area = float(np.trapezoid(product,TAU))
+    full=np.convolve(x_tau,h_tau,mode="full")*DT
+    tfull=np.linspace(TAU[0]+TAU[0],TAU[-1]+TAU[-1],len(full))
+    y=np.interp(TAU,tfull,full)
 
-    r1, r2 = st.columns(2, gap="large")
+    r1,r2=st.columns(2,gap="large")
     with r1:
         st.markdown("#### 1 — Flip")
         st.latex(r"h(\tau)\rightarrow h(-\tau)")
-        mini_plot([(h_tau, r"$h(\tau)$", C_H, "--", 1.4),
-                   (h_flip, r"$h(-\tau)$", C_H, "-", 2.1)], "Flip")
+        mini_plot([(h_tau,r"$h(\tau)$",C_H,"--",1.4),
+                   (h_flip,r"$h(-\tau)$",C_H,"-",2.1)],"Flip")
     with r2:
         st.markdown("#### 2 — Shift")
         st.latex(r"h(-\tau)\rightarrow h(t-\tau)")
-        mini_plot([(h_flip, r"$h(-\tau)$", C_H, "--", 1.4),
-                   (h_shift, r"$h(t-\tau)$", C_H, "-", 2.1)], f"Shift: t={t_now:.2f}")
+        mini_plot([(h_flip,r"$h(-\tau)$",C_H,"--",1.4),
+                   (h_shift,r"$h(t-\tau)$",C_H,"-",2.1)],f"Shift: t={t_now:.2f}")
 
-    r3, r4 = st.columns(2, gap="large")
+    r3,r4=st.columns(2,gap="large")
     with r3:
         st.markdown("#### 3 — Overlay")
-        mini_plot([(x_tau, r"$x(\tau)$", C_X, "-", 2.1),
-                   (h_shift, r"$h(t-\tau)$", C_H, "-", 2.1)], "Overlap")
+        mini_plot([(x_tau,r"$x(\tau)$",C_X,"-",2.1),
+                   (h_shift,r"$h(t-\tau)$",C_H,"-",2.1)],"Overlap")
     with r4:
         st.markdown("#### 4 — Multiply")
-        mini_plot([(product, r"$x(\tau)h(t-\tau)$", C_Y, "-", 2.2)], "Product")
+        mini_plot([(product,r"$x(\tau)h(t-\tau)$",C_Y,"-",2.2)],"Product")
 
     st.markdown("#### 5 — Integrate")
     st.latex(rf"\boxed{{y({t_now:.2f})\approx {area:.4f}}}")
 
-    _, center, _ = st.columns([1, 1.55, 1])
+    _,center,_=st.columns([1,1.55,1])
     with center:
-        fig, ax = plt.subplots(figsize=(4.5, 1.65))
-        ax.plot(TAU, y, color=C_Y, lw=2.1, label="y(t)")
-        ax.scatter([t_now], [np.interp(t_now, TAU, y)], s=30, color=C_NOW, zorder=5)
-        ax.axvline(t_now, ls="--", color=C_NOW, lw=1.0)
-        format_axes(ax, "Complete convolution output", "Time t")
-        ax.legend(fontsize=6.5)
-        fig.tight_layout(pad=0.7)
-        st.pyplot(fig, clear_figure=False, use_container_width=True)
+        fig,ax=plt.subplots(figsize=(4.5,1.65))
+        ax.plot(TAU,y,color=C_Y,lw=2.1,label="y(t)")
+        ax.scatter([t_now],[np.interp(t_now,TAU,y)],s=30,color=C_NOW,zorder=5)
+        ax.axvline(t_now,ls="--",color=C_NOW,lw=1.0)
+        format_axes(ax,"Complete convolution output","Time t")
+        ax.legend(fontsize=6.5);fig.tight_layout(pad=.7)
+        st.pyplot(fig,clear_figure=False,use_container_width=True)
         plt.close(fig)
 
 def render_properties():

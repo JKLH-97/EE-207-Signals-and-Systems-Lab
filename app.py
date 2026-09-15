@@ -12,50 +12,41 @@ st.markdown("""
 .course-card h3 {margin: 0 0 .35rem 0;}
 .hero {padding: 1.4rem 1.6rem; border: 1px solid #3b3f49; border-radius: 18px; margin-bottom: 1.2rem;}
 
-/* Sidebar course navigation: compact tab-like cards */
+/* Sidebar course navigation: text tabs, matching the chapter tab language */
 section[data-testid="stSidebar"] div[role="radiogroup"] {
-    gap: .38rem !important;
+    gap: .12rem !important;
 }
 section[data-testid="stSidebar"] div[role="radiogroup"] > label {
-    position: relative;
     width: 100% !important;
-    min-height: 42px;
-    padding: .62rem .78rem .62rem 1rem !important;
-    border: 1px solid rgba(130, 138, 150, .28);
-    border-radius: 7px;
-    background: rgba(255,255,255,.015);
-    transition: background-color .16s ease, border-color .16s ease, transform .16s ease;
+    min-height: 34px;
+    padding: .38rem .45rem !important;
+    border: none !important;
+    border-radius: 4px;
+    background: transparent !important;
+    transition: background-color .15s ease, color .15s ease;
     cursor: pointer;
 }
-section[data-testid="stSidebar"] div[role="radiogroup"] > label:hover {
-    background: rgba(255, 75, 75, .08);
-    border-color: rgba(255, 75, 75, .70);
-    transform: translateX(2px);
-}
-section[data-testid="stSidebar"] div[role="radiogroup"] > label:has(input:checked) {
-    background: rgba(255, 75, 75, .12);
-    border-color: #ff4b4b;
-}
-section[data-testid="stSidebar"] div[role="radiogroup"] > label:has(input:checked)::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 7px;
-    bottom: 7px;
-    width: 3px;
-    border-radius: 3px;
-    background: #ff4b4b;
-}
-/* Hide the circular radio indicator: the whole card is the tab. */
+/* Hide Streamlit's circular radio marker completely. */
 section[data-testid="stSidebar"] div[role="radiogroup"] > label > div:first-child {
     display: none !important;
 }
 section[data-testid="stSidebar"] div[role="radiogroup"] > label p {
+    margin: 0 !important;
     font-weight: 500;
-    margin: 0;
+    color: inherit;
+    transition: color .15s ease;
 }
+/* Hover: subtle tab background + red text. */
+section[data-testid="stSidebar"] div[role="radiogroup"] > label:hover {
+    background: rgba(255,75,75,.055) !important;
+}
+section[data-testid="stSidebar"] div[role="radiogroup"] > label:hover p {
+    color: #ff4b4b !important;
+}
+/* Selected: only the word becomes red, like the internal chapter tabs. */
 section[data-testid="stSidebar"] div[role="radiogroup"] > label:has(input:checked) p {
-    font-weight: 650;
+    color: #ff4b4b !important;
+    font-weight: 600;
 }
 </style>
 """, unsafe_allow_html=True)

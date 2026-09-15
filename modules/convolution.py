@@ -1,4 +1,4 @@
-# EE-207 Convolution source version: v18-verified-ui
+# EE-207 Convolution source version: v19-custom-step-fix
 import streamlit as st
 import streamlit.components.v1 as components
 import numpy as np
@@ -307,10 +307,6 @@ def render_live_lab():
 
         auto_lo, auto_hi = _suggest_range(x_expr, h_expr)
         sim_lo, sim_hi = auto_lo, auto_hi
-        st.caption(
-            f"Adaptive simulation window: {auto_lo:g} ≤ t ≤ {auto_hi:g}. "
-            "It expands automatically when your equations contain larger time shifts."
-        )
 
     st.markdown("### Signals used in the simulation")
     sx_col, sh_col = st.columns(2)
@@ -417,10 +413,15 @@ def render_step_by_step():
         x_label = equation_labels.get(x_name, x_name)
         h_label = equation_labels.get(h_name, h_name)
     else:
-        st.markdown("### Build custom signals")
+        st.markdown("### Write your own signals")
         st.write(
-            "Use `t` as the time variable. Supported examples: "
-            "`u(t)-u(t-2)`, `2*exp(-t)*u(t)`, `sin(2*t)`, `rect(t-1)`."
+            "Enter each equation using `t` as the time variable. Supported forms include "
+            "`u(t)`, `u(t-a)`, `rect(t)`, `tri(t)`, `exp(-a*t)*u(t)`, "
+            "`sin(w*t)`, `cos(w*t)`, constants, +, -, *, /, and parentheses."
+        )
+        st.caption(
+            "Examples:  `u(t)-u(t-2)`   |   `2*exp(-t)*u(t)`   |   "
+            "`sin(2*t)`   |   `rect(t-1)`"
         )
         c1, c2 = st.columns(2)
         with c1:
@@ -429,19 +430,34 @@ def render_step_by_step():
             h_expr = st.text_input("h(t) =", "exp(-t)*u(t)", key="sb_h_expr")
 
         def _eval_np(expr, t):
-            # Restricted numerical evaluator for the teaching expressions used here.
+            """Evaluate the same equation notation accepted by Live Convolution."""
+            def u(z):
+                return np.where(np.asarray(z, dtype=float) >= 0.0, 1.0, 0.0)
+            def rect(z):
+                return np.where(np.abs(np.asarray(z, dtype=float)) <= 0.5, 1.0, 0.0)
+            def tri(z):
+                return np.maximum(1.0 - np.abs(np.asarray(z, dtype=float)), 0.0)
+
             env = {
-                "t": t, "np": np,
-                "u": lambda z: (np.asarray(z)>=0).astype(float),
-                "rect": lambda z: (np.abs(np.asarray(z))<=0.5).astype(float),
-                "tri": lambda z: np.maximum(1-np.abs(np.asarray(z)),0.0),
+                "t": np.asarray(t, dtype=float),
+                "u": u, "rect": rect, "tri": tri,
                 "exp": np.exp, "sin": np.sin, "cos": np.cos,
                 "sqrt": np.sqrt, "abs": np.abs,
+                "pi": np.pi,
             }
-            safe = expr.replace("^","**")
-            if not re.fullmatch(r"[0-9A-Za-z_+\\-*/().,\\s*]+", safe):
+            safe = expr.strip().replace("^", "**")
+            # Allow only the mathematical notation documented above.
+            if not re.fullmatch(r"[0-9A-Za-z_+\\-*/().,\\s]+", safe):
                 raise ValueError("Unsupported characters")
-            return np.asarray(eval(safe, {"__builtins__":{}}, env), dtype=float)
+            value = eval(safe, {"__builtins__": {}}, env)
+            arr = np.asarray(value, dtype=float)
+            if arr.ndim == 0:
+                arr = np.full_like(TAU, float(arr), dtype=float)
+            if arr.shape != TAU.shape:
+                arr = np.broadcast_to(arr, TAU.shape).astype(float)
+            if not np.all(np.isfinite(arr)):
+                raise ValueError("Non-finite result")
+            return arr
 
         try:
             x_tau = _eval_np(x_expr, TAU)
@@ -555,7 +571,7 @@ def render_properties():
         with st.expander(name):
             st.latex(eq)
             st.write(desc)
-            st.markdown("**Numerical example**")
+            st.markdown("**Example**")
             st.latex(example)
             st.markdown("**Result**")
             st.latex(result)

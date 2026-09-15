@@ -207,6 +207,7 @@ def render_live_lab():
     mode = st.radio(
         "How would you like to define the signals?",
         ["Choose signals", "Try an example", "Build custom signals"],
+        index=0,
         horizontal=True,
         key="conv_live_mode",
     )
@@ -267,11 +268,6 @@ def render_live_lab():
         x_id, h_id = base_signals[x_name]["id"], base_signals[h_name]["id"]
         x_display = base_signals[x_name]["label"]
         h_display = base_signals[h_name]["label"]
-        e1, e2 = st.columns(2)
-        with e1:
-            st.markdown(f"**x(t):** `{base_signals[x_name]['label']}`")
-        with e2:
-            st.markdown(f"**h(t):** `{base_signals[h_name]['label']}`")
 
     else:
         st.markdown("### Write your own signals")
@@ -393,7 +389,8 @@ def render_step_by_step():
 
     mode = st.radio(
         "How would you like to define the signals?",
-        ["Choose signals", "Write my equations"],
+        ["Choose signals", "Build custom signals"],
+        index=0,
         horizontal=True,
         key="sb_mode_v16",
     )
@@ -406,8 +403,20 @@ def render_step_by_step():
             h_name = st.selectbox("Choose h(t)", list(SIGNALS), index=1, key="sb_h")
         x_tau = sig(x_name, TAU)
         h_tau = sig(h_name, TAU)
-        x_label, h_label = x_name, h_name
+
+        equation_labels = {
+            "Unit step u(t)": "u(t)",
+            "Rectangular pulse": "u(t+1)-u(t-1)",
+            "Wide rectangular pulse": "u(t+2)-u(t-2)",
+            "Causal rectangular pulse": "u(t)-u(t-2)",
+            "Triangular pulse": "tri(t/2)",
+            "Gaussian exp(-t²)": "exp(-t^2)",
+            "Decaying exponential e^(-t)u(t)": "exp(-t)*u(t)",
+        }
+        x_label = equation_labels.get(x_name, x_name)
+        h_label = equation_labels.get(h_name, h_name)
     else:
+        st.markdown("### Build custom signals")
         st.write(
             "Use `t` as the time variable. Supported examples: "
             "`u(t)-u(t-2)`, `2*exp(-t)*u(t)`, `sin(2*t)`, `rect(t-1)`."
@@ -443,7 +452,7 @@ def render_step_by_step():
             st.error("Check the equation format. Use only the supported functions shown above.")
             return
 
-    st.markdown("### Signals used")
+    st.markdown("### Signals used in the simulation")
     a,b=st.columns(2)
     with a: st.code(f"x(t) = {x_label}",language=None)
     with b: st.code(f"h(t) = {h_label}",language=None)

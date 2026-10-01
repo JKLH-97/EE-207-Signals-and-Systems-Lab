@@ -8,6 +8,7 @@
     --bg-sidebar: #262730;
     --bg-card: #171a21;
     --bg-card-hover: #1d212a;
+    --bg-panel: #151920;
 
     --text-main: #f5f5f5;
     --text-secondary: #a9abb3;
@@ -16,6 +17,9 @@
     --accent: #ff4b4b;
     --accent-soft: rgba(255, 75, 75, 0.10);
     --accent-hover: rgba(255, 75, 75, 0.16);
+
+    --blue: #4c8dff;
+    --teal: #4ed7cf;
 
     --border: #3a3d46;
     --border-light: #4a4e59;
@@ -232,6 +236,7 @@ select {
 
 
 @keyframes pageFade {
+
     from {
         opacity: 0;
         transform: translateY(3px);
@@ -241,6 +246,7 @@ select {
         opacity: 1;
         transform: translateY(0);
     }
+
 }
 
 
@@ -366,12 +372,12 @@ select {
 
 
 .signal-one {
-    stroke: #4ed7cf;
+    stroke: var(--teal);
 }
 
 
 .signal-two {
-    stroke: #4c8dff;
+    stroke: var(--blue);
 
     opacity: 0.72;
 }
@@ -500,7 +506,7 @@ select {
 
 
 /* =========================================================
-   CHAPTER PLACEHOLDERS
+   GENERIC CHAPTER PLACEHOLDERS
    ========================================================= */
 
 .chapter-placeholder {
@@ -557,8 +563,668 @@ select {
 
 
 /* =========================================================
-   RESPONSIVE
+   CHAPTER SHELL
    ========================================================= */
+
+.chapter-shell {
+    width: 100%;
+}
+
+
+.chapter-header {
+    padding:
+        26px
+        10px
+        34px;
+
+    text-align: center;
+}
+
+
+.chapter-title-block {
+    max-width: 900px;
+
+    margin: 0 auto;
+}
+
+
+.chapter-number {
+    display: inline-block;
+
+    margin-bottom: 16px;
+
+    color: var(--accent);
+
+    font-size: 13px;
+    font-weight: 700;
+
+    letter-spacing: 0.15em;
+}
+
+
+.chapter-title-block h1 {
+    margin: 0;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size:
+        clamp(
+            3.2rem,
+            6vw,
+            5.4rem
+        );
+
+    font-weight: 600;
+
+    line-height: 1;
+
+    letter-spacing: 0.035em;
+
+    text-transform: uppercase;
+}
+
+
+.chapter-title-block h1::after {
+    content: "";
+
+    display: block;
+
+    width: 92px;
+    height: 2px;
+
+    margin:
+        24px
+        auto
+        19px;
+
+    background: currentColor;
+
+    opacity: 0.28;
+}
+
+
+.chapter-title-block p {
+    margin: 0;
+
+    color: var(--text-secondary);
+
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   CHAPTER TABS
+   ========================================================= */
+
+.chapter-tabs {
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(6, minmax(0, 1fr));
+
+    gap: 7px;
+
+    margin-bottom: 36px;
+
+    padding-bottom: 12px;
+
+    border-bottom:
+        1px solid var(--border);
+}
+
+
+.chapter-tab {
+    min-height: 47px;
+
+    padding:
+        8px
+        12px;
+
+    border:
+        1px solid transparent;
+
+    border-radius:
+        var(--radius-small);
+
+    background:
+        transparent;
+
+    color:
+        var(--text-secondary);
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        color var(--transition),
+        background-color var(--transition),
+        border-color var(--transition);
+}
+
+
+.chapter-tab:hover {
+    color: var(--accent);
+
+    border-color:
+        rgba(
+            255,
+            75,
+            75,
+            0.45
+        );
+
+    background:
+        rgba(
+            255,
+            75,
+            75,
+            0.045
+        );
+}
+
+
+.chapter-tab.active {
+    color: var(--accent);
+
+    border-color: var(--accent);
+
+    background: var(--accent-soft);
+}
+
+
+/* =========================================================
+   CHAPTER CONTENT
+   ========================================================= */
+
+.chapter-content {
+    min-height: 500px;
+
+    animation:
+        chapterContentFade
+        160ms ease;
+}
+
+
+@keyframes chapterContentFade {
+
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+
+}
+
+
+/* =========================================================
+   LTI CONCEPT
+   ========================================================= */
+
+.lti-concept {
+    max-width: 1250px;
+
+    margin: 0 auto;
+}
+
+
+.lti-concept > h2 {
+    margin:
+        0
+        0
+        24px;
+
+    font-size: 30px;
+    font-weight: 650;
+}
+
+
+/* =========================================================
+   CONCEPT GRID
+   ========================================================= */
+
+.concept-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 18px;
+}
+
+
+.concept-panel {
+    position: relative;
+
+    min-height: 270px;
+
+    padding:
+        30px
+        30px
+        28px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        var(--radius-medium);
+
+    background:
+        var(--bg-card);
+}
+
+
+.concept-index {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 34px;
+    height: 34px;
+
+    margin-bottom: 18px;
+
+    border:
+        1px solid
+        rgba(
+            255,
+            75,
+            75,
+            0.45
+        );
+
+    border-radius: 50%;
+
+    color: var(--accent);
+
+    background:
+        var(--accent-soft);
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+
+.concept-panel h3 {
+    margin:
+        0
+        0
+        18px;
+
+    font-size: 24px;
+    font-weight: 650;
+}
+
+
+.concept-panel p {
+    margin:
+        20px
+        0
+        0;
+
+    color:
+        var(--text-secondary);
+
+    font-size: 15px;
+    line-height: 1.65;
+}
+
+
+/* =========================================================
+   EQUATIONS
+   ========================================================= */
+
+.equation-box {
+    width: 100%;
+
+    padding:
+        18px
+        20px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:
+        7px;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.025
+        );
+
+    overflow-x: auto;
+
+    color:
+        var(--text-main);
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 19px;
+
+    line-height: 1.55;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   LTI REQUIREMENT
+   ========================================================= */
+
+.lti-requirement {
+    margin-top: 20px;
+
+    padding:
+        27px
+        30px;
+
+    border:
+        1px solid
+        rgba(
+            255,
+            75,
+            75,
+            0.40
+        );
+
+    border-radius:
+        var(--radius-medium);
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(
+                255,
+                75,
+                75,
+                0.075
+            ),
+            rgba(
+                255,
+                75,
+                75,
+                0.025
+            )
+        );
+
+    text-align: center;
+}
+
+
+.lti-requirement h3 {
+    margin:
+        0
+        0
+        12px;
+
+    color:
+        var(--text-secondary);
+
+    font-size: 14px;
+    font-weight: 650;
+
+    letter-spacing: 0.08em;
+
+    text-transform: uppercase;
+}
+
+
+.requirement-equation {
+    color: var(--accent);
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size:
+        clamp(
+            1.45rem,
+            3vw,
+            2rem
+        );
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   CONCEPT EXAMPLES
+   ========================================================= */
+
+.concept-examples {
+    margin-top: 54px;
+}
+
+
+.section-heading {
+    margin-bottom: 23px;
+
+    display: flex;
+
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 30px;
+}
+
+
+.eyebrow {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: var(--accent);
+
+    font-size: 12px;
+    font-weight: 700;
+
+    letter-spacing: 0.14em;
+}
+
+
+.section-heading h2 {
+    margin: 0;
+
+    font-size: 30px;
+    font-weight: 650;
+}
+
+
+.section-heading p {
+    max-width: 430px;
+
+    margin: 0;
+
+    color: var(--text-secondary);
+
+    font-size: 14px;
+    line-height: 1.6;
+
+    text-align: right;
+}
+
+
+/* =========================================================
+   EXAMPLE CARDS
+   ========================================================= */
+
+.example-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 14px;
+}
+
+
+.example-card {
+    min-height: 150px;
+
+    padding:
+        21px
+        22px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        var(--radius-medium);
+
+    background:
+        var(--bg-card);
+
+    transition:
+        border-color var(--transition),
+        transform var(--transition),
+        background-color var(--transition);
+}
+
+
+.example-card:hover {
+    transform:
+        translateY(-2px);
+
+    border-color:
+        rgba(
+            255,
+            75,
+            75,
+            0.55
+        );
+
+    background:
+        var(--bg-card-hover);
+}
+
+
+.example-card > span {
+    color: var(--accent);
+
+    font-size: 11px;
+    font-weight: 700;
+
+    letter-spacing: 0.12em;
+}
+
+
+.example-card h3 {
+    margin:
+        12px
+        0
+        8px;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 20px;
+    font-weight: 600;
+}
+
+
+.example-card p {
+    margin: 0;
+
+    color:
+        var(--text-secondary);
+
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+
+/* =========================================================
+   LAB PLACEHOLDERS
+   ========================================================= */
+
+.lab-placeholder {
+    min-height: 420px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 40px;
+
+    border:
+        1px dashed
+        var(--border-light);
+
+    border-radius:
+        var(--radius-medium);
+
+    text-align: center;
+}
+
+
+.lab-placeholder > span {
+    margin-bottom: 12px;
+
+    color: var(--accent);
+
+    font-size: 12px;
+    font-weight: 700;
+
+    letter-spacing: 0.14em;
+}
+
+
+.lab-placeholder h2 {
+    margin:
+        0
+        0
+        12px;
+
+    font-size: 32px;
+    font-weight: 650;
+}
+
+
+.lab-placeholder p {
+    margin: 0;
+
+    color:
+        var(--text-secondary);
+
+    font-size: 15px;
+}
+
+
+/* =========================================================
+   RESPONSIVE — TABLET
+   ========================================================= */
+
+@media (max-width: 1180px) {
+
+    .chapter-tabs {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+
+}
+
 
 @media (max-width: 1050px) {
 
@@ -566,27 +1232,42 @@ select {
         --sidebar-width: 245px;
     }
 
+
     .main-content {
         padding-left: 32px;
         padding-right: 32px;
     }
+
 
     .module-grid {
         grid-template-columns:
             repeat(2, minmax(0, 1fr));
     }
 
+
     .hero-content {
         width: 68%;
     }
+
+
+    .example-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
 }
 
+
+/* =========================================================
+   RESPONSIVE — MOBILE
+   ========================================================= */
 
 @media (max-width: 760px) {
 
     body {
         display: block;
     }
+
 
     .sidebar {
         position: relative;
@@ -597,9 +1278,11 @@ select {
         padding: 24px 20px;
     }
 
+
     .course-header {
         margin-bottom: 24px;
     }
+
 
     .course-navigation {
         display: grid;
@@ -610,47 +1293,146 @@ select {
         gap: 8px;
     }
 
+
     .course-navigation h2 {
         grid-column: 1 / -1;
     }
+
 
     .nav-tab {
         margin: 0;
     }
 
+
     .sidebar-footer {
         display: none;
     }
 
+
     .main-content {
         margin-left: 0;
 
-        padding: 28px 18px 50px;
+        padding:
+            28px
+            18px
+            50px;
     }
+
 
     .home-hero {
         min-height: 390px;
 
-        padding: 42px 28px;
+        padding:
+            42px
+            28px;
 
-        align-items: flex-start;
+        align-items:
+            flex-start;
     }
+
 
     .hero-content {
         width: 100%;
     }
 
+
     .signal-decoration {
         width: 105%;
 
         right: -20%;
-
         bottom: 0;
 
         opacity: 0.35;
     }
 
+
     .module-grid {
         grid-template-columns: 1fr;
     }
+
+
+    /* Chapter */
+
+    .chapter-header {
+        padding:
+            18px
+            0
+            28px;
+    }
+
+
+    .chapter-title-block h1 {
+        font-size:
+            clamp(
+                2.7rem,
+                14vw,
+                4rem
+            );
+    }
+
+
+    .chapter-tabs {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        margin-bottom: 28px;
+    }
+
+
+    .concept-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .section-heading {
+        align-items:
+            flex-start;
+
+        flex-direction: column;
+
+        gap: 10px;
+    }
+
+
+    .section-heading p {
+        text-align: left;
+    }
+
+
+    .example-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+/* =========================================================
+   VERY SMALL SCREENS
+   ========================================================= */
+
+@media (max-width: 460px) {
+
+    .course-navigation {
+        grid-template-columns: 1fr;
+    }
+
+
+    .chapter-tabs {
+        grid-template-columns: 1fr;
+    }
+
+
+    .home-hero {
+        padding:
+            34px
+            22px;
+    }
+
+
+    .concept-panel {
+        padding:
+            24px
+            21px;
+    }
+
 }

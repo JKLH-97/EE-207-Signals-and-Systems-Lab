@@ -2,3 +2,20 @@
 
 /* ===== LTI v2 teaching layout ===== */
 .experiment-intro{margin:18px 0 24px;padding:20px 22px;border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,.018)}.experiment-intro h3{margin:0 0 14px;font-size:20px}.experiment-intro p{margin:14px 0 0;color:var(--muted)}.path-note{display:flex;gap:12px;align-items:flex-start;padding:13px 15px;border-left:3px solid var(--accent);background:rgba(255,75,75,.04);border-radius:5px}.path-note b{color:var(--accent);white-space:nowrap}.path-note span{color:var(--muted);line-height:1.45}.substitution-block{margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}.substitution-block h4{margin:0 0 10px;font-size:16px}.substitution-block .math{margin:8px 0}.substitution-block.compact .math{font-size:18px}.path-section{margin-top:32px;padding:22px;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.012)}.path-section>.math{margin-bottom:16px}.path-result{margin-top:14px}.path-result .math{border-color:rgba(76,141,255,.35)}.final-comparison{margin-top:34px;padding-top:8px}.final-comparison h3{font-size:24px}.plot-card>.math{font-size:16px;padding:10px;margin:4px 0 10px}.tex{font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;white-space:normal}.plot-card canvas{height:205px}.wide-plot canvas{height:230px}
+
+/* ===== v3 review refinements ===== */
+.math{font-family:Georgia,"Times New Roman",serif;line-height:1.35}
+.math .katex-display{margin:.2em 0;overflow-x:auto;overflow-y:hidden;padding:.08em 0}
+.math .katex{font-size:1.08em}
+.requirement .math .katex{font-size:1.2em}
+.lab-prompt{margin:14px 0 20px;color:var(--muted);font-size:16px}
+.result-equations{margin:14px 0 10px;padding:16px 18px;border:1px solid var(--border);border-radius:9px;background:rgba(255,255,255,.018)}
+.result-equations h4{margin:0 0 10px;color:var(--muted);font-size:14px;text-transform:uppercase;letter-spacing:.06em}
+.result-equations .math{margin:8px 0;padding:11px 14px}
+.live-equation{margin-top:7px;min-height:38px;color:#38d996;font-size:12px}
+.live-equation .math{padding:6px 8px;border-color:rgba(56,217,150,.22);background:rgba(56,217,150,.035);color:#38d996;text-align:left;font-size:14px}
+.live-equation .katex-display{text-align:left;margin:0}
+.site-footer{margin-left:var(--sidew);padding:22px 54px 30px;border-top:1px solid var(--border);color:#8d919b;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:13px;transition:margin-left .2s}
+.site-footer span+span:before{content:"•";margin-right:14px;color:#5e626d}.site-footer strong{color:#c7c9cf}
+.sidebar-collapsed .site-footer{margin-left:0}
+@media(max-width:760px){.site-footer{margin-left:0;padding:20px 18px 28px}.live-equation .math{font-size:13px}}

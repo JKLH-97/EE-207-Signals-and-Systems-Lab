@@ -1,400 +1,47 @@
-/* =========================================================
-   EE-207 SIGNALS & SYSTEMS
-   Chapter 01 — LTI Systems
-   ========================================================= */
-
-const LTI = (() => {
-
-    /* -----------------------------------------------------
-       INTERNAL STATE
-    ----------------------------------------------------- */
-
-    const state = {
-        activeTab: "concept"
-    };
-
-
-    /* -----------------------------------------------------
-       TAB DEFINITIONS
-    ----------------------------------------------------- */
-
-    const tabs = [
-        { id: "concept", label: "Concept" },
-        { id: "linearity", label: "Linearity Lab" },
-        { id: "time-invariance", label: "Time-Invariance Lab" },
-        { id: "lti-lab", label: "LTI Lab" },
-        { id: "system-grapher", label: "System Grapher" },
-        { id: "mini-exam", label: "Mini Exam" }
-    ];
-
-
-    /* -----------------------------------------------------
-       MAIN RENDER
-    ----------------------------------------------------- */
-
-    function render() {
-
-        const container = document.getElementById("lti");
-
-        if (!container) return;
-
-        container.innerHTML = `
-            <div class="chapter-shell">
-
-                <header class="chapter-header">
-
-                    <div class="chapter-title-block">
-                        <span class="chapter-number">
-                            CHAPTER 01
-                        </span>
-
-                        <h1>LTI Systems</h1>
-
-                        <p>
-                            Explore linearity and time invariance
-                            graphically and interactively.
-                        </p>
-                    </div>
-
-                </header>
-
-
-                <nav
-                    class="chapter-tabs"
-                    aria-label="LTI Systems sections"
-                >
-                    ${tabs.map(tab => `
-                        <button
-                            class="chapter-tab
-                            ${tab.id === state.activeTab ? "active" : ""}"
-                            data-lti-tab="${tab.id}"
-                        >
-                            ${tab.label}
-                        </button>
-                    `).join("")}
-                </nav>
-
-
-                <div
-                    class="chapter-content"
-                    id="lti-content"
-                ></div>
-
-            </div>
-        `;
-
-        bindTabs();
-
-        renderActiveTab();
-    }
-
-
-    /* -----------------------------------------------------
-       TAB NAVIGATION
-    ----------------------------------------------------- */
-
-    function bindTabs() {
-
-        const buttons =
-            document.querySelectorAll(
-                "[data-lti-tab]"
-            );
-
-        buttons.forEach(button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    state.activeTab =
-                        button.dataset.ltiTab;
-
-                    updateTabStyles();
-
-                    renderActiveTab();
-                }
-            );
-
-        });
-    }
-
-
-    function updateTabStyles() {
-
-        document
-            .querySelectorAll("[data-lti-tab]")
-            .forEach(button => {
-
-                button.classList.toggle(
-                    "active",
-                    button.dataset.ltiTab ===
-                    state.activeTab
-                );
-
-            });
-    }
-
-
-    /* -----------------------------------------------------
-       ACTIVE TAB ROUTER
-    ----------------------------------------------------- */
-
-    function renderActiveTab() {
-
-        const content =
-            document.getElementById(
-                "lti-content"
-            );
-
-        if (!content) return;
-
-
-        switch (state.activeTab) {
-
-            case "concept":
-                renderConcept(content);
-                break;
-
-            case "linearity":
-                renderPlaceholder(
-                    content,
-                    "Linearity Lab"
-                );
-                break;
-
-            case "time-invariance":
-                renderPlaceholder(
-                    content,
-                    "Time-Invariance Lab"
-                );
-                break;
-
-            case "lti-lab":
-                renderPlaceholder(
-                    content,
-                    "LTI Lab"
-                );
-                break;
-
-            case "system-grapher":
-                renderPlaceholder(
-                    content,
-                    "System Grapher"
-                );
-                break;
-
-            case "mini-exam":
-                renderPlaceholder(
-                    content,
-                    "Mini Exam"
-                );
-                break;
-        }
-    }
-
-
-    /* -----------------------------------------------------
-       CONCEPT
-    ----------------------------------------------------- */
-
-    function renderConcept(container) {
-
-        container.innerHTML = `
-
-            <section class="lti-concept">
-
-                <h2>
-                    What makes a system LTI?
-                </h2>
-
-
-                <div class="concept-grid">
-
-                    <!-- LINEARITY -->
-                    <article class="concept-panel">
-
-                        <span class="concept-index">
-                            1
-                        </span>
-
-                        <h3>Linearity</h3>
-
-                        <div class="equation-box">
-                            T{a x₁(t) + b x₂(t)}
-                            =
-                            aT{x₁(t)} + bT{x₂(t)}
-                        </div>
-
-                        <p>
-                            The order of combining or scaling
-                            signals and applying the system
-                            must not matter.
-                        </p>
-
-                    </article>
-
-
-                    <!-- TIME INVARIANCE -->
-                    <article class="concept-panel">
-
-                        <span class="concept-index">
-                            2
-                        </span>
-
-                        <h3>Time Invariance</h3>
-
-                        <div class="equation-box">
-                            T{x(t − t₀)}
-                            =
-                            y(t − t₀),
-                            &nbsp;
-                            y(t)=T{x(t)}
-                        </div>
-
-                        <p>
-                            Delaying the input before applying
-                            the system must produce the same
-                            delay in the output.
-                        </p>
-
-                    </article>
-
-                </div>
-
-
-                <section class="lti-requirement">
-
-                    <h3>LTI Requirement</h3>
-
-                    <div class="requirement-equation">
-                        LTI = Linear AND Time-Invariant
-                    </div>
-
-                </section>
-
-
-                <section class="concept-examples">
-
-                    <div class="section-heading">
-
-                        <div>
-                            <span class="eyebrow">
-                                EXPLORE
-                            </span>
-
-                            <h2>Examples</h2>
-                        </div>
-
-                        <p>
-                            Use the interactive labs to test
-                            these systems yourself.
-                        </p>
-
-                    </div>
-
-
-                    <div class="example-grid">
-
-                        <article class="example-card">
-                            <span>01</span>
-                            <h3>y(t) = 2x(t)</h3>
-                            <p>
-                                Linear and time-invariant.
-                            </p>
-                        </article>
-
-
-                        <article class="example-card">
-                            <span>02</span>
-                            <h3>y(t) = x(t) + 1</h3>
-                            <p>
-                                Test the linearity condition.
-                            </p>
-                        </article>
-
-
-                        <article class="example-card">
-                            <span>03</span>
-                            <h3>y(t) = x²(t)</h3>
-                            <p>
-                                Observe what happens when
-                                the input is scaled.
-                            </p>
-                        </article>
-
-
-                        <article class="example-card">
-                            <span>04</span>
-                            <h3>y(t) = x(t − 2)</h3>
-                            <p>
-                                Investigate the effect
-                                of a fixed delay.
-                            </p>
-                        </article>
-
-
-                        <article class="example-card">
-                            <span>05</span>
-                            <h3>y(t) = t x(t)</h3>
-                            <p>
-                                Test whether an explicit
-                                dependence on time matters.
-                            </p>
-                        </article>
-
-
-                        <article class="example-card">
-                            <span>06</span>
-                            <h3>y(t) = x(−t)</h3>
-                            <p>
-                                Explore time reversal
-                                graphically.
-                            </p>
-                        </article>
-
-                    </div>
-
-                </section>
-
-            </section>
-        `;
-    }
-
-
-    /* -----------------------------------------------------
-       TEMPORARY PLACEHOLDER
-    ----------------------------------------------------- */
-
-    function renderPlaceholder(
-        container,
-        title
-    ) {
-
-        container.innerHTML = `
-            <section class="lab-placeholder">
-
-                <span>
-                    INTERACTIVE LAB
-                </span>
-
-                <h2>${title}</h2>
-
-                <p>
-                    This interactive module
-                    will be implemented next.
-                </p>
-
-            </section>
-        `;
-    }
-
-
-    /* -----------------------------------------------------
-       PUBLIC API
-    ----------------------------------------------------- */
-
-    return {
-        render
-    };
-
-})();
+const LTI=(()=>{
+ const state={tab:'concept',prefill:null,exam:null,graded:false};
+ const tabs=[['concept','Concept'],['linearity','Linearity Lab'],['time','Time-Invariance Lab'],['lti','LTI Lab'],['grapher','System Grapher'],['exam','Mini Exam']];
+ const signals={
+  step:{label:'Unit step u(t)',eq:'u(t)',fn:t=>t>=0?1:0}, sin:{label:'sin(t)',eq:'sin(t)',fn:t=>Math.sin(t)}, cos2:{label:'cos(2t)',eq:'cos(2t)',fn:t=>Math.cos(2*t)}, gauss:{label:'Gaussian exp(-t²)',eq:'e^(-t²)',fn:t=>Math.exp(-t*t)}, rect:{label:'Rectangular pulse',eq:'rect(t/2)',fn:t=>Math.abs(t)<=1?1:0}, tri:{label:'Triangular pulse',eq:'max(1-|t|,0)',fn:t=>Math.max(1-Math.abs(t),0)}, decay:{label:'Decaying exponential',eq:'e^(-t)u(t)',fn:t=>t>=0?Math.exp(-t):0}
+ };
+ const systems={
+  gain:{label:'y(t) = 3x(t)',eq:'3x(t)',linear:true,ti:true,apply:(t,x)=>3*x(t)},
+  offset:{label:'y(t) = 3x(t) + 1',eq:'3x(t)+1',linear:false,ti:true,apply:(t,x)=>3*x(t)+1},
+  timegain:{label:'y(t) = t x(t)',eq:'t x(t)',linear:true,ti:false,apply:(t,x)=>t*x(t)},
+  reverse:{label:'y(t) = x(-t)',eq:'x(-t)',linear:true,ti:false,apply:(t,x)=>x(-t)},
+  gate:{label:'y(t) = x(t)u(t)',eq:'x(t)u(t)',linear:true,ti:false,apply:(t,x)=>x(t)*(t>=0?1:0)},
+  sinx:{label:'y(t) = sin[x(t)]',eq:'sin(x(t))',linear:false,ti:true,apply:(t,x)=>Math.sin(x(t))},
+  delay:{label:'y(t) = x(t - 1)',eq:'x(t-1)',linear:true,ti:true,apply:(t,x)=>x(t-1)},
+  square:{label:'y(t) = x²(t)',eq:'x²(t)',linear:false,ti:true,apply:(t,x)=>x(t)**2},
+  scale2:{label:'y(t) = 2x(t)',eq:'2x(t)',linear:true,ti:true,apply:(t,x)=>2*x(t)},
+  customLTI:{label:'y(t) = 3 d/dt x(t-1) + 2x(t+2)',eq:'3 d/dt x(t-1)+2x(t+2)',linear:true,ti:true,apply:(t,x)=>3*deriv(x,t-1)+2*x(t+2)},
+  reverseMix:{label:'y(t) = x(-t) + 2x(t)',eq:'x(-t)+2x(t)',linear:true,ti:false,apply:(t,x)=>x(-t)+2*x(t)},
+  twoShift:{label:'y(t) = 2x(t-1) - x(t+2)',eq:'2x(t-1)-x(t+2)',linear:true,ti:true,apply:(t,x)=>2*x(t-1)-x(t+2)}
+ };
+ const T=Array.from({length:601},(_,i)=>-6+i*12/600),dt=T[1]-T[0];
+ function deriv(x,t){const h=.003;return (x(t+h)-x(t-h))/(2*h)}
+ function mrow(parts){return `<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow>${parts}</mrow></math>`}
+ const mi=s=>`<mi>${s}</mi>`,mn=s=>`<mn>${s}</mn>`,mo=s=>`<mo>${s}</mo>`,sub=(a,b)=>`<msub>${a}${b}</msub>`,sup=(a,b)=>`<msup>${a}${b}</msup>`,par=s=>`${mo('(')}${s}${mo(')')}`;
+ function eqLinearity(){return mrow(`${mi('T')}${mo('{')}${mi('a')}${sub(mi('x'),mn('1'))}${par(mi('t'))}${mo('+')}${mi('b')}${sub(mi('x'),mn('2'))}${par(mi('t'))}${mo('}')}${mo('=')}${mi('a')}${mi('T')}${mo('{')}${sub(mi('x'),mn('1'))}${par(mi('t'))}${mo('}')}${mo('+')}${mi('b')}${mi('T')}${mo('{')}${sub(mi('x'),mn('2'))}${par(mi('t'))}${mo('}')}`)}
+ function eqTI(){return mrow(`${mi('T')}${mo('{')}${mi('x')}${par(`${mi('t')}${mo('−')}${sub(mi('t'),mn('0'))}`)}${mo('}')}${mo('=')}${mi('y')}${par(`${mi('t')}${mo('−')}${sub(mi('t'),mn('0'))}`)}${mo(',')}${mi('y')}${par(mi('t'))}${mo('=')}${mi('T')}${mo('{')}${mi('x')}${par(mi('t'))}${mo('}')}`)}
+ function simpleMath(text){let s=text.replaceAll('&','&amp;');return `<span class="math-text">${s}</span>`}
+ function options(obj,selected){return Object.entries(obj).map(([k,v])=>`<option value="${k}" ${k===selected?'selected':''}>${v.label}</option>`).join('')}
+ function render(){const root=document.getElementById('lti');if(!root)return;root.innerHTML=`<div class="chapter-shell"><header class="chapter-header"><div class="chapter-title-block"><span class="chapter-number">CHAPTER 01</span><h1>LTI Systems</h1><p>Explore linearity and time invariance graphically and interactively.</p></div></header><nav class="chapter-tabs">${tabs.map(([id,l])=>`<button class="chapter-tab ${state.tab===id?'active':''}" data-tab="${id}">${l}</button>`).join('')}</nav><div class="chapter-content" id="ltiContent"></div></div>`;root.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{state.tab=b.dataset.tab;render()});renderTab()}
+ function renderTab(){const c=document.getElementById('ltiContent');({concept:renderConcept,linearity:renderLinearity,time:renderTime,lti:renderLTILab,grapher:renderGrapher,exam:renderExam}[state.tab]||renderConcept)(c)}
+ function renderConcept(c){const ex=[['scale2','Linear and time-invariant.'],['offset','The constant offset breaks linearity.'],['square','Scaling the input exposes nonlinearity.'],['delay','A fixed delay is LTI.'],['timegain','Explicit dependence on time breaks time invariance.'],['reverse','Time reversal is linear but time-varying.'],['twoShift','A linear combination of fixed shifts is LTI.'],['customLTI','Derivative plus fixed shifts remains LTI.'],['reverseMix','The reversal term makes the system time-varying.']];c.innerHTML=`<h2 class="section-title">What makes a system LTI?</h2><div class="grid2"><article class="panel"><h3>1. Linearity</h3><div class="math">${eqLinearity()}</div><p>The order of combining/scaling and applying the system must not matter.</p></article><article class="panel"><h3>2. Time Invariance</h3><div class="math">${eqTI()}</div><p>The order of delaying and applying the system must not matter.</p></article></div><section class="requirement"><div class="eyebrow">LTI REQUIREMENT</div><div class="math">LTI = Linear AND Time-Invariant</div></section><div class="eyebrow">EXPLORE</div><h2 class="section-title">Examples</h2><p class="muted">Click any example to open it directly in the LTI Lab.</p><div class="example-grid">${ex.map(([k,d],i)=>`<article class="example-card" data-example="${k}"><span class="module-number">${String(i+1).padStart(2,'0')}</span><div class="math">${systems[k].label}</div><p>${d}</p></article>`).join('')}</div>`;c.querySelectorAll('[data-example]').forEach(card=>card.onclick=()=>{state.prefill=card.dataset.example;state.tab='lti';render()})}
+ function controlHTML(kind){if(kind==='lin')return `<div class="controls"><div class="control"><label>System</label><select id="sys">${options(systems,'gain')}</select></div><div class="control"><label>x₁(t)</label><select id="x1">${options(signals,'step')}</select></div><div class="control"><label>x₂(t)</label><select id="x2">${options(signals,'sin')}</select></div><div class="control"><label>a = <span class="range-value" id="av">2</span></label><input id="a" type="range" min="-5" max="5" step=".25" value="2"></div><div class="control"><label>b = <span class="range-value" id="bv">1</span></label><input id="b" type="range" min="-5" max="5" step=".25" value="1"></div></div>`;return `<div class="controls"><div class="control"><label>System</label><select id="sys">${options(systems,'gain')}</select></div><div class="control"><label>x(t)</label><select id="x">${options(signals,'step')}</select></div><div class="control"><label>Delay t₀ = <span class="range-value" id="tv">2</span></label><input id="t0" type="range" min="-5" max="5" step=".25" value="2"></div></div>`}
+ function renderLinearity(c){c.innerHTML=`<h2 class="section-title">Linearity Lab — Superposition Test</h2><div class="math formula-line">${eqLinearity()}</div><div class="control-panel">${controlHTML('lin')}</div><div id="linResults"></div>`;['sys','x1','x2','a','b'].forEach(id=>document.getElementById(id).oninput=update);update();function update(){const sk=val('sys'),s1=val('x1'),s2=val('x2'),a=+val('a'),b=+val('b');text('av',fmt(a));text('bv',fmt(b));const x1=signals[s1].fn,x2=signals[s2].fn,sys=systems[sk],combo=t=>a*x1(t)+b*x2(t),p1=T.map(t=>sys.apply(t,combo)),p2=T.map(t=>a*sys.apply(t,x1)+b*sys.apply(t,x2)),err=maxErr(p1,p2);document.getElementById('linResults').innerHTML=`<h3 class="step-heading">Path 1 — Combine the inputs first, then apply the system</h3><div class="plot-grid"><div class="plot-card"><h4>Scale x₁(t)</h4><canvas id="lp1"></canvas></div><div class="plot-card"><h4>Scale x₂(t)</h4><canvas id="lp2"></canvas></div><div class="plot-card"><h4>Combined input v(t)=ax₁(t)+bx₂(t)</h4><canvas id="lp3"></canvas></div><div class="plot-card"><h4>Path 1 output</h4><canvas id="lp4"></canvas></div></div><h3 class="step-heading">Path 2 — Apply the system first, then combine the outputs</h3><div class="plot-grid"><div class="plot-card"><h4>T{x₁(t)}</h4><canvas id="lp5"></canvas></div><div class="plot-card"><h4>T{x₂(t)}</h4><canvas id="lp6"></canvas></div><div class="plot-card wide-plot"><h4>Final comparison</h4><canvas id="lp7"></canvas></div></div><div class="status-banner ${err<1e-5?'match':'mismatch'}">${err<1e-5?'MATCH — this experiment satisfies superposition':'MISMATCH — this experiment violates superposition'}</div>`;plot('lp1',[[x1,'x₁',C.blue],[t=>a*x1(t),'ax₁',C.green]]);plot('lp2',[[x2,'x₂',C.orange],[t=>b*x2(t),'bx₂',C.green]]);plot('lp3',[[combo,'v(t)',C.green]]);plotArray('lp4',[[p1,'Path 1',C.green]]);plot('lp5',[[t=>sys.apply(t,x1),'T{x₁}',C.blue]]);plot('lp6',[[t=>sys.apply(t,x2),'T{x₂}',C.orange]]);plotArray('lp7',[[p1,'Path 1',C.green],[p2,'Path 2',C.purple]],true)}}
+ function renderTime(c){c.innerHTML=`<h2 class="section-title">Time-Invariance Lab — Delay Test</h2><div class="math formula-line">${eqTI()}</div><div class="control-panel">${controlHTML('time')}</div><div id="tiResults"></div>`;['sys','x','t0'].forEach(id=>document.getElementById(id).oninput=update);update();function update(){const sys=systems[val('sys')],x=signals[val('x')].fn,t0=+val('t0');text('tv',fmt(t0));const xd=t=>x(t-t0),y=t=>sys.apply(t,x),p1=T.map(t=>sys.apply(t,xd)),p2=T.map(t=>y(t-t0)),err=maxErr(p1,p2);document.getElementById('tiResults').innerHTML=`<h3 class="step-heading">Path 1 — Delay the input first, then apply the system</h3><div class="plot-grid"><div class="plot-card"><h4>Original and delayed input</h4><canvas id="tp1"></canvas></div><div class="plot-card"><h4>Path 1 output</h4><canvas id="tp2"></canvas></div></div><h3 class="step-heading">Path 2 — Apply the system first, then delay the output</h3><div class="plot-grid"><div class="plot-card"><h4>System output y(t)</h4><canvas id="tp3"></canvas></div><div class="plot-card"><h4>Delayed output y(t−t₀)</h4><canvas id="tp4"></canvas></div><div class="plot-card wide-plot"><h4>Final comparison</h4><canvas id="tp5"></canvas></div></div><div class="status-banner ${err<1e-4?'match':'mismatch'}">${err<1e-4?'MATCH — time-invariant for this test':'MISMATCH — time-varying for this test'}</div>`;plot('tp1',[[x,'x(t)',C.blue],[xd,'x(t−t₀)',C.green]]);plotArray('tp2',[[p1,'Path 1',C.green]]);plot('tp3',[[y,'y(t)',C.purple]]);plotArray('tp4',[[p2,'Path 2',C.purple]]);plotArray('tp5',[[p1,'Path 1',C.green],[p2,'Path 2',C.purple]],true)}}
+ function renderLTILab(c){const def=state.prefill&&systems[state.prefill]?state.prefill:'gain';state.prefill=null;c.innerHTML=`<h2 class="section-title">LTI Lab</h2><p class="muted">Run both tests together. Controls update the graphs immediately.</p><div class="control-panel"><div class="controls"><div class="control"><label>System</label><select id="lsys">${options(systems,def)}</select></div><div class="control"><label>x₁(t)</label><select id="lx1">${options(signals,'step')}</select></div><div class="control"><label>x₂(t)</label><select id="lx2">${options(signals,'sin')}</select></div><div class="control"><label>a = <span id="lav" class="range-value">2</span></label><input id="la" type="range" min="-5" max="5" step=".25" value="2"></div><div class="control"><label>b = <span id="lbv" class="range-value">1</span></label><input id="lb" type="range" min="-5" max="5" step=".25" value="1"></div><div class="control"><label>t₀ = <span id="ltv" class="range-value">2</span></label><input id="lt0" type="range" min="-5" max="5" step=".25" value="2"></div></div></div><div id="ltiResults"></div>`;['lsys','lx1','lx2','la','lb','lt0'].forEach(id=>document.getElementById(id).oninput=update);update();function update(){const sys=systems[val('lsys')],x1=signals[val('lx1')].fn,x2=signals[val('lx2')].fn,a=+val('la'),b=+val('lb'),t0=+val('lt0');text('lav',fmt(a));text('lbv',fmt(b));text('ltv',fmt(t0));const combo=t=>a*x1(t)+b*x2(t),l1=T.map(t=>sys.apply(t,combo)),l2=T.map(t=>a*sys.apply(t,x1)+b*sys.apply(t,x2)),xd=t=>x1(t-t0),y=t=>sys.apply(t,x1),q1=T.map(t=>sys.apply(t,xd)),q2=T.map(t=>y(t-t0)),le=maxErr(l1,l2),te=maxErr(q1,q2);document.getElementById('ltiResults').innerHTML=`<h3 class="step-heading">Linearity test</h3><div class="plot-grid"><div class="plot-card wide-plot"><canvas id="lc1"></canvas></div></div><div class="status-banner ${le<1e-4?'match':'mismatch'}">${le<1e-4?'Linearity paths MATCH':'Linearity paths MISMATCH'}</div><h3 class="step-heading">Time-invariance test</h3><div class="plot-grid"><div class="plot-card wide-plot"><canvas id="lc2"></canvas></div></div><div class="status-banner ${te<1e-4?'match':'mismatch'}">${te<1e-4?'Time-shift paths MATCH':'Time-shift paths MISMATCH'}</div><div class="result-row"><div class="result-card">Linear<strong class="${sys.linear?'yes':'no'}">${sys.linear?'YES':'NO'}</strong></div><div class="result-card">Time-Invariant<strong class="${sys.ti?'yes':'no'}">${sys.ti?'YES':'NO'}</strong></div><div class="result-card">LTI<strong class="${sys.linear&&sys.ti?'yes':'no'}">${sys.linear&&sys.ti?'YES':'NO'}</strong></div></div>`;plotArray('lc1',[[l1,'T{ax₁+bx₂}',C.green],[l2,'aT{x₁}+bT{x₂}',C.purple]],true);plotArray('lc2',[[q1,'T{x(t−t₀)}',C.green],[q2,'y(t−t₀)',C.purple]],true)}}
+ function renderGrapher(c){c.innerHTML=`<h2 class="section-title">System Grapher — Build Your Own Experiment</h2><div class="grapher-help">Use <b>t</b> for time and <b>x</b> for the current input. Supported functions: sin(), cos(), exp(), abs(), sqrt(), u(). Examples: system <code>3*x</code>, <code>3*x+1</code>, <code>t*x</code>, <code>x*x</code>, <code>sin(x)</code>; signal <code>u(t)</code>, <code>sin(t)</code>, <code>exp(-t*t)</code>.</div><div class="controls"><div class="control"><label>System y(t) =</label><input id="gsys" type="text" value="3*x"></div><div class="control"><label>x₁(t) =</label><input id="gx1" type="text" value="u(t)"></div><div class="control"><label>x₂(t) =</label><input id="gx2" type="text" value="sin(t)"></div><div class="control"><label>a</label><input id="ga" type="number" value="2" step=".25"></div><div class="control"><label>b</label><input id="gb" type="number" value="1" step=".25"></div><div class="control"><label>t₀</label><input id="gt0" type="number" value="2" step=".25"></div></div><button class="btn" id="graphBtn">Graph experiment</button><div id="gout"></div>`;document.getElementById('graphBtn').onclick=()=>{try{const se=val('gsys'),e1=val('gx1'),e2=val('gx2'),a=+val('ga'),b=+val('gb'),t0=+val('gt0'),x1=t=>evalSignal(e1,t),x2=t=>evalSignal(e2,t),apply=(t,x)=>evalSystem(se,t,x(t)),combo=t=>a*x1(t)+b*x2(t),p1=T.map(t=>apply(t,combo)),p2=T.map(t=>a*apply(t,x1)+b*apply(t,x2)),xd=t=>x1(t-t0),y=t=>apply(t,x1),q1=T.map(t=>apply(t,xd)),q2=T.map(t=>y(t-t0));document.getElementById('gout').innerHTML=`<h3 class="step-heading">Linearity test</h3><div class="plot-card"><canvas id="gc1"></canvas></div><h3 class="step-heading">Time-invariance test</h3><div class="plot-card"><canvas id="gc2"></canvas></div>`;plotArray('gc1',[[p1,'Path 1',C.green],[p2,'Path 2',C.purple]],true);plotArray('gc2',[[q1,'Path 1',C.green],[q2,'Path 2',C.purple]],true)}catch(e){document.getElementById('gout').innerHTML=`<div class="status-banner mismatch">Check the expression format.</div>`}}}
+ function buildBank(){const b=[];const add=(system,answer,why)=>b.push({system,answer,why});Object.values(systems).forEach(s=>add(s.label,s.linear&&s.ti?'LTI':s.linear?'Linear but time-varying':s.ti?'Nonlinear but time-invariant':'Neither linear nor time-invariant',explain(s)));const gains=[-4,-2,.5,4,7];gains.forEach(k=>add(`y(t) = ${k}x(t)`,'LTI','A constant gain satisfies superposition and does not explicitly depend on time.'));[2,3,4,5].forEach(k=>add(`y(t) = x(t-${k})`,'LTI','A fixed delay is linear and time-invariant.'));['x²(t)','|x(t)|','sin(x(t))','x(t)+2','2x(t)+5'].forEach((q,i)=>add(`y(t) = ${q}`,'Nonlinear but time-invariant','The pointwise nonlinear/offset operation breaks superposition but has no explicit dependence on time.'));['t x(t)','(t+2)x(t)','sin(t)x(t)','x(-t)','x(t)u(t)'].forEach(q=>add(`y(t) = ${q}`,'Linear but time-varying','The operation is linear in the input but changes under a time shift.'));for(let i=0;i<10;i++)add(`y(t) = ${i+1}x(t-${(i%3)+1}) - x(t+${(i%2)+1})`,'LTI','A linear combination of fixed shifts with constant coefficients is LTI.');for(let i=0;i<8;i++)add(`y(t) = x(t) + ${(i+1)} `,'Nonlinear but time-invariant','The nonzero additive constant violates T{0}=0.');while(b.length<50)add(`y(t) = ${b.length-20}x(t)`,'LTI','Constant gain is linear and time-invariant.');return b.slice(0,50)}
+ function explain(s){if(s.linear&&s.ti)return 'It satisfies superposition and commutes with a time shift.';if(!s.linear&&s.ti)return 'It violates superposition, but the rule itself does not change with time.';if(s.linear&&!s.ti)return 'It is linear in the input, but a time shift changes the operation.';return 'It violates both required LTI properties.'}
+ function renderExam(c){if(!state.exam)generateExam();c.innerHTML=`<div class="exam-toolbar"><div><h2 class="section-title" style="margin-bottom:4px">Mini Exam</h2><p class="muted">10 questions are selected from an internal bank of 50 questions.</p></div><button class="btn" id="newExam">Generate new exam</button></div><div id="questions">${state.exam.map((q,i)=>`<article class="exam-card"><h3>${i+1}. Classify the system:</h3><div class="math">${q.system}</div><div class="answers">${['LTI','Linear but time-varying','Nonlinear but time-invariant','Neither linear nor time-invariant'].map(a=>`<label class="answer"><input type="radio" name="q${i}" value="${a}"> <span>${a}</span></label>`).join('')}</div><div id="fb${i}"></div></article>`).join('')}</div><button class="btn" id="grade">Grade exam</button><div id="score"></div>`;document.getElementById('newExam').onclick=()=>{generateExam();renderExam(c)};document.getElementById('grade').onclick=()=>{let score=0;state.exam.forEach((q,i)=>{const a=document.querySelector(`input[name=q${i}]:checked`)?.value,ok=a===q.answer;if(ok)score++;document.getElementById(`fb${i}`).innerHTML=`<div class="feedback ${ok?'correct':'incorrect'}"><b>${ok?'✓ CORRECT':'✗ INCORRECT'}</b><br>Your answer: ${a||'No answer'}<br>Correct answer: <b>${q.answer}</b><br>${q.why}</div>`});document.getElementById('score').innerHTML=`<p class="score">Score: ${score}/10</p>`}}
+ function generateExam(){const bank=buildBank(),copy=[...bank];state.exam=[];while(state.exam.length<10){state.exam.push(copy.splice(Math.floor(Math.random()*copy.length),1)[0])}}
+ const C={blue:'#4c8dff',orange:'#ff9f43',green:'#36c98f',purple:'#a678ff'};
+ function plot(id,series){plotArray(id,series.map(([fn,l,c])=>[T.map(fn),l,c]))}
+ function plotArray(id,series,dashedSecond=false){const canvas=document.getElementById(id);if(!canvas)return;const r=devicePixelRatio||1,w=Math.max(300,canvas.clientWidth),h=canvas.clientHeight||190;canvas.width=w*r;canvas.height=h*r;const q=canvas.getContext('2d');q.setTransform(r,0,0,r,0,0);q.clearRect(0,0,w,h);let vals=series.flatMap(s=>s[0]).filter(Number.isFinite),m=Math.max(1,Math.min(50,...[Math.max(...vals.map(Math.abs))||1]));const sx=t=>36+(t+6)/12*(w-48),sy=y=>h/2-y/m*(h*.36);q.strokeStyle='rgba(150,150,160,.25)';q.lineWidth=1;q.beginPath();q.moveTo(36,h/2);q.lineTo(w-12,h/2);q.stroke();for(let t=-6;t<=6;t+=2){const x=sx(t);q.beginPath();q.moveTo(x,8);q.lineTo(x,h-20);q.stroke();q.fillStyle='#8f929b';q.font='10px Arial';q.fillText(t,x-5,h-5)}series.forEach((s,j)=>{q.strokeStyle=s[2];q.lineWidth=2.2;q.setLineDash(dashedSecond&&j===1?[6,4]:[]);q.beginPath();s[0].forEach((y,i)=>{const x=sx(T[i]),yy=sy(Math.max(-m*1.25,Math.min(m*1.25,y)));i?q.lineTo(x,yy):q.moveTo(x,yy)});q.stroke();q.setLineDash([])});let lx=45;series.forEach(s=>{q.fillStyle=s[2];q.fillRect(lx,9,14,3);q.fillStyle='#c7c9cf';q.font='10px Arial';q.fillText(s[1],lx+19,13);lx+=Math.min(150,30+s[1].length*6)})}
+ function maxErr(a,b){let m=0;for(let i=0;i<a.length;i++)m=Math.max(m,Math.abs(a[i]-b[i]));return m}function val(id){return document.getElementById(id).value}function text(id,s){document.getElementById(id).textContent=s}function fmt(n){return Number(n.toFixed(2)).toString()}
+ function evalSignal(expr,t){return safeEval(expr,{t})}function evalSystem(expr,t,x){return safeEval(expr,{t,x})}function safeEval(expr,vars){let s=expr.replaceAll('^','**');if(!/^[0-9A-Za-z_+\-*/().,\s*]+$/.test(s)||s.includes('__'))throw Error();const env={...vars,sin:Math.sin,cos:Math.cos,exp:Math.exp,abs:Math.abs,sqrt:Math.sqrt,u:z=>z>=0?1:0,pi:Math.PI};const names=Object.keys(env),values=Object.values(env);return Function(...names,`"use strict"; return (${s});`)(...values)}
+ return{render};
+})();window.LTI=LTI;

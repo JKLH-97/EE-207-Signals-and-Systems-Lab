@@ -5,9 +5,20 @@
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    const navTabs = document.querySelectorAll(".nav-tab");
-    const pages = document.querySelectorAll(".page");
-    const moduleCards = document.querySelectorAll(".module-card.available");
+    /* =====================================================
+       DOM REFERENCES
+       ===================================================== */
+
+    const navTabs =
+        document.querySelectorAll(".nav-tab");
+
+    const pages =
+        document.querySelectorAll(".page");
+
+    const moduleCards =
+        document.querySelectorAll(
+            ".module-card.available"
+        );
 
 
     /* =====================================================
@@ -16,66 +27,206 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function openPage(pageId) {
 
-        // Hide every page
-        pages.forEach((page) => {
-            page.classList.remove("active");
-        });
+        /* ---------------------------------------------
+           Find requested page
+        --------------------------------------------- */
 
-        // Remove active state from sidebar
-        navTabs.forEach((tab) => {
-            tab.classList.remove("active");
-        });
+        const targetPage =
+            document.getElementById(pageId);
 
-
-        // Show requested page
-        const targetPage = document.getElementById(pageId);
 
         if (!targetPage) {
-            console.warn(`Page "${pageId}" was not found.`);
+
+            console.warn(
+                `Page "${pageId}" was not found.`
+            );
+
             return;
         }
+
+
+        /* ---------------------------------------------
+           Hide all pages
+        --------------------------------------------- */
+
+        pages.forEach((page) => {
+
+            page.classList.remove("active");
+
+        });
+
+
+        /* ---------------------------------------------
+           Remove active state from sidebar
+        --------------------------------------------- */
+
+        navTabs.forEach((tab) => {
+
+            tab.classList.remove("active");
+
+        });
+
+
+        /* ---------------------------------------------
+           Show selected page
+        --------------------------------------------- */
 
         targetPage.classList.add("active");
 
 
-        // Highlight corresponding sidebar tab
-        const targetTab = document.querySelector(
-            `.nav-tab[data-page="${pageId}"]`
-        );
+        /* ---------------------------------------------
+           Initialize chapter modules
+        --------------------------------------------- */
+
+        initializeChapter(pageId);
+
+
+        /* ---------------------------------------------
+           Highlight corresponding sidebar tab
+        --------------------------------------------- */
+
+        const targetTab =
+            document.querySelector(
+                `.nav-tab[data-page="${pageId}"]`
+            );
+
 
         if (targetTab) {
+
             targetTab.classList.add("active");
+
         }
 
 
-        // Save current page
-        localStorage.setItem(
-            "ee207-current-page",
-            pageId
-        );
+        /* ---------------------------------------------
+           Remember current page
+        --------------------------------------------- */
+
+        try {
+
+            localStorage.setItem(
+                "ee207-current-page",
+                pageId
+            );
+
+        } catch (error) {
+
+            console.warn(
+                "Local storage is not available."
+            );
+
+        }
 
 
-        // Return to top
+        /* ---------------------------------------------
+           Return to top
+        --------------------------------------------- */
+
         window.scrollTo({
             top: 0,
             behavior: "smooth"
         });
+
     }
 
 
     /* =====================================================
-       SIDEBAR BUTTONS
+       CHAPTER INITIALIZATION
+       ===================================================== */
+
+    function initializeChapter(pageId) {
+
+        switch (pageId) {
+
+            /* -----------------------------------------
+               LTI SYSTEMS
+            ----------------------------------------- */
+
+            case "lti":
+
+                if (
+                    typeof LTI !== "undefined" &&
+                    typeof LTI.render === "function"
+                ) {
+
+                    LTI.render();
+
+                } else {
+
+                    console.warn(
+                        "LTI module is not available."
+                    );
+
+                }
+
+                break;
+
+
+            /* -----------------------------------------
+               CONVOLUTION
+
+               Will be connected later.
+            ----------------------------------------- */
+
+            case "convolution":
+
+                /*
+                Future:
+
+                if (
+                    typeof Convolution !== "undefined" &&
+                    typeof Convolution.render === "function"
+                ) {
+                    Convolution.render();
+                }
+                */
+
+                break;
+
+
+            /* -----------------------------------------
+               FUTURE CHAPTERS
+            ----------------------------------------- */
+
+            case "laplace":
+            case "fourier":
+            case "filters":
+            case "sampling":
+
+                break;
+
+
+            default:
+
+                break;
+
+        }
+
+    }
+
+
+    /* =====================================================
+       SIDEBAR NAVIGATION
        ===================================================== */
 
     navTabs.forEach((tab) => {
 
-        tab.addEventListener("click", () => {
+        tab.addEventListener(
+            "click",
+            () => {
 
-            const pageId = tab.dataset.page;
+                const pageId =
+                    tab.dataset.page;
 
-            openPage(pageId);
 
-        });
+                if (pageId) {
+
+                    openPage(pageId);
+
+                }
+
+            }
+        );
 
     });
 
@@ -86,15 +237,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     moduleCards.forEach((card) => {
 
-        card.addEventListener("click", () => {
+        card.addEventListener(
+            "click",
+            () => {
 
-            const pageId = card.dataset.open;
+                const pageId =
+                    card.dataset.open;
 
-            if (pageId) {
-                openPage(pageId);
+
+                if (pageId) {
+
+                    openPage(pageId);
+
+                }
+
             }
-
-        });
+        );
 
     });
 
@@ -105,7 +263,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     moduleCards.forEach((card) => {
 
-        card.setAttribute("tabindex", "0");
+        card.setAttribute(
+            "tabindex",
+            "0"
+        );
+
 
         card.setAttribute(
             "role",
@@ -113,55 +275,106 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
 
-        card.addEventListener("keydown", (event) => {
+        card.addEventListener(
+            "keydown",
+            (event) => {
 
-            if (
-                event.key === "Enter" ||
-                event.key === " "
-            ) {
+                if (
+                    event.key === "Enter" ||
+                    event.key === " "
+                ) {
 
-                event.preventDefault();
+                    event.preventDefault();
 
-                const pageId = card.dataset.open;
 
-                if (pageId) {
-                    openPage(pageId);
+                    const pageId =
+                        card.dataset.open;
+
+
+                    if (pageId) {
+
+                        openPage(pageId);
+
+                    }
+
                 }
 
             }
-
-        });
+        );
 
     });
 
 
     /* =====================================================
-       RESTORE LAST OPEN PAGE
+       RESTORE PREVIOUS PAGE
        ===================================================== */
 
-    const savedPage =
-        localStorage.getItem(
-            "ee207-current-page"
-        );
+    function restorePage() {
+
+        let savedPage = null;
 
 
-    if (
-        savedPage &&
-        document.getElementById(savedPage)
-    ) {
+        try {
 
-        openPage(savedPage);
+            savedPage =
+                localStorage.getItem(
+                    "ee207-current-page"
+                );
 
-    } else {
+        } catch (error) {
 
-        openPage("home");
+            savedPage = null;
+
+        }
+
+
+        if (
+            savedPage &&
+            document.getElementById(savedPage)
+        ) {
+
+            openPage(savedPage);
+
+        } else {
+
+            openPage("home");
+
+        }
 
     }
 
 
     /* =====================================================
-       APP READY
+       PUBLIC NAVIGATION EVENT
+
+       Other modules will be able to request navigation
+       without directly manipulating the page structure.
        ===================================================== */
+
+    window.addEventListener(
+        "ee207:navigate",
+        (event) => {
+
+            const pageId =
+                event.detail?.page;
+
+
+            if (pageId) {
+
+                openPage(pageId);
+
+            }
+
+        }
+    );
+
+
+    /* =====================================================
+       START APPLICATION
+       ===================================================== */
+
+    restorePage();
+
 
     console.log(
         "EE-207 Signals & Systems web application loaded."

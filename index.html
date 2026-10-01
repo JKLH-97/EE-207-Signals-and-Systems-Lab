@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
 
@@ -19,54 +20,96 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 
+
 <body>
 
     <!-- ======================================================
          SIDEBAR
     ======================================================= -->
+
     <aside class="sidebar">
 
         <div class="course-header">
+
             <h1>EE-207</h1>
-            <p>Signals &amp; Systems</p>
+
+            <p>
+                Signals &amp; Systems
+            </p>
+
         </div>
+
 
         <nav class="course-navigation">
 
-            <h2>Course Topics</h2>
+            <h2>
+                Course Topics
+            </h2>
 
-            <button class="nav-tab active" data-page="home">
+
+            <button
+                class="nav-tab active"
+                data-page="home"
+            >
                 Home
             </button>
 
-            <button class="nav-tab" data-page="lti">
+
+            <button
+                class="nav-tab"
+                data-page="lti"
+            >
                 LTI Systems
             </button>
 
-            <button class="nav-tab" data-page="convolution">
+
+            <button
+                class="nav-tab"
+                data-page="convolution"
+            >
                 Convolution
             </button>
 
-            <button class="nav-tab" data-page="laplace">
+
+            <button
+                class="nav-tab"
+                data-page="laplace"
+            >
                 Laplace Transform
             </button>
 
-            <button class="nav-tab" data-page="fourier">
+
+            <button
+                class="nav-tab"
+                data-page="fourier"
+            >
                 Fourier Analysis
             </button>
 
-            <button class="nav-tab" data-page="filters">
+
+            <button
+                class="nav-tab"
+                data-page="filters"
+            >
                 Filters
             </button>
 
-            <button class="nav-tab" data-page="sampling">
+
+            <button
+                class="nav-tab"
+                data-page="sampling"
+            >
                 Sampling
             </button>
 
         </nav>
 
+
         <div class="sidebar-footer">
-            Interactive modules for EE-207 Signals &amp; Systems
+
+            Interactive modules for
+            EE-207 Signals &amp; Systems
+
         </div>
 
     </aside>
@@ -75,10 +118,23 @@
     <!-- ======================================================
          MAIN CONTENT
     ======================================================= -->
-    <main class="main-content" id="app">
 
-        <!-- HOME -->
-        <section class="page active" id="home">
+    <main
+        class="main-content"
+        id="app"
+    >
+
+
+        <!-- ==================================================
+             HOME
+        =================================================== -->
+
+        <section
+            class="page active"
+            id="home"
+        >
+
+            <!-- HERO -->
 
             <div class="home-hero">
 
@@ -88,24 +144,34 @@
                         EE-207
                     </span>
 
+
                     <h1>
                         Signals &amp; Systems
                     </h1>
 
+
                     <p>
-                        An interactive learning environment for exploring
-                        Signals and Systems through visualization,
+                        An interactive learning environment
+                        for exploring Signals and Systems
+                        through visualization,
                         experimentation, and practice.
                     </p>
 
                 </div>
 
-                <div class="signal-decoration" aria-hidden="true">
+
+                <!-- Decorative signal -->
+
+                <div
+                    class="signal-decoration"
+                    aria-hidden="true"
+                >
 
                     <svg
                         viewBox="0 0 900 220"
                         preserveAspectRatio="none"
                     >
+
                         <path
                             class="signal signal-one"
                             d="
@@ -118,6 +184,7 @@
                             "
                         />
 
+
                         <path
                             class="signal signal-two"
                             d="
@@ -128,6 +195,7 @@
                             S820 170, 900 110
                             "
                         />
+
                     </svg>
 
                 </div>
@@ -135,84 +203,219 @@
             </div>
 
 
+            <!-- ==================================================
+                 INTRODUCTION
+            =================================================== -->
+
             <section class="home-intro">
 
-                <h2>Interactive Course Workspace</h2>
+                <h2>
+                    Interactive Course Workspace
+                </h2>
+
 
                 <p>
-                    Explore each chapter through graphical demonstrations,
-                    experiments, and practice activities.
+                    Explore each chapter through graphical
+                    demonstrations, experiments,
+                    and practice activities.
                 </p>
 
             </section>
 
 
-            <!-- COURSE CARDS -->
+            <!-- ==================================================
+                 COURSE MODULES
+            =================================================== -->
+
             <section class="module-grid">
 
-                <article class="module-card available" data-open="lti">
-                    <span class="module-number">01</span>
-                    <h3>LTI Systems</h3>
+
+                <!-- LTI SYSTEMS -->
+
+                <article
+                    class="module-card available"
+                    data-open="lti"
+                >
+
+                    <span class="module-number">
+                        01
+                    </span>
+
+
+                    <h3>
+                        LTI Systems
+                    </h3>
+
+
                     <p>
-                        Explore linearity, time invariance, and
-                        system behavior interactively.
+                        Explore linearity,
+                        time invariance,
+                        and system behavior interactively.
                     </p>
-                    <span class="status">Available</span>
+
+
+                    <span class="status">
+                        Available
+                    </span>
+
                 </article>
 
 
-                <article class="module-card available" data-open="convolution">
-                    <span class="module-number">02</span>
-                    <h3>Convolution</h3>
+                <!-- CONVOLUTION -->
+
+                <article
+                    class="module-card available"
+                    data-open="convolution"
+                >
+
+                    <span class="module-number">
+                        02
+                    </span>
+
+
+                    <h3>
+                        Convolution
+                    </h3>
+
+
                     <p>
-                        Visualize flip, shift, multiply, integrate,
+                        Visualize flip,
+                        shift,
+                        multiply,
+                        integrate,
                         and the convolution output.
                     </p>
-                    <span class="status">Available</span>
+
+
+                    <span class="status">
+                        Available
+                    </span>
+
                 </article>
 
 
-                <article class="module-card" data-open="laplace">
-                    <span class="module-number">03</span>
-                    <h3>Laplace Transform</h3>
+                <!-- LAPLACE -->
+
+                <article
+                    class="module-card"
+                    data-open="laplace"
+                >
+
+                    <span class="module-number">
+                        03
+                    </span>
+
+
+                    <h3>
+                        Laplace Transform
+                    </h3>
+
+
                     <p>
-                        Explore transforms, poles, zeros,
+                        Explore transforms,
+                        poles,
+                        zeros,
                         and system behavior.
                     </p>
-                    <span class="status">Coming soon</span>
+
+
+                    <span class="status">
+                        Coming soon
+                    </span>
+
                 </article>
 
 
-                <article class="module-card" data-open="fourier">
-                    <span class="module-number">04</span>
-                    <h3>Fourier Analysis</h3>
+                <!-- FOURIER -->
+
+                <article
+                    class="module-card"
+                    data-open="fourier"
+                >
+
+                    <span class="module-number">
+                        04
+                    </span>
+
+
+                    <h3>
+                        Fourier Analysis
+                    </h3>
+
+
                     <p>
-                        Understand frequency-domain representations
+                        Understand frequency-domain
+                        representations
                         and harmonic content.
                     </p>
-                    <span class="status">Coming soon</span>
+
+
+                    <span class="status">
+                        Coming soon
+                    </span>
+
                 </article>
 
 
-                <article class="module-card" data-open="filters">
-                    <span class="module-number">05</span>
-                    <h3>Filters</h3>
+                <!-- FILTERS -->
+
+                <article
+                    class="module-card"
+                    data-open="filters"
+                >
+
+                    <span class="module-number">
+                        05
+                    </span>
+
+
+                    <h3>
+                        Filters
+                    </h3>
+
+
                     <p>
-                        Investigate frequency-selective systems
+                        Investigate frequency-selective
+                        systems
                         and filtering behavior.
                     </p>
-                    <span class="status">Coming soon</span>
+
+
+                    <span class="status">
+                        Coming soon
+                    </span>
+
                 </article>
 
 
-                <article class="module-card" data-open="sampling">
-                    <span class="module-number">06</span>
-                    <h3>Sampling</h3>
+                <!-- SAMPLING -->
+
+                <article
+                    class="module-card"
+                    data-open="sampling"
+                >
+
+                    <span class="module-number">
+                        06
+                    </span>
+
+
+                    <h3>
+                        Sampling
+                    </h3>
+
+
                     <p>
-                        Explore sampling, reconstruction,
+                        Explore sampling,
+                        reconstruction,
                         and aliasing interactively.
                     </p>
-                    <span class="status">Coming soon</span>
+
+
+                    <span class="status">
+                        Coming soon
+                    </span>
+
                 </article>
 
             </section>
@@ -221,71 +424,183 @@
 
 
         <!-- ==================================================
-             CHAPTER PLACEHOLDERS
+             LTI SYSTEMS
+
+             Content is generated by js/lti.js
         =================================================== -->
 
-        <section class="page" id="lti">
+        <section
+            class="page"
+            id="lti"
+        >
+        </section>
+
+
+        <!-- ==================================================
+             CONVOLUTION
+        =================================================== -->
+
+        <section
+            class="page"
+            id="convolution"
+        >
+
             <div class="chapter-placeholder">
-                <span>Chapter 01</span>
-                <h1>LTI Systems</h1>
+
+                <span>
+                    Chapter 02
+                </span>
+
+
+                <h1>
+                    Convolution
+                </h1>
+
+
                 <p>
-                    Interactive LTI module will be added here.
+                    Interactive convolution module
+                    will be added here.
                 </p>
+
             </div>
+
         </section>
 
 
-        <section class="page" id="convolution">
+        <!-- ==================================================
+             LAPLACE TRANSFORM
+        =================================================== -->
+
+        <section
+            class="page"
+            id="laplace"
+        >
+
             <div class="chapter-placeholder">
-                <span>Chapter 02</span>
-                <h1>Convolution</h1>
+
+                <span>
+                    Chapter 03
+                </span>
+
+
+                <h1>
+                    Laplace Transform
+                </h1>
+
+
                 <p>
-                    Interactive convolution module will be added here.
+                    Coming soon.
                 </p>
+
             </div>
+
         </section>
 
 
-        <section class="page" id="laplace">
+        <!-- ==================================================
+             FOURIER ANALYSIS
+        =================================================== -->
+
+        <section
+            class="page"
+            id="fourier"
+        >
+
             <div class="chapter-placeholder">
-                <span>Chapter 03</span>
-                <h1>Laplace Transform</h1>
-                <p>Coming soon.</p>
+
+                <span>
+                    Chapter 04
+                </span>
+
+
+                <h1>
+                    Fourier Analysis
+                </h1>
+
+
+                <p>
+                    Coming soon.
+                </p>
+
             </div>
+
         </section>
 
 
-        <section class="page" id="fourier">
+        <!-- ==================================================
+             FILTERS
+        =================================================== -->
+
+        <section
+            class="page"
+            id="filters"
+        >
+
             <div class="chapter-placeholder">
-                <span>Chapter 04</span>
-                <h1>Fourier Analysis</h1>
-                <p>Coming soon.</p>
+
+                <span>
+                    Chapter 05
+                </span>
+
+
+                <h1>
+                    Filters
+                </h1>
+
+
+                <p>
+                    Coming soon.
+                </p>
+
             </div>
+
         </section>
 
 
-        <section class="page" id="filters">
+        <!-- ==================================================
+             SAMPLING
+        =================================================== -->
+
+        <section
+            class="page"
+            id="sampling"
+        >
+
             <div class="chapter-placeholder">
-                <span>Chapter 05</span>
-                <h1>Filters</h1>
-                <p>Coming soon.</p>
-            </div>
-        </section>
+
+                <span>
+                    Chapter 06
+                </span>
 
 
-        <section class="page" id="sampling">
-            <div class="chapter-placeholder">
-                <span>Chapter 06</span>
-                <h1>Sampling</h1>
-                <p>Coming soon.</p>
+                <h1>
+                    Sampling
+                </h1>
+
+
+                <p>
+                    Coming soon.
+                </p>
+
             </div>
+
         </section>
+
 
     </main>
 
 
-    <!-- Main JavaScript -->
+    <!-- ======================================================
+         JAVASCRIPT
+    ======================================================= -->
+
+    <!-- LTI chapter module -->
+    <script src="js/lti.js"></script>
+
+    <!-- Main application controller -->
     <script src="js/app.js"></script>
 
+
 </body>
+
 </html>

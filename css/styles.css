@@ -19,3 +19,23 @@
 .site-footer span+span:before{content:"•";margin-right:14px;color:#5e626d}.site-footer strong{color:#c7c9cf}
 .sidebar-collapsed .site-footer{margin-left:0}
 @media(max-width:760px){.site-footer{margin-left:0;padding:20px 18px 28px}.live-equation .math{font-size:13px}}
+
+/* =========================================================
+   SYSTEM GRAPHER — analytical classification notes
+   ========================================================= */
+.analysis-note,
+.analysis-reason {
+  margin: 10px 0 14px;
+  padding: 12px 15px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: rgba(255,255,255,.025);
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+.analysis-note b { color: var(--text-main); }
+.status-banner.uncertain {
+  border-color: #d6a72c;
+  background: rgba(214,167,44,.10);
+  color: #f0c95a;
+}

@@ -39,3 +39,31 @@
   background: rgba(214,167,44,.10);
   color: #f0c95a;
 }
+
+
+/* =========================================================
+   v6 — compact dual-test dashboards
+   ========================================================= */
+.lti-dashboard,.grapher-dashboard{display:grid;grid-template-columns:minmax(0,1fr) 285px;gap:18px;align-items:start}
+.lti-side-controls,.grapher-side-controls{position:sticky;top:18px;border:1px solid var(--border);border-radius:10px;background:var(--bg-card);padding:18px}
+.lti-side-controls h3,.grapher-side-controls h3{margin:0 0 15px;font-size:19px}
+.lti-side-controls .control,.grapher-side-controls .control{margin-bottom:13px}
+.lti-side-controls select,.lti-side-controls input,.grapher-side-controls select,.grapher-side-controls input{width:100%}
+.dual-test-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.compact-test-panel{min-width:0;border:1px solid var(--border);border-radius:10px;padding:15px;background:rgba(255,255,255,.012)}
+.compact-test-panel>h3{margin:0 0 10px;font-size:22px}
+.compact-test-panel>.math{font-size:14px;margin-bottom:10px}
+.compact-test-panel .plot-card{padding:10px;margin-bottom:10px}
+.compact-test-panel .plot-card canvas{height:160px}
+.compact-test-panel .plot-card h4{font-size:13px;margin:0 0 5px}
+.compact-equations{margin:8px 0}
+.compact-equations .math{font-size:13px;padding:7px 8px;margin:5px 0}
+.analysis-note.compact,.zero-test.compact{font-size:12px;padding:8px 10px;margin:7px 0;line-height:1.4}
+.zero-test{margin:10px 0 14px;padding:12px 15px;border:1px solid rgba(214,167,44,.45);border-radius:7px;background:rgba(214,167,44,.06);color:var(--text-secondary)}
+.zero-test h4{margin:0 0 7px;color:#f0c95a}
+.zero-test p{margin:7px 0 0}
+.status-banner.overall{margin-top:14px;font-size:19px;text-align:center}
+.grapher-help{margin-bottom:14px}
+.grapher-tests .analysis-reason{font-size:12px;padding:8px 10px;margin:7px 0}
+@media(max-width:1180px){.lti-dashboard,.grapher-dashboard{grid-template-columns:1fr}.lti-side-controls,.grapher-side-controls{position:static;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.lti-side-controls h3,.grapher-side-controls h3{grid-column:1/-1}.grapher-side-controls .btn{align-self:end}}
+@media(max-width:820px){.dual-test-grid{grid-template-columns:1fr}.lti-side-controls,.grapher-side-controls{grid-template-columns:1fr}}

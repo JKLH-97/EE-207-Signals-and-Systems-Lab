@@ -67,3 +67,19 @@
 .grapher-tests .analysis-reason{font-size:12px;padding:8px 10px;margin:7px 0}
 @media(max-width:1180px){.lti-dashboard,.grapher-dashboard{grid-template-columns:1fr}.lti-side-controls,.grapher-side-controls{position:static;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.lti-side-controls h3,.grapher-side-controls h3{grid-column:1/-1}.grapher-side-controls .btn{align-self:end}}
 @media(max-width:820px){.dual-test-grid{grid-template-columns:1fr}.lti-side-controls,.grapher-side-controls{grid-template-columns:1fr}}
+
+
+/* =========================================================
+   v7 — enforced desktop dashboard layout
+   Concept is frozen; these rules affect labs only.
+   ========================================================= */
+@media (min-width: 1181px){
+  .lti-dashboard{grid-template-columns:minmax(0,1fr) 270px !important;gap:16px}
+  .lti-dashboard .dual-test-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;gap:12px}
+  .grapher-dashboard{grid-template-columns:minmax(0,1fr) 285px !important;gap:16px}
+  .grapher-dashboard .dual-test-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;gap:12px}
+  .compact-test-panel .plot-card canvas{height:138px !important}
+  .compact-test-panel{padding:13px}
+  .compact-test-panel .math{font-size:12.5px}
+  .lti-side-controls,.grapher-side-controls{top:12px;max-height:calc(100vh - 30px);overflow:auto}
+}

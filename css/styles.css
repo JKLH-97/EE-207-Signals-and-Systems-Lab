@@ -108,3 +108,28 @@
 .compact-final .wide-plot canvas{height:175px}
 @media(max-width:1180px){.three-column-lab{grid-template-columns:1fr 1fr}.lab-side-controls{grid-column:1/-1;position:static;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.lab-side-controls h3,.lab-side-controls .substitution-block{grid-column:1/-1}}
 @media(max-width:820px){.three-column-lab{grid-template-columns:1fr}.lab-side-controls{grid-column:auto;grid-template-columns:1fr}}
+
+
+/* =========================================================
+   v9 — compact lab equations + test score placement
+   ========================================================= */
+/* Only the two teaching labs: slightly reduce the general
+   theory equation and the yP1/yP2 equations shown below
+   each path heading. */
+#linearity-dashboard .equation-box .katex,
+#time-dashboard .equation-box .katex,
+.linearity-dashboard .equation-box .katex,
+.time-dashboard .equation-box .katex,
+.path-column > .math .katex,
+.lab-path-column > .math .katex {
+    font-size: .94em;
+}
+
+/* Current v8 side-by-side lab markup uses these dashboard panels. */
+.lab-dashboard > .lab-main .math .katex,
+.lab-dashboard .path-panel > .math .katex {
+    font-size: .94em;
+}
+
+.score-top{min-height:32px;margin-top:8px}
+.score-top .score{margin:0;color:var(--accent);font-size:22px}

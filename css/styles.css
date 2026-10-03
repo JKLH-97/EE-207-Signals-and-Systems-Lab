@@ -359,3 +359,67 @@ textarea,
 .exam-card > .math .katex {
     font-size: 1em !important;
 }
+
+
+/* =========================================================
+   v15 — Professional Home hero
+   ========================================================= */
+.home-hero{
+    min-height:330px;
+    padding:52px 58px;
+    background:
+      radial-gradient(circle at 82% 34%,rgba(76,141,255,.12),transparent 31%),
+      radial-gradient(circle at 68% 72%,rgba(78,215,207,.09),transparent 34%),
+      linear-gradient(135deg,#11151c 0%,#111821 54%,#0e1117 100%);
+}
+.home-hero:before{
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    opacity:.18;
+    background-image:
+      linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+    background-size:38px 38px;
+    mask-image:linear-gradient(90deg,transparent 28%,black 60%);
+}
+.home-hero .hero-content{
+    width:auto;
+    max-width:760px;
+    z-index:3;
+}
+.home-hero .hero-content h1{
+    white-space:nowrap;
+    font-size:clamp(42px,5vw,72px);
+    line-height:1.02;
+    letter-spacing:-.035em;
+    text-shadow:0 1px 0 rgba(255,255,255,.04);
+}
+.home-hero .hero-content p{
+    max-width:610px;
+    font-size:14px;
+    line-height:1.7;
+}
+.home-wavefield{
+    right:-3%;
+    bottom:6px;
+    width:58%;
+    height:285px;
+    opacity:.82;
+}
+.home-wavefield svg{overflow:visible}
+.hero-axis{fill:none;stroke:rgba(255,255,255,.14);stroke-width:1}
+.hero-wave{fill:none;stroke-width:2.2;vector-effect:non-scaling-stroke}
+.wave-a{stroke:url(#waveA)}
+.wave-b{stroke:url(#waveB);stroke-width:1.8}
+.wave-c{stroke:rgba(255,255,255,.17);stroke-width:1.1;stroke-dasharray:5 7}
+.hero-samples{stroke:#4ed7cf;fill:#4ed7cf;opacity:.55;stroke-width:1.2}
+@media(max-width:1180px){
+    .home-hero .hero-content h1{font-size:clamp(38px,4.5vw,58px)}
+    .home-wavefield{width:52%;opacity:.58}
+}
+@media(max-width:900px){
+    .home-hero .hero-content h1{white-space:normal}
+    .home-wavefield{width:80%;right:-25%;opacity:.32}
+}

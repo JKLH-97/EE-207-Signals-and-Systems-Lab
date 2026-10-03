@@ -256,29 +256,82 @@ const LTI = (() => {
       document.getElementById('gout').innerHTML=`<div class="dual-test-grid grapher-tests"><section class="compact-test-panel"><h3>Linearity</h3><div class="plot-card"><h4>Inputs and combination</h4><canvas id="gc0"></canvas></div><div class="plot-card"><h4>Path outputs</h4><canvas id="gc1"></canvas></div><div class="compact-equations">${math(`T\\{${comboTexFn(a,expressionToTex(e1),b,expressionToTex(e2))}\\}\\;\\stackrel{?}{=}\\;${signedTerm(a,`T\\{${expressionToTex(e1)}\\}`,true)}${signedTerm(b,`T\\{${expressionToTex(e2)}\\}`,false)}`)}${math(`y_{P1}(t)\\;\\stackrel{?}{=}\\;y_{P2}(t)`)}</div><div class="analysis-note compact"><b>Visual experiment:</b> ${le<1e-4?'passes for the selected inputs and coefficients; this alone does not prove linearity.':'fails and therefore provides a counterexample.'}</div><div class="status-banner ${classification.linear===true?'match':classification.linear===false?'mismatch':'uncertain'}">${classificationWord(classification.linear,'The system is LINEAR','The system is NONLINEAR')}</div><div class="analysis-reason">${classification.linearReason}</div></section><section class="compact-test-panel"><h3>Time Invariance</h3><div class="plot-card"><h4>Original and delayed input</h4><canvas id="gc3"></canvas></div><div class="plot-card"><h4>Path outputs</h4><canvas id="gc2"></canvas></div><div class="compact-equations">${math(`T\\{x(${shiftArg(t0)})\\}\\;\\stackrel{?}{=}\\;y(${shiftArg(t0)})`)}${math(`y_{P1}(t)\\;\\stackrel{?}{=}\\;y_{P2}(t)`)}</div><div class="analysis-note compact"><b>Visual experiment:</b> ${te<1e-4?'passes for the selected shift; this alone does not prove time invariance.':'fails and therefore provides a counterexample.'}</div><div class="status-banner ${classification.ti===true?'match':classification.ti===false?'mismatch':'uncertain'}">${classificationWord(classification.ti,'The system is TIME-INVARIANT','The system is TIME-VARYING')}</div><div class="analysis-reason">${classification.tiReason}</div></section></div><div class="status-banner overall ${knownLTI?(isLTI?'match':'mismatch'):'uncertain'}">${knownLTI?(isLTI?'The system is LTI':'The system is NOT LTI'):'LTI classification is NOT PROVEN for this expression'}</div>`;
       plot('gc0',[[x1,'x₁',C.blue],[x2,'x₂',C.green],[combo,'ax₁+bx₂',C.gold]]);plotArray('gc1',[[p1,'yP1(t)',C.red],[p2,'yP2(t)',C.cyan]],true);plot('gc3',[[x1,'x(t)',C.blue],[xd,'x(t−t₀)',C.orange]]);plotArray('gc2',[[q1,'yP1(t)',C.red],[q2,'yP2(t)',C.purple]],true);
     }catch(e){document.getElementById('gout').innerHTML=`<div class="status-banner mismatch">Check the expression format.</div>`;}};
-    let graphFrame=0;
+    /* Ultra-light live preview for sliders.
+       Uses 161 samples instead of the full 601-point analysis grid,
+       compiles typed expressions once per expression change, and never
+       rebuilds HTML/KaTeX/classification while dragging. */
+    const liveT=Array.from({length:161},(_,i)=>-6+i*12/160);
+    let graphFrame=0,liveCache={key:'',x1:null,x2:null,sys:null,needsD:false,needsI:false};
+
+    const compileScalar=(expr,names)=>{
+      let s=String(expr).replaceAll('^','**');
+      if(!/^[0-9A-Za-z_+\-*/().,\s*]+$/.test(s)||s.includes('__'))throw Error('Bad expression');
+      const args=[...names,'sin','cos','exp','abs','sqrt','u','pi'];
+      return Function(...args,`"use strict";return (${s});`);
+    };
+    const getLiveCompiled=()=>{
+      const se=val('gsys'),e1=val('gx1'),e2=val('gx2'),key=se+'\u0000'+e1+'\u0000'+e2;
+      if(liveCache.key===key)return liveCache;
+      const sf=se.replace(/dx\/dt/g,'dxdt').replace(/int\(x\)/g,'intx');
+      liveCache={
+        key,
+        x1:compileScalar(e1,['t']),
+        x2:compileScalar(e2,['t']),
+        sys:compileScalar(sf,['t','x','dxdt','intx']),
+        needsD:/dx\/dt/.test(se),
+        needsI:/int\(x\)/.test(se)
+      };
+      return liveCache;
+    };
+    const FARGS=[Math.sin,Math.cos,Math.exp,Math.abs,Math.sqrt,z=>z>=0?1:0,Math.PI];
+    const callSig=(fn,t)=>fn(t,...FARGS);
+    const fastIntegral=(fn,t)=>{
+      if(t<=-6)return 0;
+      const n=36,h=(t+6)/n;let sum=.5*(callSig(fn,-6)+callSig(fn,t));
+      for(let k=1;k<n;k++)sum+=callSig(fn,-6+k*h);
+      return sum*h;
+    };
+    const callSys=(cache,t,xfn)=>{
+      const xv=callSig(xfn,t);
+      const dx=cache.needsD?(callSig(xfn,t+.006)-callSig(xfn,t-.006))/.012:0;
+      const ix=cache.needsI?fastIntegral(xfn,t):0;
+      return cache.sys(t,xv,dx,ix,...FARGS);
+    };
+    const fastPlot=(id,series,dashedSecond=false)=>{
+      const canvas=document.getElementById(id);if(!canvas)return;
+      const r=Math.min(devicePixelRatio||1,1.5),w=Math.max(300,canvas.clientWidth),h=canvas.clientHeight||205;
+      if(canvas.width!==Math.round(w*r)||canvas.height!==Math.round(h*r)){canvas.width=Math.round(w*r);canvas.height=Math.round(h*r);}
+      const q=canvas.getContext('2d');q.setTransform(r,0,0,r,0,0);q.clearRect(0,0,w,h);
+      const vals=series.flatMap(s=>s[0]).filter(Number.isFinite),m=Math.max(1,Math.min(50,Math.max(...vals.map(Math.abs))||1));
+      const L=48,R=14,TOP=15,BOT=31,sx=t=>L+(t+6)/12*(w-L-R),sy=y=>(h-BOT)/2-y/m*((h-BOT-TOP)*.38);
+      q.strokeStyle='rgba(150,150,160,.18)';q.lineWidth=1;
+      for(let t=-6;t<=6;t+=2){const x=sx(t);q.beginPath();q.moveTo(x,TOP);q.lineTo(x,h-BOT);q.stroke();}
+      q.strokeStyle='#a6a8b0';q.beginPath();q.moveTo(L,sy(0));q.lineTo(w-R,sy(0));q.moveTo(sx(0),TOP);q.lineTo(sx(0),h-BOT);q.stroke();
+      series.forEach((s,j)=>{q.strokeStyle=s[2];q.lineWidth=2.1;q.setLineDash(dashedSecond&&j===1?[6,4]:[]);q.beginPath();s[0].forEach((y,k)=>{const xx=sx(liveT[k]),yy=sy(Math.max(-m*1.25,Math.min(m*1.25,y)));k?q.lineTo(xx,yy):q.moveTo(xx,yy)});q.stroke();q.setLineDash([]);});
+    };
     const fastGraph=()=>{
       if(graphFrame)return;
       graphFrame=requestAnimationFrame(()=>{
         graphFrame=0;
         try{
-          /* Fast path: numerical redraw only. No HTML rebuild, KaTeX,
-             analytical classification, or DOM reconstruction. */
-          const se=val('gsys'),e1=val('gx1'),e2=val('gx2'),
-                a=+val('ga'),b=+val('gb'),t0=+val('gt0'),
-                x1=t=>evalSignal(e1,t),x2=t=>evalSignal(e2,t),
-                apply=(t,xfn)=>evalSystem(se,t,xfn),
-                combo=t=>a*x1(t)+b*x2(t),
-                p1=T.map(t=>apply(t,combo)),
-                p2=T.map(t=>a*apply(t,x1)+b*apply(t,x2)),
-                xd=t=>x1(t-t0),y=t=>apply(t,x1),
-                q1=T.map(t=>apply(t,xd)),
-                q2=T.map(t=>y(t-t0));
-          /* Canvas nodes already exist after the initial full render. */
-          if(document.getElementById('gc0')) plot('gc0',[[x1,'x₁',C.blue],[x2,'x₂',C.green],[combo,'ax₁+bx₂',C.gold]]);
-          if(document.getElementById('gc1')) plotArray('gc1',[[p1,'yP1(t)',C.red],[p2,'yP2(t)',C.cyan]],true);
-          if(document.getElementById('gc3')) plot('gc3',[[x1,'x(t)',C.blue],[xd,'x(t−t₀)',C.orange]]);
-          if(document.getElementById('gc2')) plotArray('gc2',[[q1,'yP1(t)',C.red],[q2,'yP2(t)',C.purple]],true);
+          const cache=getLiveCompiled(),a=+val('ga'),b=+val('gb'),t0=+val('gt0');
+          const x1=cache.x1,x2=cache.x2;
+          const combo=t=>a*callSig(x1,t)+b*callSig(x2,t);
+          /* combo is already a JS scalar function; wrap it to the same calling convention. */
+          const comboFn=(t)=>combo(t);
+          const x1a=liveT.map(t=>callSig(x1,t)),x2a=liveT.map(t=>callSig(x2,t)),ca=liveT.map(combo);
+          const p1=liveT.map(t=>callSys(cache,t,comboFn));
+          const p2=liveT.map(t=>a*callSys(cache,t,x1)+b*callSys(cache,t,x2));
+          const xda=liveT.map(t=>callSig(x1,t-t0));
+          const q1=liveT.map(t=>{
+            const shifted=(z)=>callSig(x1,z-t0);
+            return callSys(cache,t,shifted);
+          });
+          const q2=liveT.map(t=>callSys(cache,t-t0,x1));
+          fastPlot('gc0',[[x1a,'x₁',C.blue],[x2a,'x₂',C.green],[ca,'ax₁+bx₂',C.gold]]);
+          fastPlot('gc1',[[p1,'yP1(t)',C.red],[p2,'yP2(t)',C.cyan]],true);
+          fastPlot('gc3',[[x1a,'x(t)',C.blue],[xda,'x(t−t₀)',C.orange]]);
+          fastPlot('gc2',[[q1,'yP1(t)',C.red],[q2,'yP2(t)',C.purple]],true);
         }catch(e){}
       });
     };

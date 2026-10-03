@@ -1,0 +1,706 @@
+:root{--bg:#0e1117;--side:#262730;--card:#171a21;--card2:#1d212a;--text:#f5f5f5;--muted:#a9abb3;--accent:#ff4b4b;--border:#3a3d46;--blue:#4c8dff;--orange:#ff9f43;--green:#36c98f;--purple:#a678ff;--sidew:290px}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}button,input,select{font:inherit}.sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidew);padding:38px 22px 28px;background:var(--side);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:auto;z-index:20;transition:transform .2s}.sidebar-toggle{position:fixed;top:18px;left:calc(var(--sidew) - 16px);z-index:30;width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:#171a21;color:#ddd;font-size:25px;line-height:24px;cursor:pointer;transition:left .2s}.sidebar-collapsed .sidebar{transform:translateX(-100%)}.sidebar-collapsed .sidebar-toggle{left:10px}.course-header{margin-bottom:38px}.course-header h1{margin:0;font-size:27px}.course-header p{margin:18px 0 0;color:var(--muted)}.course-navigation h2{font-size:19px;margin:0 0 18px}.nav-tab{width:100%;min-height:47px;margin-bottom:9px;padding:0 16px;text-align:left;color:var(--text);background:transparent;border:1px solid #4a4e59;border-radius:5px;cursor:pointer;transition:.15s}.nav-tab:hover,.nav-tab.active{color:var(--accent);border-color:var(--accent);background:rgba(255,75,75,.1)}.sidebar-footer{margin-top:auto;padding-top:28px;border-top:1px solid var(--border);color:#777b86;font-size:14px;line-height:1.6}.main-content{margin-left:var(--sidew);min-height:100vh;padding:44px 54px 70px;transition:margin-left .2s}.sidebar-collapsed .main-content{margin-left:0}.page{display:none;max-width:1450px;margin:auto}.page.active{display:block}.home-hero{position:relative;min-height:360px;padding:60px 64px;border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;align-items:center;background:radial-gradient(circle at 78% 40%,rgba(30,110,120,.2),transparent 36%),linear-gradient(135deg,#11151c,#121820 52%,#0e1117)}.hero-content{width:55%;z-index:2}.course-code,.chapter-number,.eyebrow{color:var(--accent);font-size:13px;font-weight:700;letter-spacing:.14em}.hero-content h1,.chapter-title-block h1,.chapter-placeholder h1{font-family:Georgia,serif}.hero-content h1{font-size:clamp(3rem,6vw,5.6rem);margin:14px 0 18px}.hero-content p{color:var(--muted);font-size:18px;line-height:1.65}.signal-decoration{position:absolute;right:-5%;bottom:18px;width:62%;height:250px;opacity:.65}.signal-decoration svg{width:100%;height:100%}.signal{fill:none;stroke-width:3}.signal-one{stroke:#4ed7cf}.signal-two{stroke:#4c8dff}.home-intro{margin:46px 0 26px}.home-intro h2{font-size:30px;margin:0 0 10px}.home-intro p{color:var(--muted)}.module-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.module-card{position:relative;min-height:210px;padding:25px;border:1px solid var(--border);border-radius:10px;background:var(--card)}.module-card.available{cursor:pointer}.module-card.available:hover{border-color:var(--accent);transform:translateY(-2px)}.module-number,.status{color:var(--accent);font-size:13px}.module-card h3{font-size:23px;margin:16px 0 10px}.module-card p{color:var(--muted);line-height:1.55}.status{position:absolute;left:25px;bottom:21px}.chapter-placeholder{min-height:540px;display:grid;place-content:center;text-align:center;border:1px solid var(--border);border-radius:16px;background:var(--card)}.chapter-placeholder h1{font-size:4rem;margin:12px}.chapter-shell{width:100%}.chapter-header{text-align:center;padding:26px 10px 34px}.chapter-title-block h1{font-size:clamp(3.2rem,6vw,5.4rem);margin:14px 0;text-transform:uppercase;letter-spacing:.035em}.chapter-title-block h1:after{content:"";display:block;width:92px;height:2px;margin:24px auto 19px;background:#fff;opacity:.28}.chapter-title-block p{color:var(--muted)}.chapter-tabs{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-bottom:32px;padding-bottom:12px;border-bottom:1px solid var(--border)}.chapter-tab{min-height:47px;border:1px solid transparent;border-radius:5px;background:transparent;color:var(--muted);font-weight:600;cursor:pointer}.chapter-tab:hover,.chapter-tab.active{color:var(--accent);border-color:var(--accent);background:rgba(255,75,75,.08)}.chapter-content{min-height:500px}.section-title{font-size:30px;margin:0 0 24px}.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.panel,.control-panel,.plot-card,.exam-card{border:1px solid var(--border);border-radius:10px;background:var(--card);padding:24px}.panel h3{font-size:24px;margin:0 0 16px}.panel p,.hint,.muted{color:var(--muted);line-height:1.6}.math{font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;font-size:21px;text-align:center;overflow:auto;padding:16px;border:1px solid var(--border);border-radius:7px;background:rgba(255,255,255,.02)}math{font-size:1.08em}.requirement{margin:20px 0 50px;text-align:center;border:1px solid rgba(255,75,75,.4);border-radius:10px;padding:26px;background:rgba(255,75,75,.05)}.requirement .math{border:0;background:transparent;color:var(--accent);font-size:28px}.example-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.example-card{border:1px solid var(--border);border-radius:10px;background:var(--card);padding:21px;cursor:pointer;transition:.15s}.example-card:hover{border-color:var(--accent);transform:translateY(-2px);background:var(--card2)}.example-card .math{text-align:left;padding:8px 0;border:0;background:transparent}.example-card p{color:var(--muted);font-size:14px}.controls{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}.control label{display:block;font-size:13px;color:var(--muted);margin-bottom:7px}.control select,.control input[type=text],.control input[type=number]{width:100%;height:42px;border:1px solid var(--border);border-radius:6px;background:#242731;color:var(--text);padding:0 11px}.control input[type=range]{width:100%;accent-color:var(--accent)}.range-value{color:var(--accent);font-weight:700}.btn{border:1px solid var(--accent);background:rgba(255,75,75,.1);color:var(--accent);border-radius:6px;padding:10px 18px;font-weight:650;cursor:pointer}.btn:hover{background:rgba(255,75,75,.18)}.plot-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.plot-card{padding:12px}.plot-card h4{margin:4px 5px 8px;font-size:14px}.plot-card canvas{width:100%;height:190px;display:block}.wide-plot{grid-column:1/-1}.wide-plot canvas{height:220px}.step-heading{margin:30px 0 12px;font-size:21px}.result-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}.result-card{border:1px solid var(--border);border-radius:8px;padding:16px;text-align:center;background:var(--card)}.result-card strong{display:block;font-size:22px;margin-top:5px}.yes{color:var(--green)}.no{color:var(--accent)}.formula-line{margin:12px 0}.status-banner{margin:16px 0;padding:14px;border-radius:8px;border:1px solid var(--border);text-align:center;font-weight:700}.status-banner.match{border-color:var(--green);color:var(--green)}.status-banner.mismatch{border-color:var(--accent);color:var(--accent)}.grapher-help{padding:12px 14px;border-left:3px solid var(--blue);background:rgba(76,141,255,.06);color:var(--muted);margin-bottom:18px}.exam-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}.exam-card{margin-bottom:14px}.exam-card h3{font-size:17px;margin-top:0}.answers{display:grid;gap:8px}.answer{display:flex;gap:9px;align-items:flex-start;padding:9px;border-radius:6px;border:1px solid transparent}.answer:hover{background:rgba(255,255,255,.025)}.feedback{margin-top:12px;padding:12px;border-radius:7px;background:#11151c;color:var(--muted)}.feedback.correct{border-left:3px solid var(--green)}.feedback.incorrect{border-left:3px solid var(--accent)}.score{font-size:22px;font-weight:700}.mini-plot{height:145px;width:100%;margin:10px 0}.subtle-rule{border:0;border-top:1px solid var(--border);margin:28px 0}@media(max-width:1100px){.chapter-tabs{grid-template-columns:repeat(3,1fr)}.module-grid,.example-grid{grid-template-columns:repeat(2,1fr)}.controls{grid-template-columns:repeat(2,1fr)}}@media(max-width:760px){.sidebar{position:fixed}.main-content{margin-left:0;padding:70px 18px 45px}.sidebar:not(.x){box-shadow:10px 0 35px rgba(0,0,0,.4)}body:not(.sidebar-collapsed) .main-content{margin-left:0}.module-grid,.grid2,.grid3,.plot-grid,.controls,.example-grid,.result-row{grid-template-columns:1fr}.chapter-tabs{grid-template-columns:repeat(2,1fr)}.hero-content{width:100%}.home-hero{padding:42px 28px}.signal-decoration{opacity:.3;width:100%}.wide-plot{grid-column:auto}}
+
+/* ===== LTI v2 teaching layout ===== */
+.experiment-intro{margin:18px 0 24px;padding:20px 22px;border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,.018)}.experiment-intro h3{margin:0 0 14px;font-size:20px}.experiment-intro p{margin:14px 0 0;color:var(--muted)}.path-note{display:flex;gap:12px;align-items:flex-start;padding:13px 15px;border-left:3px solid var(--accent);background:rgba(255,75,75,.04);border-radius:5px}.path-note b{color:var(--accent);white-space:nowrap}.path-note span{color:var(--muted);line-height:1.45}.substitution-block{margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}.substitution-block h4{margin:0 0 10px;font-size:16px}.substitution-block .math{margin:8px 0}.substitution-block.compact .math{font-size:18px}.path-section{margin-top:32px;padding:22px;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.012)}.path-section>.math{margin-bottom:16px}.path-result{margin-top:14px}.path-result .math{border-color:rgba(76,141,255,.35)}.final-comparison{margin-top:34px;padding-top:8px}.final-comparison h3{font-size:24px}.plot-card>.math{font-size:16px;padding:10px;margin:4px 0 10px}.tex{font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;white-space:normal}.plot-card canvas{height:205px}.wide-plot canvas{height:230px}
+
+/* ===== v3 review refinements ===== */
+.math{font-family:Georgia,"Times New Roman",serif;line-height:1.35}
+.math .katex-display{margin:.2em 0;overflow-x:auto;overflow-y:hidden;padding:.08em 0}
+.math .katex{font-size:1.08em}
+.requirement .math .katex{font-size:1.2em}
+.lab-prompt{margin:14px 0 20px;color:var(--muted);font-size:16px}
+.result-equations{margin:14px 0 10px;padding:16px 18px;border:1px solid var(--border);border-radius:9px;background:rgba(255,255,255,.018)}
+.result-equations h4{margin:0 0 10px;color:var(--muted);font-size:14px;text-transform:uppercase;letter-spacing:.06em}
+.result-equations .math{margin:8px 0;padding:11px 14px}
+.live-equation{margin-top:7px;min-height:38px;color:#38d996;font-size:12px}
+.live-equation .math{padding:6px 8px;border-color:rgba(56,217,150,.22);background:rgba(56,217,150,.035);color:#38d996;text-align:left;font-size:14px}
+.live-equation .katex-display{text-align:left;margin:0}
+.site-footer{margin-left:var(--sidew);padding:22px 54px 30px;border-top:1px solid var(--border);color:#8d919b;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:13px;transition:margin-left .2s}
+.site-footer span+span:before{content:"•";margin-right:14px;color:#5e626d}.site-footer strong{color:#c7c9cf}
+.sidebar-collapsed .site-footer{margin-left:0}
+@media(max-width:760px){.site-footer{margin-left:0;padding:20px 18px 28px}.live-equation .math{font-size:13px}}
+
+/* =========================================================
+   SYSTEM GRAPHER — analytical classification notes
+   ========================================================= */
+.analysis-note,
+.analysis-reason {
+  margin: 10px 0 14px;
+  padding: 12px 15px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: rgba(255,255,255,.025);
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+.analysis-note b { color: var(--text-main); }
+.status-banner.uncertain {
+  border-color: #d6a72c;
+  background: rgba(214,167,44,.10);
+  color: #f0c95a;
+}
+
+
+/* =========================================================
+   v6 — compact dual-test dashboards
+   ========================================================= */
+.lti-dashboard,.grapher-dashboard{display:grid;grid-template-columns:minmax(0,1fr) 285px;gap:18px;align-items:start}
+.lti-side-controls,.grapher-side-controls{position:sticky;top:18px;border:1px solid var(--border);border-radius:10px;background:var(--bg-card);padding:18px}
+.lti-side-controls h3,.grapher-side-controls h3{margin:0 0 15px;font-size:19px}
+.lti-side-controls .control,.grapher-side-controls .control{margin-bottom:13px}
+.lti-side-controls select,.lti-side-controls input,.grapher-side-controls select,.grapher-side-controls input{width:100%}
+.dual-test-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.compact-test-panel{min-width:0;border:1px solid var(--border);border-radius:10px;padding:15px;background:rgba(255,255,255,.012)}
+.compact-test-panel>h3{margin:0 0 10px;font-size:22px}
+.compact-test-panel>.math{font-size:14px;margin-bottom:10px}
+.compact-test-panel .plot-card{padding:10px;margin-bottom:10px}
+.compact-test-panel .plot-card canvas{height:160px}
+.compact-test-panel .plot-card h4{font-size:13px;margin:0 0 5px}
+.compact-equations{margin:8px 0}
+.compact-equations .math{font-size:13px;padding:7px 8px;margin:5px 0}
+.analysis-note.compact,.zero-test.compact{font-size:12px;padding:8px 10px;margin:7px 0;line-height:1.4}
+.zero-test{margin:10px 0 14px;padding:12px 15px;border:1px solid rgba(214,167,44,.45);border-radius:7px;background:rgba(214,167,44,.06);color:var(--text-secondary)}
+.zero-test h4{margin:0 0 7px;color:#f0c95a}
+.zero-test p{margin:7px 0 0}
+.status-banner.overall{margin-top:14px;font-size:19px;text-align:center}
+.grapher-help{margin-bottom:14px}
+.grapher-tests .analysis-reason{font-size:12px;padding:8px 10px;margin:7px 0}
+@media(max-width:1180px){.lti-dashboard,.grapher-dashboard{grid-template-columns:1fr}.lti-side-controls,.grapher-side-controls{position:static;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.lti-side-controls h3,.grapher-side-controls h3{grid-column:1/-1}.grapher-side-controls .btn{align-self:end}}
+@media(max-width:820px){.dual-test-grid{grid-template-columns:1fr}.lti-side-controls,.grapher-side-controls{grid-template-columns:1fr}}
+
+
+/* =========================================================
+   v7 — enforced desktop dashboard layout
+   Concept is frozen; these rules affect labs only.
+   ========================================================= */
+@media (min-width: 1181px){
+  .lti-dashboard{grid-template-columns:minmax(0,1fr) 270px !important;gap:16px}
+  .lti-dashboard .dual-test-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;gap:12px}
+  .grapher-dashboard{grid-template-columns:minmax(0,1fr) 285px !important;gap:16px}
+  .grapher-dashboard .dual-test-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;gap:12px}
+  .compact-test-panel .plot-card canvas{height:138px !important}
+  .compact-test-panel{padding:13px}
+  .compact-test-panel .math{font-size:12.5px}
+  .lti-side-controls,.grapher-side-controls{top:12px;max-height:calc(100vh - 30px);overflow:auto}
+}
+
+
+/* =========================================================
+   v8 — side-by-side path laboratories
+   ========================================================= */
+.three-column-lab{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 270px;gap:14px;align-items:start}
+.lab-path-column{min-width:0}
+.lab-side-controls{position:sticky;top:18px;border:1px solid var(--border);border-radius:10px;background:var(--bg-card);padding:16px}
+.lab-side-controls h3{margin:0 0 14px;font-size:19px}
+.lab-side-controls .control{margin-bottom:13px}
+.lab-side-controls select,.lab-side-controls input{width:100%}
+.lab-side-controls .substitution-block{margin-top:12px;padding-top:12px}
+.lab-side-controls .math{font-size:12px;padding:6px;margin:5px 0}
+.three-column-lab .path-section{margin-top:0;padding:14px}
+.three-column-lab .path-section .step-heading{font-size:17px;line-height:1.3;margin-top:0}
+.three-column-lab .plot-grid{grid-template-columns:1fr}
+.three-column-lab .plot-card{padding:9px}
+.three-column-lab .plot-card canvas{height:150px}
+.three-column-lab .plot-card h4{font-size:13px}
+.three-column-lab .plot-card>.math{font-size:12px;padding:6px}
+.three-column-lab .path-result .math{font-size:12px;padding:7px}
+.compact-final{margin-top:18px}
+.compact-final .wide-plot canvas{height:175px}
+@media(max-width:1180px){.three-column-lab{grid-template-columns:1fr 1fr}.lab-side-controls{grid-column:1/-1;position:static;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.lab-side-controls h3,.lab-side-controls .substitution-block{grid-column:1/-1}}
+@media(max-width:820px){.three-column-lab{grid-template-columns:1fr}.lab-side-controls{grid-column:auto;grid-template-columns:1fr}}
+
+
+/* =========================================================
+   v9 — compact lab equations + test score placement
+   ========================================================= */
+/* Only the two teaching labs: slightly reduce the general
+   theory equation and the yP1/yP2 equations shown below
+   each path heading. */
+#linearity-dashboard .equation-box .katex,
+#time-dashboard .equation-box .katex,
+.linearity-dashboard .equation-box .katex,
+.time-dashboard .equation-box .katex,
+.path-column > .math .katex,
+.lab-path-column > .math .katex {
+    font-size: .94em;
+}
+
+/* Current v8 side-by-side lab markup uses these dashboard panels. */
+.lab-dashboard > .lab-main .math .katex,
+.lab-dashboard .path-panel > .math .katex {
+    font-size: .94em;
+}
+
+.score-top{min-height:32px;margin-top:8px}
+.score-top .score{margin:0;color:var(--accent);font-size:22px}
+
+
+/* =========================================================
+   v10 — Linearity / Time-Invariance equation sizing
+   Match the compact equations used inside graph cards.
+   ========================================================= */
+
+/* General theory equation immediately below each lab title */
+.lab-dashboard > .lab-main > .math,
+.lab-dashboard > .lab-main > .equation-box,
+.side-by-side-lab > .lab-main > .math,
+.side-by-side-lab > .lab-main > .equation-box {
+    font-size: 16px !important;
+}
+
+/* Path equation shown directly below:
+   "Path 1 — ..." / "Path 2 — ..." */
+.path-panel > .math,
+.path-column > .math,
+.lab-path-column > .math,
+.side-path > .math {
+    font-size: 16px !important;
+}
+
+/* KaTeX overrides its own nested font sizing, so target it directly. */
+.lab-dashboard > .lab-main > .math .katex,
+.lab-dashboard > .lab-main > .equation-box .katex,
+.side-by-side-lab > .lab-main > .math .katex,
+.side-by-side-lab > .lab-main > .equation-box .katex,
+.path-panel > .math .katex,
+.path-column > .math .katex,
+.lab-path-column > .math .katex,
+.side-path > .math .katex {
+    font-size: 1em !important;
+}
+
+/* v8 markup: the lab's main theory equation and immediate equations
+   are rendered in the dashboard before the plot-card equations. */
+.lab-main > .math:not(.plot-card .math) .katex,
+.lab-main > .equation-box:not(.plot-card .equation-box) .katex {
+    font-size: 16px !important;
+}
+
+/* Keep equations inside plot cards at their existing compact size. */
+.plot-card > .math,
+.plot-card > .math .katex {
+    font-size: 16px !important;
+}
+
+/* =========================================================
+   v11 — exact equation-size targets requested for the two labs
+   ========================================================= */
+.lab-theory-equation,
+.path-lead-equation {
+    font-size: 12px !important;
+}
+.lab-theory-equation .math,
+.path-lead-equation .math {
+    font-size: 12px !important;
+    padding: 8px 10px !important;
+}
+.lab-theory-equation .katex,
+.path-lead-equation .katex,
+.lab-theory-equation .katex-display,
+.path-lead-equation .katex-display {
+    font-size: 1em !important;
+}
+
+/* =========================================================
+   EE-207 PROJECT TYPOGRAPHY STANDARD — v12
+   This block is authoritative for the whole project.
+   ========================================================= */
+
+/* Core text */
+body { font-size: 14px; }
+body p, .panel p, .module-card p, .analysis-note, .analysis-reason,
+.feedback, .grapher-help, .lab-prompt { font-size: 14px !important; }
+.muted, .hint, .chapter-title-block p, .path-note span,
+.example-card p { font-size: 13px !important; }
+
+/* Headings */
+.chapter-title-block h1 { font-size: 60px !important; }
+.section-title { font-size: 36px !important; }
+#ltiContent > .section-title:first-child + * { }
+/* Main section headings inside content */
+.final-comparison h3, .concept-examples h2 { font-size: 26px !important; }
+.step-heading,
+.three-column-lab .path-section .step-heading { font-size: 22px !important; line-height: 1.3; }
+.plot-card h4,
+.three-column-lab .plot-card h4,
+.substitution-block h4,
+.result-equations h4 { font-size: 16px !important; }
+
+/* Controls */
+.control label { font-size: 14px !important; }
+.control select,
+.control input[type="text"],
+.control input[type="number"],
+.control input[type="range"],
+select, input, textarea { font-size: 14px !important; }
+.site-footer { font-size: 13px !important; }
+
+/* ---------- Mathematical hierarchy ---------- */
+/* Concept equations — frozen standard */
+.math-concept .math,
+.math-concept .math .katex { font-size: 22px !important; }
+
+/* LTI requirement */
+.math-requirement .math,
+.math-requirement .math .katex,
+.requirement .math,
+.requirement .math .katex { font-size: 22px !important; }
+
+/* General theory equation at top of Linearity / Time-Invariance labs */
+.lab-theory-equation,
+.lab-theory-equation .math,
+.lab-theory-equation .math .katex,
+.lab-theory-equation .katex { font-size: 16px !important; }
+
+/* Main equation immediately below each Path heading */
+.path-lead-equation,
+.path-lead-equation .math,
+.path-lead-equation .math .katex,
+.path-lead-equation .katex { font-size: 14px !important; }
+
+/* Equations inside graph/step cards */
+.plot-card > .math,
+.plot-card > .math .katex,
+.three-column-lab .plot-card > .math,
+.three-column-lab .plot-card > .math .katex { font-size: 14px !important; }
+
+/* Result and analytical equations */
+.path-result .math,
+.path-result .math .katex,
+.result-equations .math,
+.result-equations .math .katex,
+.compact-equations .math,
+.compact-equations .math .katex,
+.zero-test .math,
+.zero-test .math .katex,
+.final-comparison > .math,
+.final-comparison > .math .katex { font-size: 14px !important; }
+
+/* Green live preview in System Grapher */
+.live-equation,
+.live-equation .math,
+.live-equation .math .katex { font-size: 14px !important; }
+
+/* Example equations remain readable but secondary */
+.example-card .math,
+.example-card .math .katex { font-size: 14px !important; }
+
+/* Keep chapter title responsive on small screens without exceeding standard */
+@media (max-width: 760px) {
+  .chapter-title-block h1 { font-size: clamp(42px, 12vw, 60px) !important; }
+  .section-title { font-size: 36px !important; }
+}
+
+
+/* =========================================================
+   EE-207 PROJECT TYPOGRAPHY STANDARD — revision 13
+   Approved adjustments only:
+   2) tab title = 30px
+   3) main section title = 20px
+   4) path title = 18px
+   9) select/input content = 13px
+   ========================================================= */
+
+.section-title {
+    font-size: 30px !important;
+}
+
+.lti-concept > h2,
+.section-heading h2,
+.final-comparison > h3 {
+    font-size: 20px !important;
+}
+
+.step-heading,
+.path-section > .step-heading,
+.path-panel > .step-heading,
+.path-column > .step-heading,
+.lab-path-column > .step-heading {
+    font-size: 18px !important;
+}
+
+select,
+input,
+textarea,
+.control select,
+.control input,
+.control textarea,
+.grapher-side-controls select,
+.grapher-side-controls input,
+.lti-side-controls select,
+.lti-side-controls input {
+    font-size: 13px !important;
+}
+
+
+/* =========================================================
+   EE-207 TYPOGRAPHY STANDARD — v14 final corrections
+   Main section headings: 20px
+   Test equations: 16px
+   ========================================================= */
+
+/* Main section headings throughout the project */
+.lti-concept > h2,
+.section-heading h2,
+.final-comparison > h3,
+.compact-test-panel > h3,
+.lti-side-controls > h3,
+.grapher-side-controls > h3,
+.lti-requirement > h3,
+.concept-examples .section-heading h2 {
+    font-size: 20px !important;
+}
+
+/* Equations displayed as the system to classify in LTI Test */
+.exam-card > .math {
+    font-size: 16px !important;
+}
+
+.exam-card > .math .katex {
+    font-size: 1em !important;
+}
+
+
+/* =========================================================
+   v15 — Professional Home hero
+   ========================================================= */
+.home-hero{
+    min-height:330px;
+    padding:52px 58px;
+    background:
+      radial-gradient(circle at 82% 34%,rgba(76,141,255,.12),transparent 31%),
+      radial-gradient(circle at 68% 72%,rgba(78,215,207,.09),transparent 34%),
+      linear-gradient(135deg,#11151c 0%,#111821 54%,#0e1117 100%);
+}
+.home-hero:before{
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    opacity:.18;
+    background-image:
+      linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+    background-size:38px 38px;
+    mask-image:linear-gradient(90deg,transparent 28%,black 60%);
+}
+.home-hero .hero-content{
+    width:auto;
+    max-width:760px;
+    z-index:3;
+}
+.home-hero .hero-content h1{
+    white-space:nowrap;
+    font-size:clamp(42px,5vw,72px);
+    line-height:1.02;
+    letter-spacing:-.035em;
+    text-shadow:0 1px 0 rgba(255,255,255,.04);
+}
+.home-hero .hero-content p{
+    max-width:610px;
+    font-size:14px;
+    line-height:1.7;
+}
+.home-wavefield{
+    right:-3%;
+    bottom:6px;
+    width:58%;
+    height:285px;
+    opacity:.82;
+}
+.home-wavefield svg{overflow:visible}
+.hero-axis{fill:none;stroke:rgba(255,255,255,.14);stroke-width:1}
+.hero-wave{fill:none;stroke-width:2.2;vector-effect:non-scaling-stroke}
+.wave-a{stroke:url(#waveA)}
+.wave-b{stroke:url(#waveB);stroke-width:1.8}
+.wave-c{stroke:rgba(255,255,255,.17);stroke-width:1.1;stroke-dasharray:5 7}
+.hero-samples{stroke:#4ed7cf;fill:#4ed7cf;opacity:.55;stroke-width:1.2}
+@media(max-width:1180px){
+    .home-hero .hero-content h1{font-size:clamp(38px,4.5vw,58px)}
+    .home-wavefield{width:52%;opacity:.58}
+}
+@media(max-width:900px){
+    .home-hero .hero-content h1{white-space:normal}
+    .home-wavefield{width:80%;right:-25%;opacity:.32}
+}
+
+
+/* =========================================================
+   v16 — visible professional Home signal field
+   ========================================================= */
+.home-hero{isolation:isolate}
+.home-hero .hero-content{position:relative;z-index:4}
+.home-wavefield{
+    display:block !important;
+    position:absolute;
+    z-index:2;
+    right:-2%;
+    bottom:2px;
+    width:61%;
+    height:292px;
+    opacity:.95 !important;
+    pointer-events:none;
+}
+.home-wavefield svg{display:block;width:100%;height:100%;overflow:visible}
+.hero-axis{fill:none;stroke:rgba(220,230,240,.22);stroke-width:1.2;vector-effect:non-scaling-stroke}
+.hero-wave{fill:none;vector-effect:non-scaling-stroke}
+.wave-a{stroke:url(#waveA);stroke-width:3.1}
+.wave-b{stroke:url(#waveB);stroke-width:2.5}
+.wave-c{stroke:rgba(230,235,245,.32);stroke-width:1.35;stroke-dasharray:6 8}
+.hero-samples{stroke:#65e2da;fill:#65e2da;opacity:.78;stroke-width:1.5;vector-effect:non-scaling-stroke}
+.home-institution{display:flex;gap:10px 18px;flex-wrap:wrap;margin-top:13px !important;font-size:13px !important;color:#8f939d !important}
+.home-institution strong{color:#cfd1d6;font-weight:600}
+.home-institution span:before{content:"•";margin-right:18px;color:#5e626d}
+@media(max-width:1100px){.home-wavefield{width:56%;opacity:.72 !important}}
+@media(max-width:900px){.home-wavefield{width:82%;right:-28%;opacity:.38 !important}.home-institution span:before{display:none}}
+
+
+/* =========================================================
+   v17 — HOME HERO hard reset
+   Dedicated visual panel; no dependency on old signal classes.
+   ========================================================= */
+.home-hero-v17{
+  position:relative !important;
+  min-height:330px !important;
+  display:grid !important;
+  grid-template-columns:minmax(520px,1.05fr) minmax(430px,.95fr) !important;
+  align-items:center !important;
+  gap:28px !important;
+  padding:46px 48px !important;
+  overflow:hidden !important;
+  background:
+    radial-gradient(circle at 80% 35%,rgba(76,141,255,.13),transparent 34%),
+    radial-gradient(circle at 70% 78%,rgba(78,215,207,.10),transparent 32%),
+    linear-gradient(135deg,#11151c,#101821 58%,#0e1117) !important;
+}
+.home-hero-v17 .hero-content{width:auto !important;max-width:none !important;position:relative !important;z-index:3 !important}
+.home-hero-v17 .hero-content h1{
+  white-space:nowrap !important;
+  font-size:clamp(44px,4.6vw,68px) !important;
+  margin-bottom:18px !important;
+}
+.hero-visual-panel{
+  display:block !important;
+  position:relative !important;
+  z-index:3 !important;
+  width:100% !important;
+  min-width:0 !important;
+  height:255px !important;
+  padding:8px 10px !important;
+  border:1px solid rgba(78,215,207,.26) !important;
+  border-radius:14px !important;
+  background:linear-gradient(180deg,rgba(12,30,39,.82),rgba(11,21,33,.70)) !important;
+  box-shadow:inset 0 0 40px rgba(76,141,255,.06),0 14px 45px rgba(0,0,0,.18) !important;
+}
+.hero-visual-panel svg{display:block !important;width:100% !important;height:100% !important;overflow:visible !important}
+.hero-grid-lines{fill:none;stroke:rgba(180,210,220,.11);stroke-width:1}
+.hero-zero-axis{fill:none;stroke:rgba(225,235,240,.28);stroke-width:1.2}
+.hero-sine-one{fill:none;stroke:#4ed7cf;stroke-width:3.4;filter:drop-shadow(0 0 5px rgba(78,215,207,.28))}
+.hero-sine-two{fill:none;stroke:#4c8dff;stroke-width:2.7;filter:drop-shadow(0 0 5px rgba(76,141,255,.22))}
+.hero-stems-v17{stroke:#f0c95a;fill:#f0c95a;stroke-width:1.7}
+.hero-svg-label{fill:rgba(210,220,228,.58);font:600 11px Arial,sans-serif;letter-spacing:1.4px}
+.hero-svg-axis{fill:rgba(220,225,230,.6);font:italic 13px Georgia,serif}
+@media(max-width:1180px){
+ .home-hero-v17{grid-template-columns:1fr 430px !important}
+ .home-hero-v17 .hero-content h1{font-size:48px !important}
+}
+@media(max-width:980px){
+ .home-hero-v17{grid-template-columns:1fr !important}
+ .hero-visual-panel{height:210px !important}
+ .home-hero-v17 .hero-content h1{white-space:normal !important}
+}
+
+
+/* =========================================================
+   v18 — abstract transparent Home signals
+   ========================================================= */
+.home-hero-v18{
+  position:relative !important;
+  display:flex !important;
+  align-items:center !important;
+  min-height:330px !important;
+  padding:52px 58px !important;
+  overflow:hidden !important;
+  background:
+    radial-gradient(circle at 78% 45%,rgba(76,141,255,.08),transparent 38%),
+    radial-gradient(circle at 66% 72%,rgba(78,215,207,.07),transparent 36%),
+    linear-gradient(135deg,#11151c 0%,#111821 55%,#0e1117 100%) !important;
+}
+.home-hero-v18 .hero-content{position:relative !important;z-index:3 !important;width:auto !important;max-width:780px !important}
+.home-hero-v18 .hero-content h1{white-space:nowrap !important;font-size:clamp(44px,4.6vw,68px) !important}
+.abstract-signals{
+  position:absolute;
+  z-index:1;
+  inset:0 0 0 34%;
+  pointer-events:none;
+  opacity:.72;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.25) 16%,#000 43%,#000 100%);
+  mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.25) 16%,#000 43%,#000 100%);
+}
+.abstract-signals svg{width:100%;height:100%;display:block;overflow:visible}
+.abstract-wave{fill:none;vector-effect:non-scaling-stroke;stroke-linecap:round}
+.aw1{stroke:#4ed7cf;stroke-width:2.4;opacity:.52}
+.aw2{stroke:#4c8dff;stroke-width:2;opacity:.42}
+.aw3{stroke:#b5c6d8;stroke-width:1.15;opacity:.22;stroke-dasharray:7 10}
+.aw4{stroke:#67e0d7;stroke-width:1.25;opacity:.20}
+.abstract-dots{fill:#8edfd9;opacity:.30}
+@media(max-width:980px){
+ .home-hero-v18 .hero-content h1{white-space:normal !important}
+ .abstract-signals{inset:0 -28% 0 28%;opacity:.42}
+}
+
+
+/* =========================================================
+   v19 — Home institution heading / clean abstract signals
+   ========================================================= */
+.hero-institution{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  margin-bottom:16px;
+  color:#aeb2bb;
+  font-size:13px;
+  line-height:1.35;
+  letter-spacing:.015em;
+}
+.hero-institution span:first-child{
+  color:#d2d4d9;
+  font-weight:600;
+}
+.hero-institution span:last-child{
+  font-weight:400;
+}
+/* Floating samples removed from the v18 artwork. */
+.abstract-dots{display:none !important}
+
+
+/* =========================================================
+   v22 — LTI requested typography fix (HOME untouched)
+   ========================================================= */
+#lti .lti-concept-main-title{font-size:18px !important}
+#lti .lti-concept-subtitle{font-size:20px !important}
+#lti .lti-concept-equation,
+#lti .lti-concept-equation .math,
+#lti .lti-concept-equation .katex{font-size:16px !important}
+#lti .lab-path-column .step-heading{font-size:20px !important}
+
+/* =========================================================
+   CONVOLUTION — uses EE-207 frozen design language
+   ========================================================= */
+#convolution .section-title{font-size:30px!important}
+#convolution .panel h3,#convolution .signals-used h3{font-size:20px}
+#convolution p,#convolution .muted{font-size:14px}
+.conv-concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.conv-concept-eq .katex{font-size:16px!important}.conv-lab-eq .katex{font-size:16px!important}.conv-small-eq .katex,.conv-property-eq .katex,.conv-result-eq .katex{font-size:14px!important}
+.conv-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0}.conv-steps span,.conv-four-steps>div{padding:12px;border:1px solid var(--border);border-radius:8px;background:rgba(255,255,255,.018);font-size:14px}
+.conv-example{margin-top:24px;padding:20px;border:1px solid var(--border);border-radius:10px}.conv-example h2{font-size:20px}
+.conv-four-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:15px 0}
+.conv-mode-row{display:flex;gap:24px;flex-wrap:wrap;margin:14px 0 18px}.conv-mode-row label{font-size:14px}
+.custom-help,.signals-used{margin:12px 0;padding:13px 15px;border:1px solid var(--border);border-radius:8px;color:var(--text-secondary);font-size:13px}
+.signals-used>div{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.live-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0}.live-toolbar label{font-size:14px}.live-toolbar input[type=range]{width:220px}.live-toolbar select{font-size:13px}
+.conv-live-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.conv-live-grid .plot-card canvas{height:185px}
+.conv-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}.conv-metrics>div{padding:10px 13px;border:1px solid var(--border);border-radius:8px}.conv-metrics span{display:block;color:var(--text-secondary);font-size:13px}.conv-metrics strong{font-size:16px}
+.conv-four-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.conv-four-grid .plot-card canvas{height:180px}
+.step-time{margin:14px 0}.step-time input{width:min(700px,100%)}
+.property-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.property-card{padding:18px;border:1px solid var(--border);border-radius:10px;background:var(--bg-card)}.property-card h3{font-size:18px}.property-card h4{font-size:16px}.property-card canvas{width:100%;height:150px}
+.conv-answer-input{width:100%;max-width:520px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:#232731;color:var(--text-main);font-size:13px}
+@media(max-width:1100px){.conv-live-grid{grid-template-columns:1fr}.conv-concept-grid,.property-grid{grid-template-columns:1fr}.conv-four-steps{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.conv-four-grid,.signals-used>div,.conv-metrics{grid-template-columns:1fr}.conv-four-steps,.conv-steps{grid-template-columns:1fr 1fr}}
+
+
+/* =========================================================
+   v23 — FINAL LTI TITLE/PATH SIZE ADJUSTMENT
+   Scoped strictly to #lti. Home and Convolution untouched.
+   ========================================================= */
+
+/* Main titles of the five LTI tabs:
+   Linearity Lab, Time-Invariance Lab, LTI Lab,
+   System Grapher, LTI Test: 30px -> 28px */
+#lti .chapter-content > .section-title,
+#lti .chapter-content > .exam-toolbar .section-title,
+#lti .chapter-content > .grapher-dashboard ~ .section-title {
+    font-size: 28px !important;
+}
+
+/* Current renderers place the lab/test title as a direct or near-direct
+   child of chapter-content. This catches all five without touching
+   Concept's "What makes a system LTI?" */
+#lti #lti-content > h2.section-title,
+#lti #lti-content > .exam-toolbar h2.section-title {
+    font-size: 28px !important;
+}
+
+/* Path 1 / Path 2 headings in Linearity and Time-Invariance:
+   exactly the same size as Step titles inside their graph cards. */
+#lti .three-column-lab .lab-path-column .step-heading {
+    font-size: 16px !important;
+}
+
+
+/* =========================================================
+   v24 — System Grapher sliders + frozen convolution math scale
+   ========================================================= */
+#lti .dual-coefficient{display:grid;grid-template-columns:1fr 72px;gap:7px 10px;align-items:center}
+#lti .dual-coefficient label{grid-column:1/-1}
+#lti .dual-coefficient input[type="range"]{width:100%;min-width:0}
+#lti .dual-coefficient input[type="number"]{width:72px;text-align:center}
+
+/* Convolution follows the frozen LTI mathematical hierarchy:
+   Concept = 16px here to match the frozen LTI Concept equations;
+   general lab = 16px; paths/results/steps/properties = 14px. */
+#convolution .conv-concept-eq,
+#convolution .conv-concept-eq .katex,
+#convolution .conv-lab-eq,
+#convolution .conv-lab-eq .katex{font-size:16px!important}
+#convolution .conv-small-eq,
+#convolution .conv-small-eq .katex,
+#convolution .conv-property-eq,
+#convolution .conv-property-eq .katex,
+#convolution .conv-result-eq,
+#convolution .conv-result-eq .katex,
+#convolution .result-equations .math,
+#convolution .result-equations .katex,
+#convolution .signals-used .math,
+#convolution .signals-used .katex{font-size:14px!important}
+
+
+/* =========================================================
+   v25 — System Grapher live coefficients
+   Same visual language as Linearity Lab.
+   ========================================================= */
+#lti .grapher-live-coefficient{display:block!important}
+#lti .grapher-live-coefficient>label{
+  display:block;
+  margin-bottom:6px;
+  font-size:14px!important;
+  color:var(--text-secondary);
+}
+#lti .grapher-live-coefficient .range-value{
+  color:var(--accent);
+  font-size:14px;
+  font-weight:700;
+}
+#lti .grapher-live-coefficient input[type="range"]{
+  display:block;
+  width:100%!important;
+  margin:3px 0 7px;
+  accent-color:var(--accent);
+}
+#lti .exact-value-row{
+  display:grid;
+  grid-template-columns:1fr 72px;
+  gap:8px;
+  align-items:center;
+}
+#lti .exact-value-row>span{
+  color:var(--text-muted);
+  font-size:11px;
+}
+#lti .exact-value-row input[type="number"]{
+  width:72px!important;
+  min-height:30px;
+  padding:4px 7px;
+  font-size:13px!important;
+  text-align:center;
+}

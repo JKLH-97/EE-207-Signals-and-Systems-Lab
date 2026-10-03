@@ -1,6 +1,6 @@
 /* EE-207 — Convolution chapter. Client-side only. */
 window.Convolution=(()=>{
- const tabs=[['concept','Concept'],['live','Live Convolution Lab'],['step','Step-by-Step'],['properties','Properties'],['exam','Mini Exam']];
+ const tabs=[['concept','Concept'],['live','Live Convolution Lab'],['step','Step-by-Step'],['properties','Properties'],['exam','Test']];
  const C={blue:'#4c8dff',cyan:'#4ed7cf',red:'#ff5a5f',gold:'#f0c95a',purple:'#b38cff',green:'#58d68d',orange:'#ff9f43'};
  const state={tab:'concept',playing:false,raf:null,t:-6,speed:1,last:0,exam:null};
  const dt=.025, grid=Array.from({length:481},(_,i)=>-6+i*dt);
@@ -63,7 +63,7 @@ window.Convolution=(()=>{
   document.querySelectorAll(`input[name="${prefix}mode"]`).forEach(r=>r.onchange=()=>{mode=r.value;rebuild()}); rebuild(); return()=>({mode,...getFns(prefix,mode)});
  }
  function renderLive(c){
-  c.innerHTML=`<h2 class="section-title">Live Convolution Lab</h2><p class="muted">Watch h(t−τ) slide across x(τ) and see the convolution output build in real time.</p>${selectorHTML('lv')}<div id="lvSignals"></div><div class="live-toolbar"><button class="btn" id="play">Play</button><button class="btn secondary" id="pause">Pause</button><button class="btn secondary" id="reset">Reset</button><label>Speed <select id="speed"><option>.5</option><option selected>1</option><option>1.5</option><option>2</option></select></label><label>Current t <input id="timeSlider" type="range" min="-6" max="6" step=".05" value="-6"></label><strong id="timeValue">-6.00 s</strong></div><div class="conv-live-grid"><div class="plot-card"><h4>1. Slide and overlap</h4><canvas id="cv1"></canvas></div><div class="plot-card"><h4>2. Multiply and integrate</h4><canvas id="cv2"></canvas></div><div class="plot-card"><h4>3. Output y(t)</h4><canvas id="cv3"></canvas></div></div><div class="conv-metrics"><div><span>Current time</span><strong id="mTime">-6.00 s</strong></div><div><span>Overlap integral</span><strong id="mInt">0.0000</strong></div><div><span>Current y(t)</span><strong id="mY">0.0000</strong></div></div><div id="liveEq"></div>`;
+  c.innerHTML=`<h2 class="section-title">Live Convolution Lab</h2><p class="muted">Watch h(t−τ) slide across x(τ) and see the convolution output build in real time.</p>${selectorHTML('lv')}<div id="lvSignals"></div><div class="live-toolbar"><button class="btn" id="play">Play</button><button class="btn secondary" id="pause">Pause</button><button class="btn secondary" id="reset">Reset</button><label>Speed <select id="speed"><option>.5</option><option selected>1</option><option>1.5</option><option>2</option></select></label><label>Current t <input id="timeSlider" type="range" min="-6" max="6" step=".05" value="-6"></label><div class="conv-exact-time"><span>Exact t</span><input id="timeInput" type="number" value="-6" step=".05"></div><strong id="timeValue">-6.00 s</strong></div><div class="conv-live-grid"><div class="plot-card"><h4>1. Slide and overlap</h4><canvas id="cv1"></canvas></div><div class="plot-card"><h4>2. Multiply and integrate</h4><canvas id="cv2"></canvas></div><div class="plot-card"><h4>3. Output y(t)</h4><canvas id="cv3"></canvas></div></div><div class="conv-metrics"><div><span>Current time</span><strong id="mTime">-6.00 s</strong></div><div><span>Overlap integral</span><strong id="mInt">0.0000</strong></div><div><span>Current y(t)</span><strong id="mY">0.0000</strong></div></div><div id="liveEq"></div>`;
   let getter=()=>null,curve=[],cached=null,liveGrid=Array.from({length:161},(_,i)=>-6+i*12/160),framePending=false,lastEquationTime=-999;
 
   /* Static work is done only when the selected signals change. */
@@ -80,6 +80,7 @@ window.Convolution=(()=>{
 
   function updateText(t,yi,forceEquation=false){
     document.getElementById('timeValue').textContent=t.toFixed(2)+' s';
+    const ti=document.getElementById('timeInput');if(ti&&document.activeElement!==ti)ti.value=t.toFixed(2);
     document.getElementById('mTime').textContent=t.toFixed(2)+' s';
     document.getElementById('mInt').textContent=yi.toFixed(4);
     document.getElementById('mY').textContent=yi.toFixed(4);
@@ -142,6 +143,13 @@ window.Convolution=(()=>{
 
   slider.oninput=scheduleFast;
   slider.onchange=drawFull;
+  const timeInput=document.getElementById('timeInput');
+  const setExactTime=()=>{
+    const v=Number(timeInput.value);if(!Number.isFinite(v))return;
+    stop();slider.value=Math.max(-6,Math.min(6,v));drawFull();
+  };
+  timeInput.addEventListener('change',setExactTime);
+  timeInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();setExactTime();timeInput.blur();}});
   document.getElementById('speed').onchange=e=>state.speed=+e.target.value;
   document.getElementById('reset').onclick=()=>{stop();slider.value=-6;drawFull()};
   document.getElementById('pause').onclick=()=>{stop();drawFull()};
@@ -174,9 +182,12 @@ window.Convolution=(()=>{
  }
  function stop(){state.playing=false;if(state.raf)cancelAnimationFrame(state.raf);state.raf=null}
  function renderStep(c){
-  c.innerHTML=`<h2 class="section-title">Step-by-Step</h2><p class="muted">Freeze the convolution at one value of t and inspect each graphical operation.</p>${selectorHTML('st',false)}<div class="control step-time"><label>Choose t = <span id="stv">0.00</span></label><input id="stt" type="range" min="-6" max="6" step=".05" value="0"></div><div id="stSignals"></div><div class="conv-four-grid"><div class="plot-card"><h4>1. Original signals</h4><canvas id="s1"></canvas></div><div class="plot-card"><h4>2. Flip h(τ) → h(−τ)</h4><canvas id="s2"></canvas></div><div class="plot-card"><h4>3. Shift → h(t−τ)</h4><canvas id="s3"></canvas></div><div class="plot-card"><h4>4. Multiply</h4><canvas id="s4"></canvas></div></div><div id="stResult"></div>`;
-  let getter=()=>null;const draw=()=>{try{const f=getter();if(!f)return;const t=+document.getElementById('stt').value,yi=convolutionAt(f.x,f.h,t);document.getElementById('stv').textContent=t.toFixed(2);document.getElementById('stSignals').innerHTML=`<div class="signals-used">${math(`x(t)=${f.xt},\\qquad h(t)=${f.ht}`)}</div>`;document.getElementById('stResult').innerHTML=`<div class="result-equations">${math(`y(${t.toFixed(2)})=\\int x(\\tau)h(${t.toFixed(2)}-\\tau)d\\tau=${yi.toFixed(4)}`)}</div>`;typeset(c);plotFns('s1',[[f.x,'x(τ)',C.blue],[f.h,'h(τ)',C.green]],-6,6);plotFns('s2',[[tau=>f.h(-tau),'h(−τ)',C.orange]],-6,6);plotFns('s3',[[f.x,'x(τ)',C.blue],[tau=>f.h(t-tau),'h(t−τ)',C.orange]],-6,6);plotFns('s4',[[tau=>f.x(tau)*f.h(t-tau),'product',C.red]],-6,6)}catch(e){}};
-  getter=bindSelector('st',draw,false);document.getElementById('stt').oninput=draw;draw();
+  c.innerHTML=`<h2 class="section-title">Step-by-Step</h2><p class="muted">Freeze the convolution at one value of t and inspect each graphical operation.</p>${selectorHTML('st',false)}<div class="control step-time"><label>Choose t = <span id="stv">0.00</span></label><div class="step-time-row"><input id="stt" type="range" min="-6" max="6" step=".05" value="0"><div class="conv-exact-time"><span>Exact t</span><input id="stExact" type="number" value="0" step=".05"></div></div></div><div id="stSignals"></div><div class="conv-four-grid"><div class="plot-card"><h4>1. Original signals</h4><canvas id="s1"></canvas></div><div class="plot-card"><h4>2. Flip h(τ) → h(−τ)</h4><canvas id="s2"></canvas></div><div class="plot-card"><h4>3. Shift → h(t−τ)</h4><canvas id="s3"></canvas></div><div class="plot-card"><h4>4. Multiply</h4><canvas id="s4"></canvas></div></div><div id="stResult"></div>`;
+  let getter=()=>null;const draw=()=>{try{const f=getter();if(!f)return;const t=+document.getElementById('stt').value,yi=convolutionAt(f.x,f.h,t);document.getElementById('stv').textContent=t.toFixed(2);const ex=document.getElementById('stExact');if(ex&&document.activeElement!==ex)ex.value=t.toFixed(2);document.getElementById('stSignals').innerHTML=`<div class="signals-used">${math(`x(t)=${f.xt},\\qquad h(t)=${f.ht}`)}</div>`;document.getElementById('stResult').innerHTML=`<div class="result-equations">${math(`y(${t.toFixed(2)})=\\int x(\\tau)h(${t.toFixed(2)}-\\tau)d\\tau=${yi.toFixed(4)}`)}</div>`;typeset(c);plotFns('s1',[[f.x,'x(τ)',C.blue],[f.h,'h(τ)',C.green]],-6,6);plotFns('s2',[[tau=>f.h(-tau),'h(−τ)',C.orange]],-6,6);plotFns('s3',[[f.x,'x(τ)',C.blue],[tau=>f.h(t-tau),'h(t−τ)',C.orange]],-6,6);plotFns('s4',[[tau=>f.x(tau)*f.h(t-tau),'product',C.red]],-6,6)}catch(e){}};
+  getter=bindSelector('st',draw,false);document.getElementById('stt').oninput=draw;
+  const stExact=document.getElementById('stExact');
+  const setStepExact=()=>{const v=Number(stExact.value);if(!Number.isFinite(v))return;document.getElementById('stt').value=Math.max(-6,Math.min(6,v));draw();};
+  stExact.addEventListener('change',setStepExact);stExact.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();setStepExact();stExact.blur();}});draw();
  }
  function renderProperties(c){
   const props=[
@@ -192,21 +203,31 @@ window.Convolution=(()=>{
   c.innerHTML=`<h2 class="section-title">Properties</h2><p class="muted">Use convolution properties to simplify calculations and interpret LTI systems.</p><div class="property-grid">${props.map((p,i)=>`<article class="property-card"><span class="module-number">${String(i+1).padStart(2,'0')}</span><h3>${p[0]}</h3>${math(p[1],'conv-property-eq')}<p>${p[2]}</p><h4>Example</h4><canvas id="pr${i}"></canvas></article>`).join('')}</div>`;typeset(c);props.forEach((p,i)=>{const x=sigs[p[3]].fn,h=sigs[p[4]].fn,y=convCurve(x,h);plotArrays('pr'+i,[[y,'example output',C.cyan]],-6,6)});
  }
  function bank(){
-  const q=[
-   ['What operation is performed first on h(τ) in graphical convolution?','Flip it to obtain h(−τ)','Graphical convolution first reflects one signal.'],
-   ['What does each overlap integral produce?','One point of y(t)','For each fixed t, the integral is the output value at that t.'],
-   ['Is convolution commutative?','Yes','x*h=h*x.'],
-   ['What is x(t)*δ(t−2)?','x(t−2)','Convolution with a shifted impulse shifts the signal.'],
-   ['What does x(t)*u(t) represent?','An accumulated integral of x','The step convolution integrates x up to t.'],
-   ['If two unit-height width-2 causal pulses are convolved, what is the peak?','2','The maximum overlap length is 2.'],
-   ['What variable is integrated in the continuous-time convolution integral?','τ','τ is the dummy integration variable.'],
-   ['Which term slides during graphical convolution?','h(t−τ)','After flipping, the signal is shifted by t.'],
-   ['What is the output support width for two finite pulses of widths 2 and 3?','5','For continuous-time finite pulses the widths add.'],
-   ['If x and h are causal, is y=x*h causal?','Yes','Causal convolved with causal remains causal.']
+  const B=[],add=(q,choices,answer,why)=>B.push({q,choices,answer,why});
+  add('Which expression defines continuous-time convolution?',['y(t)=x(t)h(t)','y(t)=∫x(τ)h(t−τ)dτ','y(t)=x(t)+h(t)','y(t)=dx(t)/dt'],'y(t)=∫x(τ)h(t−τ)dτ','Convolution integrates the product of x(τ) and the shifted/reversed impulse response h(t−τ).');
+  add('In graphical convolution, what is done to h(τ) first?',['Differentiate it','Integrate it','Flip it to h(−τ)','Scale it by t'],'Flip it to h(−τ)','The graphical method first reflects h(τ) about the vertical axis.');
+  add('After obtaining h(−τ), what is the next operation?',['Shift it to h(t−τ)','Square it','Differentiate it','Add x(τ)'],'Shift it to h(t−τ)','The flipped signal is shifted by t.');
+  add('At one fixed value of t, the overlap integral gives:',['The complete h(t)','One value y(t)','The derivative of x(t)','The system poles'],'One value y(t)','Each overlap/integration produces one point of the convolution output.');
+  add('Which convolution property allows x(t) and h(t) to be interchanged?',['Associative','Distributive','Commutative','Causal'],'Commutative','x(t)*h(t)=h(t)*x(t).');
+  add('What is x(t)*δ(t−T)?',['x(t+T)','x(t−T)','δ(t)x(t)','0'],'x(t−T)','Convolution with a shifted impulse shifts x(t) by T.');
+  add('What does x(t)*u(t) produce?',['A derivative of x(t)','An accumulated integral of x(t)','x²(t)','A time reversal'],'An accumulated integral of x(t)','Convolution with the unit step acts as an ideal integrator.');
+  add('If x(t) and h(t) are both causal, y(t)=x(t)*h(t) is:',['Always noncausal','Causal','Periodic','Zero'],'Causal','Causal convolved with causal remains causal.');
+  add('For two unit-height causal rectangular pulses of width 2, the peak convolution value is:',['1','2','4','0'],'2','At maximum overlap the product has unit height over an interval of length 2.');
+  add('The dummy integration variable in the convolution integral is usually:',['t','ω','τ','s'],'τ','τ is the integration variable while t determines the current output location.');
+  add('For finite-duration continuous-time signals, the output support width is generally:',['width x − width h','width x + width h','width x × width h','always 1'],'width x + width h','The support endpoints add under convolution.');
+  add('The area property states that area{y} equals:',['area{x}+area{h}','area{x}×area{h}','area{x}−area{h}','1'],'area{x}×area{h}','The total area of the convolution equals the product of the two signal areas.');
+  const templates=[
+   ['Convolution is multiplication in time.',['True','False','Only for causal signals','Only for pulses'],'False','Convolution is a flip-shift-multiply-integrate operation, not pointwise multiplication.'],
+   ['The operation x*h is associative.',['Yes','No','Only if x=h','Only in discrete time'],'Yes','[x*h]*g=x*[h*g].'],
+   ['Convolution distributes over addition.',['Yes','No','Only for impulses','Only for periodic signals'],'Yes','x*(h1+h2)=x*h1+x*h2.'],
+   ['If h(t)=δ(t), the LTI system output is:',['x(t)','0','δ(t)','∫x(t)dt'],'x(t)','The unit impulse is the identity element for convolution.'],
+   ['Moving h(t−τ) from left to right changes:',['τ only','the parameter t','the amplitude of x','the integration rule'],'the parameter t','t controls the shift of the flipped impulse response.']
   ];
-  while(q.length<50){const n=q.length+1;q.push([`Property check ${n}: does x(t)*h(t) equal h(t)*x(t)?`,'Yes','This is the commutative property of convolution.'])}return q;
+  let k=0;while(B.length<50){const z=templates[k%templates.length];add(`${z[0]} (variation ${Math.floor(k/templates.length)+1})`,z[1],z[2],z[3]);k++}return B.slice(0,50);
  }
- function renderExam(c){if(!state.exam)newExam();c.innerHTML=`<div class="exam-toolbar"><div><h2 class="section-title">Convolution Test</h2><p class="muted">10 questions selected from an internal bank of 50.</p><div id="cscore"></div></div><button class="btn" id="cnew">Generate new test</button></div><div>${state.exam.map((q,i)=>`<article class="exam-card"><h3>${i+1}. ${q[0]}</h3><input class="conv-answer-input" id="ca${i}" placeholder="Type your answer"><div id="cf${i}"></div></article>`).join('')}</div><button class="btn" id="cgrade">Grade test</button>`;document.getElementById('cnew').onclick=()=>{newExam();renderExam(c)};document.getElementById('cgrade').onclick=()=>{let sc=0;state.exam.forEach((q,i)=>{const a=document.getElementById('ca'+i).value.trim().toLowerCase(),ok=a&&((q[1].toLowerCase().includes(a)&&a.length>2)||a===q[1].toLowerCase());if(ok)sc++;document.getElementById('cf'+i).innerHTML=`<div class="feedback ${ok?'correct':'incorrect'}"><b>${ok?'✓ CORRECT':'✗ INCORRECT'}</b><br>Correct answer: <b>${q[1]}</b><br>${q[2]}</div>`});document.getElementById('cscore').innerHTML=`<p class="score">Score: ${sc}/10</p>`;window.scrollTo({top:document.getElementById('cscore').getBoundingClientRect().top+scrollY-20,behavior:'smooth'})};}
+ function renderExam(c){if(!state.exam)newExam();c.innerHTML=`<div class="exam-toolbar"><div><h2 class="section-title">Convolution Test</h2><p class="muted">10 questions are selected from an internal bank of 50 questions.</p><div id="cscore"></div></div><button class="btn" id="cnew">Generate new test</button></div><div id="cquestions">${state.exam.map((q,i)=>`<article class="exam-card"><h3>${i+1}. ${q.q}</h3><div class="answers">${q.choices.map((a,j)=>`<label class="answer"><input type="radio" name="cq${i}" value="${a}"><span>${String.fromCharCode(65+j)}. ${a}</span></label>`).join('')}</div><div id="cf${i}"></div></article>`).join('')}</div><button class="btn" id="cgrade">Grade test</button>`;
+  document.getElementById('cnew').onclick=()=>{newExam();renderExam(c)};
+  document.getElementById('cgrade').onclick=()=>{let sc=0;state.exam.forEach((q,i)=>{const a=document.querySelector(`input[name=cq${i}]:checked`)?.value,ok=a===q.answer;if(ok)sc++;document.getElementById('cf'+i).innerHTML=`<div class="feedback ${ok?'correct':'incorrect'}"><b>${ok?'✓ CORRECT':'✗ INCORRECT'}</b><br>Your answer: ${a||'No answer'}<br>Correct answer: <b>${q.answer}</b><br>${q.why}</div>`});document.getElementById('cscore').innerHTML=`<p class="score">Score: ${sc}/10</p>`;window.scrollTo({top:document.getElementById('cscore').getBoundingClientRect().top+scrollY-20,behavior:'smooth'})};}
  function newExam(){const b=bank().slice(),r=[];while(r.length<10)r.push(b.splice(Math.floor(Math.random()*b.length),1)[0]);state.exam=r}
  function plotFns(id,series,xmin=-6,xmax=6){plotArrays(id,series.map(([fn,l,c])=>[grid.map(fn),l,c]),xmin,xmax)}
  function plotArrays(id,series,xmin=-6,xmax=6,marker=null){

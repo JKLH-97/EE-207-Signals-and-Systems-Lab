@@ -181,3 +181,22 @@
 .plot-card > .math .katex {
     font-size: 16px !important;
 }
+
+/* =========================================================
+   v11 — exact equation-size targets requested for the two labs
+   ========================================================= */
+.lab-theory-equation,
+.path-lead-equation {
+    font-size: 12px !important;
+}
+.lab-theory-equation .math,
+.path-lead-equation .math {
+    font-size: 12px !important;
+    padding: 8px 10px !important;
+}
+.lab-theory-equation .katex,
+.path-lead-equation .katex,
+.lab-theory-equation .katex-display,
+.path-lead-equation .katex-display {
+    font-size: 1em !important;
+}

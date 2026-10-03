@@ -636,3 +636,30 @@ textarea,
 #lti .three-column-lab .lab-path-column .step-heading {
     font-size: 16px !important;
 }
+
+
+/* =========================================================
+   v24 — System Grapher sliders + frozen convolution math scale
+   ========================================================= */
+#lti .dual-coefficient{display:grid;grid-template-columns:1fr 72px;gap:7px 10px;align-items:center}
+#lti .dual-coefficient label{grid-column:1/-1}
+#lti .dual-coefficient input[type="range"]{width:100%;min-width:0}
+#lti .dual-coefficient input[type="number"]{width:72px;text-align:center}
+
+/* Convolution follows the frozen LTI mathematical hierarchy:
+   Concept = 16px here to match the frozen LTI Concept equations;
+   general lab = 16px; paths/results/steps/properties = 14px. */
+#convolution .conv-concept-eq,
+#convolution .conv-concept-eq .katex,
+#convolution .conv-lab-eq,
+#convolution .conv-lab-eq .katex{font-size:16px!important}
+#convolution .conv-small-eq,
+#convolution .conv-small-eq .katex,
+#convolution .conv-property-eq,
+#convolution .conv-property-eq .katex,
+#convolution .conv-result-eq,
+#convolution .conv-result-eq .katex,
+#convolution .result-equations .math,
+#convolution .result-equations .katex,
+#convolution .signals-used .math,
+#convolution .signals-used .katex{font-size:14px!important}

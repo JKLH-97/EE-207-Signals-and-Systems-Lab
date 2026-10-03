@@ -256,6 +256,32 @@ const LTI = (() => {
       document.getElementById('gout').innerHTML=`<div class="dual-test-grid grapher-tests"><section class="compact-test-panel"><h3>Linearity</h3><div class="plot-card"><h4>Inputs and combination</h4><canvas id="gc0"></canvas></div><div class="plot-card"><h4>Path outputs</h4><canvas id="gc1"></canvas></div><div class="compact-equations">${math(`T\\{${comboTexFn(a,expressionToTex(e1),b,expressionToTex(e2))}\\}\\;\\stackrel{?}{=}\\;${signedTerm(a,`T\\{${expressionToTex(e1)}\\}`,true)}${signedTerm(b,`T\\{${expressionToTex(e2)}\\}`,false)}`)}${math(`y_{P1}(t)\\;\\stackrel{?}{=}\\;y_{P2}(t)`)}</div><div class="analysis-note compact"><b>Visual experiment:</b> ${le<1e-4?'passes for the selected inputs and coefficients; this alone does not prove linearity.':'fails and therefore provides a counterexample.'}</div><div class="status-banner ${classification.linear===true?'match':classification.linear===false?'mismatch':'uncertain'}">${classificationWord(classification.linear,'The system is LINEAR','The system is NONLINEAR')}</div><div class="analysis-reason">${classification.linearReason}</div></section><section class="compact-test-panel"><h3>Time Invariance</h3><div class="plot-card"><h4>Original and delayed input</h4><canvas id="gc3"></canvas></div><div class="plot-card"><h4>Path outputs</h4><canvas id="gc2"></canvas></div><div class="compact-equations">${math(`T\\{x(${shiftArg(t0)})\\}\\;\\stackrel{?}{=}\\;y(${shiftArg(t0)})`)}${math(`y_{P1}(t)\\;\\stackrel{?}{=}\\;y_{P2}(t)`)}</div><div class="analysis-note compact"><b>Visual experiment:</b> ${te<1e-4?'passes for the selected shift; this alone does not prove time invariance.':'fails and therefore provides a counterexample.'}</div><div class="status-banner ${classification.ti===true?'match':classification.ti===false?'mismatch':'uncertain'}">${classificationWord(classification.ti,'The system is TIME-INVARIANT','The system is TIME-VARYING')}</div><div class="analysis-reason">${classification.tiReason}</div></section></div><div class="status-banner overall ${knownLTI?(isLTI?'match':'mismatch'):'uncertain'}">${knownLTI?(isLTI?'The system is LTI':'The system is NOT LTI'):'LTI classification is NOT PROVEN for this expression'}</div>`;
       plot('gc0',[[x1,'x₁',C.blue],[x2,'x₂',C.green],[combo,'ax₁+bx₂',C.gold]]);plotArray('gc1',[[p1,'yP1(t)',C.red],[p2,'yP2(t)',C.cyan]],true);plot('gc3',[[x1,'x(t)',C.blue],[xd,'x(t−t₀)',C.orange]]);plotArray('gc2',[[q1,'yP1(t)',C.red],[q2,'yP2(t)',C.purple]],true);
     }catch(e){document.getElementById('gout').innerHTML=`<div class="status-banner mismatch">Check the expression format.</div>`;}};
+    let graphFrame=0;
+    const fastGraph=()=>{
+      if(graphFrame)return;
+      graphFrame=requestAnimationFrame(()=>{
+        graphFrame=0;
+        try{
+          /* Fast path: numerical redraw only. No HTML rebuild, KaTeX,
+             analytical classification, or DOM reconstruction. */
+          const se=val('gsys'),e1=val('gx1'),e2=val('gx2'),
+                a=+val('ga'),b=+val('gb'),t0=+val('gt0'),
+                x1=t=>evalSignal(e1,t),x2=t=>evalSignal(e2,t),
+                apply=(t,xfn)=>evalSystem(se,t,xfn),
+                combo=t=>a*x1(t)+b*x2(t),
+                p1=T.map(t=>apply(t,combo)),
+                p2=T.map(t=>a*apply(t,x1)+b*apply(t,x2)),
+                xd=t=>x1(t-t0),y=t=>apply(t,x1),
+                q1=T.map(t=>apply(t,xd)),
+                q2=T.map(t=>y(t-t0));
+          /* Canvas nodes already exist after the initial full render. */
+          if(document.getElementById('gc0')) plot('gc0',[[x1,'x₁',C.blue],[x2,'x₂',C.green],[combo,'ax₁+bx₂',C.gold]]);
+          if(document.getElementById('gc1')) plotArray('gc1',[[p1,'yP1(t)',C.red],[p2,'yP2(t)',C.cyan]],true);
+          if(document.getElementById('gc3')) plot('gc3',[[x1,'x(t)',C.blue],[xd,'x(t−t₀)',C.orange]]);
+          if(document.getElementById('gc2')) plotArray('gc2',[[q1,'yP1(t)',C.red],[q2,'yP2(t)',C.purple]],true);
+        }catch(e){}
+      });
+    };
     document.getElementById('graphBtn').onclick=runGraph;
     const livePairs=[
       ['gaRange','ga','gaValue'],
@@ -265,8 +291,10 @@ const LTI = (() => {
     livePairs.forEach(([rid,nid,vid])=>{
       const range=document.getElementById(rid),number=document.getElementById(nid),display=document.getElementById(vid);
       const show=v=>{const n=Number(v);display.textContent=Number.isFinite(n)?String(Math.round(n*100)/100):v;};
-      range.addEventListener('input',()=>{number.value=range.value;show(range.value);runGraph();});
-      number.addEventListener('input',()=>{const v=Number(number.value);show(number.value);if(Number.isFinite(v)&&v>=-10&&v<=10)range.value=v;runGraph();});
+      range.addEventListener('input',()=>{number.value=range.value;show(range.value);fastGraph();});
+      range.addEventListener('change',runGraph);
+      number.addEventListener('input',()=>{const v=Number(number.value);show(number.value);if(Number.isFinite(v)&&v>=-10&&v<=10)range.value=v;fastGraph();});
+      number.addEventListener('change',runGraph);
       number.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();runGraph();}});
     });
     ['gsys','gx1','gx2'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();runGraph();}}));

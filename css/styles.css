@@ -663,3 +663,44 @@ textarea,
 #convolution .result-equations .katex,
 #convolution .signals-used .math,
 #convolution .signals-used .katex{font-size:14px!important}
+
+
+/* =========================================================
+   v25 — System Grapher live coefficients
+   Same visual language as Linearity Lab.
+   ========================================================= */
+#lti .grapher-live-coefficient{display:block!important}
+#lti .grapher-live-coefficient>label{
+  display:block;
+  margin-bottom:6px;
+  font-size:14px!important;
+  color:var(--text-secondary);
+}
+#lti .grapher-live-coefficient .range-value{
+  color:var(--accent);
+  font-size:14px;
+  font-weight:700;
+}
+#lti .grapher-live-coefficient input[type="range"]{
+  display:block;
+  width:100%!important;
+  margin:3px 0 7px;
+  accent-color:var(--accent);
+}
+#lti .exact-value-row{
+  display:grid;
+  grid-template-columns:1fr 72px;
+  gap:8px;
+  align-items:center;
+}
+#lti .exact-value-row>span{
+  color:var(--text-muted);
+  font-size:11px;
+}
+#lti .exact-value-row input[type="number"]{
+  width:72px!important;
+  min-height:30px;
+  padding:4px 7px;
+  font-size:13px!important;
+  text-align:center;
+}

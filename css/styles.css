@@ -200,3 +200,93 @@
 .path-lead-equation .katex-display {
     font-size: 1em !important;
 }
+
+/* =========================================================
+   EE-207 PROJECT TYPOGRAPHY STANDARD — v12
+   This block is authoritative for the whole project.
+   ========================================================= */
+
+/* Core text */
+body { font-size: 14px; }
+body p, .panel p, .module-card p, .analysis-note, .analysis-reason,
+.feedback, .grapher-help, .lab-prompt { font-size: 14px !important; }
+.muted, .hint, .chapter-title-block p, .path-note span,
+.example-card p { font-size: 13px !important; }
+
+/* Headings */
+.chapter-title-block h1 { font-size: 60px !important; }
+.section-title { font-size: 36px !important; }
+#ltiContent > .section-title:first-child + * { }
+/* Main section headings inside content */
+.final-comparison h3, .concept-examples h2 { font-size: 26px !important; }
+.step-heading,
+.three-column-lab .path-section .step-heading { font-size: 22px !important; line-height: 1.3; }
+.plot-card h4,
+.three-column-lab .plot-card h4,
+.substitution-block h4,
+.result-equations h4 { font-size: 16px !important; }
+
+/* Controls */
+.control label { font-size: 14px !important; }
+.control select,
+.control input[type="text"],
+.control input[type="number"],
+.control input[type="range"],
+select, input, textarea { font-size: 14px !important; }
+.site-footer { font-size: 13px !important; }
+
+/* ---------- Mathematical hierarchy ---------- */
+/* Concept equations — frozen standard */
+.math-concept .math,
+.math-concept .math .katex { font-size: 22px !important; }
+
+/* LTI requirement */
+.math-requirement .math,
+.math-requirement .math .katex,
+.requirement .math,
+.requirement .math .katex { font-size: 22px !important; }
+
+/* General theory equation at top of Linearity / Time-Invariance labs */
+.lab-theory-equation,
+.lab-theory-equation .math,
+.lab-theory-equation .math .katex,
+.lab-theory-equation .katex { font-size: 16px !important; }
+
+/* Main equation immediately below each Path heading */
+.path-lead-equation,
+.path-lead-equation .math,
+.path-lead-equation .math .katex,
+.path-lead-equation .katex { font-size: 14px !important; }
+
+/* Equations inside graph/step cards */
+.plot-card > .math,
+.plot-card > .math .katex,
+.three-column-lab .plot-card > .math,
+.three-column-lab .plot-card > .math .katex { font-size: 14px !important; }
+
+/* Result and analytical equations */
+.path-result .math,
+.path-result .math .katex,
+.result-equations .math,
+.result-equations .math .katex,
+.compact-equations .math,
+.compact-equations .math .katex,
+.zero-test .math,
+.zero-test .math .katex,
+.final-comparison > .math,
+.final-comparison > .math .katex { font-size: 14px !important; }
+
+/* Green live preview in System Grapher */
+.live-equation,
+.live-equation .math,
+.live-equation .math .katex { font-size: 14px !important; }
+
+/* Example equations remain readable but secondary */
+.example-card .math,
+.example-card .math .katex { font-size: 14px !important; }
+
+/* Keep chapter title responsive on small screens without exceeding standard */
+@media (max-width: 760px) {
+  .chapter-title-block h1 { font-size: clamp(42px, 12vw, 60px) !important; }
+  .section-title { font-size: 36px !important; }
+}

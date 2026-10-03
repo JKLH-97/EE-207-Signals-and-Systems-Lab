@@ -572,3 +572,33 @@ textarea,
 }
 /* Floating samples removed from the v18 artwork. */
 .abstract-dots{display:none !important}
+
+
+/* =========================================================
+   v21 — Requested LTI-only typography refinements
+   HOME IS FROZEN: no Home selectors in this block.
+   ========================================================= */
+
+/* "What makes a system LTI?" and Concept "Examples":
+   previous 20px -> 18px. */
+#lti .lti-concept > .section-title,
+#lti .lti-concept > h2.section-title {
+    font-size: 18px !important;
+}
+
+/* Concept subtitles "1. Linearity" / "2. Time Invariance"
+   and Path 1 / Path 2 titles in Linearity and TI labs:
+   match the "Linearity" heading used inside LTI Lab = 20px. */
+#lti .lti-concept .panel > h3,
+#lti .lab-path-column .step-heading {
+    font-size: 20px !important;
+}
+
+/* Concept Linearity / Time-Invariance equations:
+   match the general equation size used by the labs = 16px.
+   Requirement remains unchanged at 22px. */
+#lti .lti-concept .panel .math-concept,
+#lti .lti-concept .panel .math-concept .math,
+#lti .lti-concept .panel .math-concept .katex {
+    font-size: 16px !important;
+}

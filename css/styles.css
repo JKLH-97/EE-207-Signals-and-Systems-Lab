@@ -423,3 +423,33 @@ textarea,
     .home-hero .hero-content h1{white-space:normal}
     .home-wavefield{width:80%;right:-25%;opacity:.32}
 }
+
+
+/* =========================================================
+   v16 — visible professional Home signal field
+   ========================================================= */
+.home-hero{isolation:isolate}
+.home-hero .hero-content{position:relative;z-index:4}
+.home-wavefield{
+    display:block !important;
+    position:absolute;
+    z-index:2;
+    right:-2%;
+    bottom:2px;
+    width:61%;
+    height:292px;
+    opacity:.95 !important;
+    pointer-events:none;
+}
+.home-wavefield svg{display:block;width:100%;height:100%;overflow:visible}
+.hero-axis{fill:none;stroke:rgba(220,230,240,.22);stroke-width:1.2;vector-effect:non-scaling-stroke}
+.hero-wave{fill:none;vector-effect:non-scaling-stroke}
+.wave-a{stroke:url(#waveA);stroke-width:3.1}
+.wave-b{stroke:url(#waveB);stroke-width:2.5}
+.wave-c{stroke:rgba(230,235,245,.32);stroke-width:1.35;stroke-dasharray:6 8}
+.hero-samples{stroke:#65e2da;fill:#65e2da;opacity:.78;stroke-width:1.5;vector-effect:non-scaling-stroke}
+.home-institution{display:flex;gap:10px 18px;flex-wrap:wrap;margin-top:13px !important;font-size:13px !important;color:#8f939d !important}
+.home-institution strong{color:#cfd1d6;font-weight:600}
+.home-institution span:before{content:"•";margin-right:18px;color:#5e626d}
+@media(max-width:1100px){.home-wavefield{width:56%;opacity:.72 !important}}
+@media(max-width:900px){.home-wavefield{width:82%;right:-28%;opacity:.38 !important}.home-institution span:before{display:none}}

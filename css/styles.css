@@ -575,30 +575,35 @@ textarea,
 
 
 /* =========================================================
-   v21 — Requested LTI-only typography refinements
-   HOME IS FROZEN: no Home selectors in this block.
+   v22 — LTI requested typography fix (HOME untouched)
    ========================================================= */
+#lti .lti-concept-main-title{font-size:18px !important}
+#lti .lti-concept-subtitle{font-size:20px !important}
+#lti .lti-concept-equation,
+#lti .lti-concept-equation .math,
+#lti .lti-concept-equation .katex{font-size:16px !important}
+#lti .lab-path-column .step-heading{font-size:20px !important}
 
-/* "What makes a system LTI?" and Concept "Examples":
-   previous 20px -> 18px. */
-#lti .lti-concept > .section-title,
-#lti .lti-concept > h2.section-title {
-    font-size: 18px !important;
-}
-
-/* Concept subtitles "1. Linearity" / "2. Time Invariance"
-   and Path 1 / Path 2 titles in Linearity and TI labs:
-   match the "Linearity" heading used inside LTI Lab = 20px. */
-#lti .lti-concept .panel > h3,
-#lti .lab-path-column .step-heading {
-    font-size: 20px !important;
-}
-
-/* Concept Linearity / Time-Invariance equations:
-   match the general equation size used by the labs = 16px.
-   Requirement remains unchanged at 22px. */
-#lti .lti-concept .panel .math-concept,
-#lti .lti-concept .panel .math-concept .math,
-#lti .lti-concept .panel .math-concept .katex {
-    font-size: 16px !important;
-}
+/* =========================================================
+   CONVOLUTION — uses EE-207 frozen design language
+   ========================================================= */
+#convolution .section-title{font-size:30px!important}
+#convolution .panel h3,#convolution .signals-used h3{font-size:20px}
+#convolution p,#convolution .muted{font-size:14px}
+.conv-concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.conv-concept-eq .katex{font-size:16px!important}.conv-lab-eq .katex{font-size:16px!important}.conv-small-eq .katex,.conv-property-eq .katex,.conv-result-eq .katex{font-size:14px!important}
+.conv-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0}.conv-steps span,.conv-four-steps>div{padding:12px;border:1px solid var(--border);border-radius:8px;background:rgba(255,255,255,.018);font-size:14px}
+.conv-example{margin-top:24px;padding:20px;border:1px solid var(--border);border-radius:10px}.conv-example h2{font-size:20px}
+.conv-four-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:15px 0}
+.conv-mode-row{display:flex;gap:24px;flex-wrap:wrap;margin:14px 0 18px}.conv-mode-row label{font-size:14px}
+.custom-help,.signals-used{margin:12px 0;padding:13px 15px;border:1px solid var(--border);border-radius:8px;color:var(--text-secondary);font-size:13px}
+.signals-used>div{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.live-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0}.live-toolbar label{font-size:14px}.live-toolbar input[type=range]{width:220px}.live-toolbar select{font-size:13px}
+.conv-live-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.conv-live-grid .plot-card canvas{height:185px}
+.conv-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}.conv-metrics>div{padding:10px 13px;border:1px solid var(--border);border-radius:8px}.conv-metrics span{display:block;color:var(--text-secondary);font-size:13px}.conv-metrics strong{font-size:16px}
+.conv-four-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.conv-four-grid .plot-card canvas{height:180px}
+.step-time{margin:14px 0}.step-time input{width:min(700px,100%)}
+.property-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.property-card{padding:18px;border:1px solid var(--border);border-radius:10px;background:var(--bg-card)}.property-card h3{font-size:18px}.property-card h4{font-size:16px}.property-card canvas{width:100%;height:150px}
+.conv-answer-input{width:100%;max-width:520px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:#232731;color:var(--text-main);font-size:13px}
+@media(max-width:1100px){.conv-live-grid{grid-template-columns:1fr}.conv-concept-grid,.property-grid{grid-template-columns:1fr}.conv-four-steps{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.conv-four-grid,.signals-used>div,.conv-metrics{grid-template-columns:1fr}.conv-four-steps,.conv-steps{grid-template-columns:1fr 1fr}}

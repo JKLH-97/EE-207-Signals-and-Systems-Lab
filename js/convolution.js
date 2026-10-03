@@ -98,9 +98,10 @@ window.Convolution=(()=>{
     return sum;
   }
 
-  function drawFast(){
+  function drawFast(){drawFastAt(+slider.value);}
+  function drawFastAt(t){
     if(!cached)return;
-    const t=+slider.value;state.t=t;
+    state.t=t;
     const f=cached,yi=fastConvolutionAt(f,t);
     const xA=liveGrid.map(f.x),hA=liveGrid.map(tau=>f.h(t-tau)),pA=xA.map((v,k)=>v*hA[k]);
     updateText(t,yi,false);
@@ -147,14 +148,24 @@ window.Convolution=(()=>{
   document.getElementById('play').onclick=()=>{
     if(state.playing)return;
     if(+slider.value>=5.999)slider.value=-6;
-    state.playing=true;state.last=performance.now();
+    state.playing=true;
+    state.last=performance.now();
+    let simTime=+slider.value;
+    let lastDraw=0;
     const tick=now=>{
       if(!state.playing)return;
-      const elapsed=(now-state.last)/1000;state.last=now;
-      let v=+slider.value+elapsed*state.speed;
-      if(v>=6)v=-6; /* loop automatically */
-      slider.value=v;
-      drawFast();
+      const elapsed=Math.min(.08,(now-state.last)/1000);
+      state.last=now;
+      simTime+=elapsed*state.speed;
+      if(simTime>=6)simTime=-6+(simTime-6);
+      /* Keep the simulation clock independent from the range step.
+         This prevents 1x from being repeatedly rounded back to the
+         same slider value. 30 fps is more than enough for a smooth plot. */
+      if(now-lastDraw>=33){
+        lastDraw=now;
+        slider.value=simTime.toFixed(3);
+        drawFastAt(simTime);
+      }
       if(state.playing)state.raf=requestAnimationFrame(tick);
     };
     state.raf=requestAnimationFrame(tick);

@@ -64,12 +64,102 @@ window.Convolution=(()=>{
  }
  function renderLive(c){
   c.innerHTML=`<h2 class="section-title">Live Convolution Lab</h2><p class="muted">Watch h(t−τ) slide across x(τ) and see the convolution output build in real time.</p>${selectorHTML('lv')}<div id="lvSignals"></div><div class="live-toolbar"><button class="btn" id="play">Play</button><button class="btn secondary" id="pause">Pause</button><button class="btn secondary" id="reset">Reset</button><label>Speed <select id="speed"><option>.5</option><option selected>1</option><option>1.5</option><option>2</option></select></label><label>Current t <input id="timeSlider" type="range" min="-6" max="6" step=".05" value="-6"></label><strong id="timeValue">-6.00 s</strong></div><div class="conv-live-grid"><div class="plot-card"><h4>1. Slide and overlap</h4><canvas id="cv1"></canvas></div><div class="plot-card"><h4>2. Multiply and integrate</h4><canvas id="cv2"></canvas></div><div class="plot-card"><h4>3. Output y(t)</h4><canvas id="cv3"></canvas></div></div><div class="conv-metrics"><div><span>Current time</span><strong id="mTime">-6.00 s</strong></div><div><span>Overlap integral</span><strong id="mInt">0.0000</strong></div><div><span>Current y(t)</span><strong id="mY">0.0000</strong></div></div><div id="liveEq"></div>`;
-  let getter=()=>null,curve=[];
-  const updateAll=()=>{try{const f=getter();if(!f)return;curve=convCurve(f.x,f.h);document.getElementById('lvSignals').innerHTML=`<div class="signals-used"><h3>Signals used in the simulation</h3><div>${math(`x(t)=${f.xt}`)}${math(`h(t)=${f.ht}`)}</div></div>`;typeset(c);draw()}catch(e){}};
+  let getter=()=>null,curve=[],cached=null,liveGrid=Array.from({length:161},(_,i)=>-6+i*12/160),framePending=false,lastEquationTime=-999;
+
+  /* Static work is done only when the selected signals change. */
+  const updateAll=()=>{try{
+    const f=getter();if(!f)return;
+    cached=f;
+    curve=convCurve(f.x,f.h);
+    document.getElementById('lvSignals').innerHTML=`<div class="signals-used"><h3>Signals used in the simulation</h3><div>${math(`x(t)=${f.xt}`)}${math(`h(t)=${f.ht}`)}</div></div>`;
+    typeset(document.getElementById('lvSignals'));
+    drawFull();
+  }catch(e){}};
   getter=bindSelector('lv',updateAll,true);
   const slider=document.getElementById('timeSlider');
-  function draw(){const f=getter();if(!f)return;const t=+slider.value;state.t=t;const prod=tau=>f.x(tau)*f.h(t-tau),yi=convolutionAt(f.x,f.h,t);document.getElementById('timeValue').textContent=t.toFixed(2)+' s';document.getElementById('mTime').textContent=t.toFixed(2)+' s';document.getElementById('mInt').textContent=yi.toFixed(4);document.getElementById('mY').textContent=yi.toFixed(4);document.getElementById('liveEq').innerHTML=math(`y(${t.toFixed(2)})=\\int_{-\\infty}^{\\infty}x(\\tau)h(${t.toFixed(2)}-\\tau)\\,d\\tau=${yi.toFixed(4)}`,'conv-result-eq');typeset(c);plotFns('cv1',[[f.x,'x(τ)',C.blue],[tau=>f.h(t-tau),'h(t−τ)',C.orange]],-6,6);plotFns('cv2',[[prod,'x(τ)h(t−τ)',C.red]],-6,6);plotArrays('cv3',[[curve,'y(t)',C.cyan]],-6,6,t);}
-  slider.oninput=draw;document.getElementById('speed').onchange=e=>state.speed=+e.target.value;document.getElementById('reset').onclick=()=>{stop();slider.value=-6;draw()};document.getElementById('pause').onclick=stop;document.getElementById('play').onclick=()=>{if(state.playing)return;if(+slider.value>=5.999)slider.value=-6;state.playing=true;state.last=performance.now();const tick=now=>{if(!state.playing)return;const d=(now-state.last)/1000*state.speed;state.last=now;let v=+slider.value+d;if(v>=6){v=-6;state.playing=false}slider.value=v;draw();if(state.playing)state.raf=requestAnimationFrame(tick)};state.raf=requestAnimationFrame(tick)};updateAll();
+
+  function updateText(t,yi,forceEquation=false){
+    document.getElementById('timeValue').textContent=t.toFixed(2)+' s';
+    document.getElementById('mTime').textContent=t.toFixed(2)+' s';
+    document.getElementById('mInt').textContent=yi.toFixed(4);
+    document.getElementById('mY').textContent=yi.toFixed(4);
+    /* KaTeX is deliberately throttled during animation. */
+    if(forceEquation || Math.abs(t-lastEquationTime)>=.30){
+      lastEquationTime=t;
+      const eq=document.getElementById('liveEq');
+      eq.innerHTML=math(`y(${t.toFixed(2)})=\\int_{-\\infty}^{\\infty}x(\\tau)h(${t.toFixed(2)}-\\tau)\\,d\\tau=${yi.toFixed(4)}`,'conv-result-eq');
+      typeset(eq);
+    }
+  }
+
+  function fastConvolutionAt(f,t){
+    let sum=0,step=12/(liveGrid.length-1);
+    for(const tau of liveGrid)sum+=f.x(tau)*f.h(t-tau)*step;
+    return sum;
+  }
+
+  function drawFast(){
+    if(!cached)return;
+    const t=+slider.value;state.t=t;
+    const f=cached,yi=fastConvolutionAt(f,t);
+    const xA=liveGrid.map(f.x),hA=liveGrid.map(tau=>f.h(t-tau)),pA=xA.map((v,k)=>v*hA[k]);
+    updateText(t,yi,false);
+    fastPlotConv('cv1',[[xA,'x(τ)',C.blue],[hA,'h(t−τ)',C.orange]]);
+    fastPlotConv('cv2',[[pA,'x(τ)h(t−τ)',C.red]]);
+    /* y(t) is precomputed once; only the moving marker changes. */
+    plotArrays('cv3',[[curve,'y(t)',C.cyan]],-6,6,t);
+  }
+
+  function scheduleFast(){
+    if(framePending)return;
+    framePending=true;
+    requestAnimationFrame(()=>{framePending=false;drawFast()});
+  }
+
+  function drawFull(){
+    const f=cached||getter();if(!f)return;
+    const t=+slider.value;state.t=t;
+    const prod=tau=>f.x(tau)*f.h(t-tau),yi=convolutionAt(f.x,f.h,t);
+    updateText(t,yi,true);
+    plotFns('cv1',[[f.x,'x(τ)',C.blue],[tau=>f.h(t-tau),'h(t−τ)',C.orange]],-6,6);
+    plotFns('cv2',[[prod,'x(τ)h(t−τ)',C.red]],-6,6);
+    plotArrays('cv3',[[curve,'y(t)',C.cyan]],-6,6,t);
+  }
+
+  function fastPlotConv(id,series){
+    const cv=document.getElementById(id);if(!cv)return;
+    const d=Math.min(devicePixelRatio||1,1.5),w=Math.max(280,cv.clientWidth),h=cv.clientHeight||180;
+    if(cv.width!==Math.round(w*d)||cv.height!==Math.round(h*d)){cv.width=Math.round(w*d);cv.height=Math.round(h*d);}
+    const q=cv.getContext('2d');q.setTransform(d,0,0,d,0,0);q.clearRect(0,0,w,h);
+    const vals=series.flatMap(s=>s[0]).filter(Number.isFinite),m=Math.max(1,Math.min(30,Math.max(...vals.map(Math.abs))||1));
+    const L=42,R=10,Tp=12,B=28,sx=x=>L+(x+6)/12*(w-L-R),sy=y=>(h-B)/2-y/m*((h-B-Tp)*.4);
+    q.strokeStyle='rgba(160,165,175,.18)';q.lineWidth=1;
+    for(let x=-6;x<=6;x+=2){q.beginPath();q.moveTo(sx(x),Tp);q.lineTo(sx(x),h-B);q.stroke()}
+    q.strokeStyle='rgba(220,225,230,.55)';q.beginPath();q.moveTo(L,sy(0));q.lineTo(w-R,sy(0));q.moveTo(sx(0),Tp);q.lineTo(sx(0),h-B);q.stroke();
+    series.forEach(([a,l,col],j)=>{q.strokeStyle=col;q.lineWidth=2;q.setLineDash(j===1?[6,4]:[]);q.beginPath();a.forEach((y,k)=>{const xx=sx(liveGrid[k]),yy=sy(y);k?q.lineTo(xx,yy):q.moveTo(xx,yy)});q.stroke();q.setLineDash([]);q.fillStyle=col;q.font='11px Arial';q.fillText(l,L+8+j*110,Tp+12)});
+  }
+
+  slider.oninput=scheduleFast;
+  slider.onchange=drawFull;
+  document.getElementById('speed').onchange=e=>state.speed=+e.target.value;
+  document.getElementById('reset').onclick=()=>{stop();slider.value=-6;drawFull()};
+  document.getElementById('pause').onclick=()=>{stop();drawFull()};
+  document.getElementById('play').onclick=()=>{
+    if(state.playing)return;
+    if(+slider.value>=5.999)slider.value=-6;
+    state.playing=true;state.last=performance.now();
+    const tick=now=>{
+      if(!state.playing)return;
+      const elapsed=(now-state.last)/1000;state.last=now;
+      let v=+slider.value+elapsed*state.speed;
+      if(v>=6)v=-6; /* loop automatically */
+      slider.value=v;
+      drawFast();
+      if(state.playing)state.raf=requestAnimationFrame(tick);
+    };
+    state.raf=requestAnimationFrame(tick);
+  };
+  updateAll();
  }
  function stop(){state.playing=false;if(state.raf)cancelAnimationFrame(state.raf);state.raf=null}
  function renderStep(c){

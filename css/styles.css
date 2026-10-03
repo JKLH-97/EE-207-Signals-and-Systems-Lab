@@ -509,3 +509,42 @@ textarea,
  .hero-visual-panel{height:210px !important}
  .home-hero-v17 .hero-content h1{white-space:normal !important}
 }
+
+
+/* =========================================================
+   v18 — abstract transparent Home signals
+   ========================================================= */
+.home-hero-v18{
+  position:relative !important;
+  display:flex !important;
+  align-items:center !important;
+  min-height:330px !important;
+  padding:52px 58px !important;
+  overflow:hidden !important;
+  background:
+    radial-gradient(circle at 78% 45%,rgba(76,141,255,.08),transparent 38%),
+    radial-gradient(circle at 66% 72%,rgba(78,215,207,.07),transparent 36%),
+    linear-gradient(135deg,#11151c 0%,#111821 55%,#0e1117 100%) !important;
+}
+.home-hero-v18 .hero-content{position:relative !important;z-index:3 !important;width:auto !important;max-width:780px !important}
+.home-hero-v18 .hero-content h1{white-space:nowrap !important;font-size:clamp(44px,4.6vw,68px) !important}
+.abstract-signals{
+  position:absolute;
+  z-index:1;
+  inset:0 0 0 34%;
+  pointer-events:none;
+  opacity:.72;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.25) 16%,#000 43%,#000 100%);
+  mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.25) 16%,#000 43%,#000 100%);
+}
+.abstract-signals svg{width:100%;height:100%;display:block;overflow:visible}
+.abstract-wave{fill:none;vector-effect:non-scaling-stroke;stroke-linecap:round}
+.aw1{stroke:#4ed7cf;stroke-width:2.4;opacity:.52}
+.aw2{stroke:#4c8dff;stroke-width:2;opacity:.42}
+.aw3{stroke:#b5c6d8;stroke-width:1.15;opacity:.22;stroke-dasharray:7 10}
+.aw4{stroke:#67e0d7;stroke-width:1.25;opacity:.20}
+.abstract-dots{fill:#8edfd9;opacity:.30}
+@media(max-width:980px){
+ .home-hero-v18 .hero-content h1{white-space:normal !important}
+ .abstract-signals{inset:0 -28% 0 28%;opacity:.42}
+}

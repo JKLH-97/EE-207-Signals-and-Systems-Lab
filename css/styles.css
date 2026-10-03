@@ -133,3 +133,51 @@
 
 .score-top{min-height:32px;margin-top:8px}
 .score-top .score{margin:0;color:var(--accent);font-size:22px}
+
+
+/* =========================================================
+   v10 — Linearity / Time-Invariance equation sizing
+   Match the compact equations used inside graph cards.
+   ========================================================= */
+
+/* General theory equation immediately below each lab title */
+.lab-dashboard > .lab-main > .math,
+.lab-dashboard > .lab-main > .equation-box,
+.side-by-side-lab > .lab-main > .math,
+.side-by-side-lab > .lab-main > .equation-box {
+    font-size: 16px !important;
+}
+
+/* Path equation shown directly below:
+   "Path 1 — ..." / "Path 2 — ..." */
+.path-panel > .math,
+.path-column > .math,
+.lab-path-column > .math,
+.side-path > .math {
+    font-size: 16px !important;
+}
+
+/* KaTeX overrides its own nested font sizing, so target it directly. */
+.lab-dashboard > .lab-main > .math .katex,
+.lab-dashboard > .lab-main > .equation-box .katex,
+.side-by-side-lab > .lab-main > .math .katex,
+.side-by-side-lab > .lab-main > .equation-box .katex,
+.path-panel > .math .katex,
+.path-column > .math .katex,
+.lab-path-column > .math .katex,
+.side-path > .math .katex {
+    font-size: 1em !important;
+}
+
+/* v8 markup: the lab's main theory equation and immediate equations
+   are rendered in the dashboard before the plot-card equations. */
+.lab-main > .math:not(.plot-card .math) .katex,
+.lab-main > .equation-box:not(.plot-card .equation-box) .katex {
+    font-size: 16px !important;
+}
+
+/* Keep equations inside plot cards at their existing compact size. */
+.plot-card > .math,
+.plot-card > .math .katex {
+    font-size: 16px !important;
+}

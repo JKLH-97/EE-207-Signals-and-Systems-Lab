@@ -607,3 +607,32 @@ textarea,
 .conv-answer-input{width:100%;max-width:520px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:#232731;color:var(--text-main);font-size:13px}
 @media(max-width:1100px){.conv-live-grid{grid-template-columns:1fr}.conv-concept-grid,.property-grid{grid-template-columns:1fr}.conv-four-steps{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:760px){.conv-four-grid,.signals-used>div,.conv-metrics{grid-template-columns:1fr}.conv-four-steps,.conv-steps{grid-template-columns:1fr 1fr}}
+
+
+/* =========================================================
+   v23 — FINAL LTI TITLE/PATH SIZE ADJUSTMENT
+   Scoped strictly to #lti. Home and Convolution untouched.
+   ========================================================= */
+
+/* Main titles of the five LTI tabs:
+   Linearity Lab, Time-Invariance Lab, LTI Lab,
+   System Grapher, LTI Test: 30px -> 28px */
+#lti .chapter-content > .section-title,
+#lti .chapter-content > .exam-toolbar .section-title,
+#lti .chapter-content > .grapher-dashboard ~ .section-title {
+    font-size: 28px !important;
+}
+
+/* Current renderers place the lab/test title as a direct or near-direct
+   child of chapter-content. This catches all five without touching
+   Concept's "What makes a system LTI?" */
+#lti #lti-content > h2.section-title,
+#lti #lti-content > .exam-toolbar h2.section-title {
+    font-size: 28px !important;
+}
+
+/* Path 1 / Path 2 headings in Linearity and Time-Invariance:
+   exactly the same size as Step titles inside their graph cards. */
+#lti .three-column-lab .lab-path-column .step-heading {
+    font-size: 16px !important;
+}

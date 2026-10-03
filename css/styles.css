@@ -704,3 +704,14 @@ textarea,
   font-size:13px!important;
   text-align:center;
 }
+
+
+/* =========================================================
+   v30 — exact time controls / Convolution Test
+   ========================================================= */
+#convolution .conv-exact-time{display:flex;align-items:center;gap:6px}
+#convolution .conv-exact-time>span{font-size:11px;color:var(--text-muted);white-space:nowrap}
+#convolution .conv-exact-time input[type="number"]{width:78px;padding:5px 7px;font-size:13px!important}
+#convolution .step-time-row{display:grid;grid-template-columns:minmax(240px,1fr) auto;gap:12px;align-items:center}
+#convolution .step-time-row>input[type="range"]{width:100%}
+@media(max-width:760px){#convolution .step-time-row{grid-template-columns:1fr}}

@@ -548,3 +548,27 @@ textarea,
  .home-hero-v18 .hero-content h1{white-space:normal !important}
  .abstract-signals{inset:0 -28% 0 28%;opacity:.42}
 }
+
+
+/* =========================================================
+   v19 — Home institution heading / clean abstract signals
+   ========================================================= */
+.hero-institution{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  margin-bottom:16px;
+  color:#aeb2bb;
+  font-size:13px;
+  line-height:1.35;
+  letter-spacing:.015em;
+}
+.hero-institution span:first-child{
+  color:#d2d4d9;
+  font-weight:600;
+}
+.hero-institution span:last-child{
+  font-weight:400;
+}
+/* Floating samples removed from the v18 artwork. */
+.abstract-dots{display:none !important}

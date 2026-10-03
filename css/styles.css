@@ -290,3 +290,72 @@ select, input, textarea { font-size: 14px !important; }
   .chapter-title-block h1 { font-size: clamp(42px, 12vw, 60px) !important; }
   .section-title { font-size: 36px !important; }
 }
+
+
+/* =========================================================
+   EE-207 PROJECT TYPOGRAPHY STANDARD — revision 13
+   Approved adjustments only:
+   2) tab title = 30px
+   3) main section title = 20px
+   4) path title = 18px
+   9) select/input content = 13px
+   ========================================================= */
+
+.section-title {
+    font-size: 30px !important;
+}
+
+.lti-concept > h2,
+.section-heading h2,
+.final-comparison > h3 {
+    font-size: 20px !important;
+}
+
+.step-heading,
+.path-section > .step-heading,
+.path-panel > .step-heading,
+.path-column > .step-heading,
+.lab-path-column > .step-heading {
+    font-size: 18px !important;
+}
+
+select,
+input,
+textarea,
+.control select,
+.control input,
+.control textarea,
+.grapher-side-controls select,
+.grapher-side-controls input,
+.lti-side-controls select,
+.lti-side-controls input {
+    font-size: 13px !important;
+}
+
+
+/* =========================================================
+   EE-207 TYPOGRAPHY STANDARD — v14 final corrections
+   Main section headings: 20px
+   Test equations: 16px
+   ========================================================= */
+
+/* Main section headings throughout the project */
+.lti-concept > h2,
+.section-heading h2,
+.final-comparison > h3,
+.compact-test-panel > h3,
+.lti-side-controls > h3,
+.grapher-side-controls > h3,
+.lti-requirement > h3,
+.concept-examples .section-heading h2 {
+    font-size: 20px !important;
+}
+
+/* Equations displayed as the system to classify in LTI Test */
+.exam-card > .math {
+    font-size: 16px !important;
+}
+
+.exam-card > .math .katex {
+    font-size: 1em !important;
+}

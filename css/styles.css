@@ -743,3 +743,20 @@ textarea,
 #convolution .step-equation{min-height:46px;margin:4px 0 8px}
 #convolution .step-equation .math,#convolution .step-equation .katex{font-size:14px!important}
 #convolution #cscore .score{color:var(--accent)!important;font-size:22px;font-weight:700}
+
+
+/* =========================================================
+   v33 — Convolution Properties animated comparisons only.
+   HOME + LTI remain frozen.
+   ========================================================= */
+#convolution .properties-heading{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:14px}
+#convolution .property-global-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#convolution .property-global-controls>span{font-size:13px;color:var(--text-muted);margin-right:3px}
+#convolution .property-global-controls .btn{min-height:34px;padding:6px 13px}
+#convolution .animated-properties .property-card{padding:16px}
+#convolution .property-comparison{display:grid;grid-template-columns:minmax(0,1fr) 18px minmax(0,1fr);gap:6px;align-items:center;margin-top:10px}
+#convolution .property-comparison>div{min-width:0}
+#convolution .property-comparison canvas{display:block;width:100%;height:105px}
+#convolution .property-side-label{display:block;text-align:center;color:var(--text-secondary);font-size:11px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#convolution .property-equals{text-align:center;color:var(--accent);font-size:18px;font-weight:700}
+@media(max-width:760px){#convolution .properties-heading{flex-direction:column}#convolution .property-comparison{grid-template-columns:1fr}#convolution .property-equals{padding:0}}

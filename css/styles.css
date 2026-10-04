@@ -715,3 +715,25 @@ textarea,
 #convolution .step-time-row{display:grid;grid-template-columns:minmax(240px,1fr) auto;gap:12px;align-items:center}
 #convolution .step-time-row>input[type="range"]{width:100%}
 @media(max-width:760px){#convolution .step-time-row{grid-template-columns:1fr}}
+
+
+/* =========================================================
+   v31 — requested input appearance only
+   LTI user-editable/selectable boxes: white.
+   No LTI layout, typography, graph, or logic changes.
+   ========================================================= */
+#lti input[type="text"],
+#lti input[type="number"],
+#lti select,
+#lti textarea{
+  background:#ffffff!important;
+  color:#16181d!important;
+  border-color:#cfd2d8!important;
+}
+#lti input[type="text"]::placeholder,
+#lti input[type="number"]::placeholder,
+#lti textarea::placeholder{color:#777c86!important}
+
+/* Convolution test equations follow the frozen test equation size. */
+#convolution .conv-test-eq,
+#convolution .conv-test-eq .katex{font-size:16px!important}

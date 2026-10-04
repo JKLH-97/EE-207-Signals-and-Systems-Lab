@@ -210,14 +210,14 @@ window.Convolution=(()=>{
     ['Differentiation','\\frac{d}{dt}y(t)=x(t)*\\frac{d}{dt}h(t)','Differentiate after convolution or differentiate one signal before convolution. The final results agree.','diff']
   ];
   const visual=k=>{
-    if(k==='comm')return `<div class="prop-conv-story"><div class="conv-story-path"><b>PATH A — x*h</b><div class="story-mini"><span>x(τ)</span><canvas id="commAx"></canvas><span>h(t−τ)</span><canvas id="commAh"></canvas></div><div class="story-product"><span>multiply + integrate</span><canvas id="commAp"></canvas></div></div><div class="property-equals">=</div><div class="conv-story-path"><b>PATH B — h*x</b><div class="story-mini"><span>h(τ)</span><canvas id="commBx"></canvas><span>x(t−τ)</span><canvas id="commBh"></canvas></div><div class="story-product"><span>multiply + integrate</span><canvas id="commBp"></canvas></div></div></div><div class="prop-check" id="commCheck">✓ Both paths build the same y(t)</div>`;
+    if(k==='comm')return `<div class="prop-conv-story"><div class="conv-story-path"><b>PATH A — x*h</b><div class="story-mini"><span>x(τ)</span><canvas id="commAx"></canvas><span>h(t−τ)</span><canvas id="commAh"></canvas></div><div class="story-product"><span>current product x(τ)h(t−τ)</span><canvas id="commAp"></canvas></div><div class="story-stage">integrate product → one y(t)</div><canvas id="commAy"></canvas></div><div class="property-equals">=</div><div class="conv-story-path"><b>PATH B — h*x</b><div class="story-mini"><span>h(τ)</span><canvas id="commBx"></canvas><span>x(t−τ)</span><canvas id="commBh"></canvas></div><div class="story-product"><span>current product h(τ)x(t−τ)</span><canvas id="commBp"></canvas></div><div class="story-stage">integrate product → one y(t)</div><canvas id="commBy"></canvas></div></div><div class="prop-check" id="commCheck">✓ The products can look different in τ, but their integrals build the same y(t)</div>`;
     if(k==='assoc')return `<div class="prop-conv-story"><div class="conv-story-path"><b>PATH A</b><div class="story-stage">① Build x*h</div><canvas id="assocA1"></canvas><div class="story-stage">② Convolve (x*h) with g</div><canvas id="assocA2"></canvas></div><div class="property-equals">=</div><div class="conv-story-path"><b>PATH B</b><div class="story-stage">① Build h*g</div><canvas id="assocB1"></canvas><div class="story-stage">② Convolve x with (h*g)</div><canvas id="assocB2"></canvas></div></div><div class="prop-check">✓ Same final output</div>`;
-    if(k==='dist')return `<div class="prop-conv-story"><div class="conv-story-path"><b>PATH A</b><div class="story-stage">① Add h₁+h₂</div><canvas id="distA1"></canvas><div class="story-stage">② Convolve x*(h₁+h₂)</div><canvas id="distA2"></canvas></div><div class="property-equals">=</div><div class="conv-story-path"><b>PATH B</b><div class="story-stage">① Convolve x*h₁ and x*h₂</div><canvas id="distB1"></canvas><div class="story-stage">② Add the two outputs</div><canvas id="distB2"></canvas></div></div><div class="prop-check">✓ Same final output</div>`;
+    if(k==='dist')return `<div class="prop-conv-story"><div class="conv-story-path"><b>PATH A</b><div class="story-stage">① Add h₁+h₂</div><canvas id="distA1"></canvas><div class="story-stage">② Convolve x*(h₁+h₂)</div><canvas id="distA2"></canvas></div><div class="property-equals">=</div><div class="conv-story-path"><b>PATH B</b><div class="story-stage">① Convolve separately</div><div class="story-mini dist-two"><span>x*h₁</span><canvas id="distB1a"></canvas><span>x*h₂</span><canvas id="distB1b"></canvas></div><div class="story-stage">② Add both outputs</div><canvas id="distB2"></canvas></div></div><div class="prop-check">✓ Same final output</div>`;
     if(k==='shift')return `<div class="prop-conv-story"><div class="conv-story-path"><b>INPUT SHIFTS</b><div class="story-mini"><span>x(t−T₂)</span><canvas id="shiftX"></canvas><span>h(t−T₁)</span><canvas id="shiftH"></canvas></div><div class="story-stage">Convolve the shifted signals</div><canvas id="shiftConv"></canvas></div><div class="property-equals">=</div><div class="conv-story-path"><b>OUTPUT SHIFT</b><div class="story-stage">First x*h = y(t)</div><canvas id="shiftBase"></canvas><div class="story-stage">Then shift y by T₁+T₂</div><canvas id="shiftMoved"></canvas></div></div><div class="prop-explanation-live" id="shiftText"></div>`;
-    if(k==='impulse')return `<div class="prop-conv-story"><div class="conv-story-path"><b>CONVOLUTION VIEW</b><div class="story-mini"><span>x(τ)</span><canvas id="impulseX"></canvas><span>δ(t−τ−T)</span><canvas id="impulseIn"></canvas></div><div class="story-stage">The impulse samples x at τ=t−T</div><canvas id="impulseConv"></canvas></div><div class="property-equals">=</div><div class="conv-story-path"><b>SHIFT VIEW</b><div class="story-stage">The same shape appears shifted by T</div><canvas id="impulseOut"></canvas></div></div><div class="prop-explanation-live" id="impulseText"></div>`;
+    if(k==='impulse')return `<div class="prop-conv-story"><div class="conv-story-path"><b>CONVOLUTION VIEW</b><div class="story-stage">① Original x(τ)</div><canvas id="impulseX"></canvas><div class="story-stage">② δ(t−τ−T) slides across x(τ)</div><canvas id="impulseIn"></canvas><div class="story-stage">③ It selects x(t−T)</div><canvas id="impulseConv"></canvas></div><div class="property-equals">→</div><div class="conv-story-path"><b>OUTPUT</b><div class="story-stage">As t moves, the selected values trace a shifted copy</div><canvas id="impulseOut"></canvas><div class="prop-check">x(t)*δ(t−T) = x(t−T)</div></div></div><div class="prop-explanation-live" id="impulseText"></div>`;
     if(k==='area')return `<div class="prop-three"><div><b>x(t)</b><canvas id="areaX"></canvas><span id="areaXn"></span></div><div><b>h(t)</b><canvas id="areaH"></canvas><span id="areaHn"></span></div><div><b>y(t)=x*h</b><canvas id="areaY"></canvas><span id="areaYn"></span></div></div><div class="prop-check" id="areaCheck"></div>`;
     if(k==='step')return `<div class="prop-three"><div><b>Input x(t)</b><canvas id="stepX"></canvas></div><div><b>Step u(t)</b><canvas id="stepU"></canvas></div><div><b>Accumulated output</b><canvas id="stepY"></canvas></div></div><div class="prop-progress"><span id="stepText"></span></div>`;
-    return `<div class="prop-conv-story"><div class="conv-story-path"><b>PATH A</b><div class="story-stage">① Convolve x*h</div><canvas id="diffA1"></canvas><div class="story-stage">② Differentiate the output</div><canvas id="diffA2"></canvas></div><div class="property-equals">=</div><div class="conv-story-path"><b>PATH B</b><div class="story-stage">① Differentiate h → dh/dt</div><canvas id="diffB1"></canvas><div class="story-stage">② Convolve x*(dh/dt)</div><canvas id="diffB2"></canvas></div></div><div class="prop-check">✓ Same final result</div>`;
+    return `<div class="prop-conv-story"><div class="conv-story-path"><b>PATH A</b><div class="story-mini"><span>x(t)</span><canvas id="diffAx"></canvas><span>h(t)</span><canvas id="diffAh"></canvas></div><div class="story-stage">① Convolve x*h = y(t)</div><canvas id="diffA1"></canvas><div class="story-stage">② Differentiate y(t)</div><canvas id="diffA2"></canvas></div><div class="property-equals">=</div><div class="conv-story-path"><b>PATH B</b><div class="story-mini"><span>x(t)</span><canvas id="diffBx"></canvas><span>dh(t)/dt</span><canvas id="diffBh"></canvas></div><div class="story-stage">① Differentiate h(t)</div><canvas id="diffB1"></canvas><div class="story-stage">② Convolve x*(dh/dt)</div><canvas id="diffB2"></canvas></div></div><div class="prop-check">✓ Same final result</div>`;
   };
   c.innerHTML=`<div class="properties-heading"><div><h2 class="section-title">Properties</h2><p class="muted">Follow each visual story to see what the property means.</p></div><div class="property-global-controls"><button class="btn" id="propPlay">Play</button><button class="btn secondary" id="propStop">Stop</button></div></div><div class="property-learning-grid">${cards.map((p,i)=>`<article class="property-card didactic-property"><span class="module-number">${String(i+1).padStart(2,'0')}</span><h3>${p[0]}</h3>${math(p[1],'conv-property-eq')}<p>${p[2]}</p>${visual(p[3])}</article>`).join('')}</div>`;
   typeset(c);
@@ -251,8 +251,10 @@ window.Convolution=(()=>{
     /* 1 — Commutative: show the actual flip/shifted factors and product. */
     const xTau=pg.map(x),hShift=pg.map(z=>h(tau-z)),hTau=pg.map(h),xShift=pg.map(z=>x(tau-z));
     const prodA=xTau.map((v,i)=>v*hShift[i]),prodB=hTau.map((v,i)=>v*xShift[i]);
-    plot('commAx',xTau,C.blue);plot('commAh',hShift,C.green,tau);plot('commAp',prodA,C.cyan);
-    plot('commBx',hTau,C.green);plot('commBh',xShift,C.blue,tau);plot('commBp',prodB,C.cyan);
+    plot('commAx',xTau,C.blue);plot('commAh',hShift,C.green,tau);plot('commAp',prodA,C.gold);
+    plot('commAy',xh,C.cyan,tau);
+    plot('commBx',hTau,C.green);plot('commBh',xShift,C.blue,tau);plot('commBp',prodB,C.gold);
+    plot('commBy',hx,C.cyan,tau);
 
     /* 2 — Associative: expose the intermediate convolution on each path. */
     plot('assocA1',xh,C.blue);plot('assocA2',assocL,C.cyan,tau);
@@ -260,7 +262,7 @@ window.Convolution=(()=>{
 
     /* 3 — Distributive: expose sum-before vs convolve-before. */
     plot('distA1',pg.map(sumh),C.green);plot('distA2',distL,C.cyan,tau);
-    plot('distB1',xh2,C.blue);plot('distB2',distR,C.cyan,tau);
+    plot('distB1a',xh,C.blue);plot('distB1b',xh2,C.green);plot('distB2',distR,C.cyan,tau);
 
     /* 4 — Time shift: show shifted inputs, their convolution, and shifted output. */
     const shift=phase*3,T1=shift*.45,T2=shift*.55,total=T1+T2;
@@ -273,18 +275,21 @@ window.Convolution=(()=>{
 
     /* 5 — Impulse: show x(τ), moving delta, the sampled product, and shifted copy. */
     const impT=-3+phase*6,impOut=pg.map(t=>x(t-impT));
-    plot('impulseX',xTau,C.blue);impulsePlot('impulseIn',tau-impT);
+    plot('impulseX',xTau,C.blue,tau-impT);impulsePlot('impulseIn',tau-impT);
     const samplePos=tau-impT,sampleVal=x(samplePos),sampleProd=pg.map(z=>Math.abs(z-samplePos)<ds*.7?sampleVal:0);
-    plot('impulseConv',sampleProd,C.gold,samplePos);plot('impulseOut',impOut,C.cyan,impT);
-    document.getElementById('impulseText').textContent=`At the current slide position, δ selects one value of x(τ); over all t this builds x(t−T), with T = ${impT.toFixed(2)}.`;
+    plot('impulseConv',xTau,C.blue,samplePos);plot('impulseOut',impOut,C.cyan,tau);
+    document.getElementById('impulseText').textContent=`For this frame: τ = t−T = ${samplePos.toFixed(2)}. The impulse selects x(${samplePos.toFixed(2)}) = ${sampleVal.toFixed(2)}. Repeating this for every t traces x(t−T).`;
 
     /* 6 and 7 intentionally preserved. */
     plot('areaX',ax,C.blue,null,6);plot('areaH',ah,C.green,null,6);plot('areaY',xh,C.cyan,null,6);
     const scan=-3+phase*7;plot('stepX',ax,C.blue,scan,scan);plot('stepU',pg.map(sigs.step.fn),C.green);const partial=stepY.map((v,i)=>pg[i]<=scan?v:NaN);plot('stepY',partial.map(v=>Number.isFinite(v)?v:0),C.cyan,scan);document.getElementById('stepText').textContent=`Accumulating x(τ) up to t = ${scan.toFixed(2)} builds y(t).`;
 
     /* 8 — Differentiation: expose both complete paths. */
+    const xdArr=pg.map(xd),hdArr=pg.map(hd),dhdArr=pg.map(dhd);
+    plot('diffAx',xdArr,C.blue);plot('diffAh',hdArr,C.green);
     plot('diffA1',yd,C.blue);plot('diffA2',diffL,C.cyan,tau);
-    plot('diffB1',pg.map(dhd),C.green);plot('diffB2',diffR,C.cyan,tau);
+    plot('diffBx',xdArr,C.blue);plot('diffBh',dhdArr,C.green);
+    plot('diffB1',dhdArr,C.green);plot('diffB2',diffR,C.cyan,tau);
   }
   function tick(now){if(!running)return;const e=Math.min(.08,(now-last)/1000);last=now;phase=(phase+e*.1)%1;draw();raf=requestAnimationFrame(tick)}
   document.getElementById('propPlay').onclick=()=>{if(running)return;running=true;last=performance.now();raf=requestAnimationFrame(tick)};

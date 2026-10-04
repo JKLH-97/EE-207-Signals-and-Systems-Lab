@@ -198,17 +198,67 @@ window.Convolution=(()=>{
   stExact.addEventListener('change',setStepExact);stExact.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();setStepExact();stExact.blur();}});draw();
  }
  function renderProperties(c){
+  stop();
   const props=[
-   ['Commutative','x(t)*h(t)=h(t)*x(t)','Interchanging the input and impulse response does not change the output.','rect','decay'],
-   ['Associative','[x(t)*h(t)]*g(t)=x(t)*[h(t)*g(t)]','Three convolutions may be grouped in either order.','rect','tri'],
-   ['Distributive','x(t)*[h_1(t)+h_2(t)]=x(t)*h_1(t)+x(t)*h_2(t)','Convolution distributes over addition.','rect','decay'],
-   ['Time shift','h(t-T_1)*x(t-T_2)=y(t-T_1-T_2)','Input/impulse-response shifts add in the output shift.','rect','rect'],
-   ['Convolution with impulse','x(t)*\\delta(t-T)=x(t-T)','An impulse shifts a signal without changing its shape.','rect','rect'],
-   ['Area','\\int y(t)dt=\\left[\\int x(t)dt\\right]\\left[\\int h(t)dt\\right]','The output area equals the product of the two input areas.','rect','decay'],
-   ['Convolution with step','x(t)*u(t)=\\int_{-\\infty}^{t}x(\\tau)d\\tau','A unit-step impulse response acts as an ideal integrator.','rect','step'],
-   ['Differentiation','\\frac{d}{dt}y(t)=x(t)*\\frac{d}{dt}h(t)','Differentiation can be transferred through convolution.','rect','decay']
+   {name:'Commutative',eq:'x(t)*h(t)=h(t)*x(t)',desc:'Interchanging the input and impulse response does not change the output.',kind:'comm'},
+   {name:'Associative',eq:'[x(t)*h(t)]*g(t)=x(t)*[h(t)*g(t)]',desc:'Three convolutions may be grouped in either order.',kind:'assoc'},
+   {name:'Distributive',eq:'x(t)*[h_1(t)+h_2(t)]=x(t)*h_1(t)+x(t)*h_2(t)',desc:'Convolution distributes over addition.',kind:'dist'},
+   {name:'Time shift',eq:'h(t-T_1)*x(t-T_2)=y(t-T_1-T_2)',desc:'Shifts applied to the two convolved signals add at the output.',kind:'shift'},
+   {name:'Convolution with impulse',eq:'x(t)*\\delta(t-T)=x(t-T)',desc:'A shifted impulse reproduces the signal with the same shift.',kind:'impulse'},
+   {name:'Area',eq:'\\int y(t)dt=\\left[\\int x(t)dt\\right]\\left[\\int h(t)dt\\right]',desc:'The output area equals the product of the two input areas.',kind:'area'},
+   {name:'Convolution with step',eq:'x(t)*u(t)=\\int_{-\\infty}^{t}x(\\tau)d\\tau',desc:'A unit-step impulse response acts as an ideal integrator.',kind:'step'},
+   {name:'Differentiation',eq:'\\frac{d}{dt}y(t)=x(t)*\\frac{d}{dt}h(t)',desc:'Differentiation can be transferred through convolution.',kind:'diff'}
   ];
-  c.innerHTML=`<h2 class="section-title">Properties</h2><p class="muted">Use convolution properties to simplify calculations and interpret LTI systems.</p><div class="property-grid">${props.map((p,i)=>`<article class="property-card"><span class="module-number">${String(i+1).padStart(2,'0')}</span><h3>${p[0]}</h3>${math(p[1],'conv-property-eq')}<p>${p[2]}</p><h4>Example</h4><canvas id="pr${i}"></canvas></article>`).join('')}</div>`;typeset(c);props.forEach((p,i)=>{const x=sigs[p[3]].fn,h=sigs[p[4]].fn,y=convCurve(x,h);plotArrays('pr'+i,[[y,'example output',C.cyan]],-6,6)});
+  c.innerHTML=`<div class="properties-heading"><div><h2 class="section-title">Properties</h2><p class="muted">Small animated comparisons show what each property means graphically.</p></div><div class="property-global-controls"><span>Speed 0.5×</span><button class="btn" id="propPlay">Play</button><button class="btn secondary" id="propStop">Stop</button></div></div><div class="property-grid animated-properties">${props.map((p,i)=>`<article class="property-card animated-property"><span class="module-number">${String(i+1).padStart(2,'0')}</span><h3>${p.name}</h3>${math(p.eq,'conv-property-eq')}<p>${p.desc}</p><div class="property-comparison"><div><span class="property-side-label" id="pl${i}">Left side</span><canvas id="prL${i}"></canvas></div><div class="property-equals">=</div><div><span class="property-side-label" id="pr${i}">Right side</span><canvas id="prR${i}"></canvas></div></div></article>`).join('')}</div>`;
+  typeset(c);
+
+  const pg=Array.from({length:161},(_,i)=>-6+i*12/160),step=12/160;
+  const conv=(f,g,t)=>{let sum=0;for(const tau of pg)sum+=f(tau)*g(t-tau)*step;return sum};
+  const curve=(f,g)=>pg.map(t=>conv(f,g,t));
+  const interp=(arr,t)=>{const u=(t+6)/12*160,i=Math.floor(u),a=u-i;if(i<0||i>=160)return 0;return arr[i]*(1-a)+arr[i+1]*a};
+  const x=sigs.rect.fn,h=sigs.decay.fn,g=sigs.tri.fn;
+  const xh=curve(x,h),hg=curve(h,g),xg=curve(x,g);
+  const assocL=pg.map(t=>conv(z=>interp(xh,z),g,t)),assocR=pg.map(t=>conv(x,z=>interp(hg,z),t));
+  const h2=sigs.tri.fn,sumh=t=>h(t)+h2(t),distL=curve(x,sumh),xh2=curve(x,h2),distR=xh.map((v,i)=>v+xh2[i]);
+  const baseRect=curve(x,sigs.rect.fn);
+  const stepCurve=curve(x,sigs.step.fn);
+  const diffH=t=>{const e=.01;return (h(t+e)-h(t-e))/(2*e)},diffR=curve(x,diffH);
+  const diffL=xh.map((v,i,a)=>i===0?(a[1]-v)/(12/160):i===a.length-1?(v-a[i-1])/(12/160):(a[i+1]-a[i-1])/(24/160));
+  const areaX=pg.reduce((q,t)=>q+x(t)*step,0),areaH=pg.reduce((q,t)=>q+h(t)*step,0),areaY=xh.reduce((q,v)=>q+v*step,0);
+
+  function dataFor(p,phase){
+    const shift=-4+phase*10; /* continuously moves from -4 to +6 */
+    switch(p.kind){
+      case 'comm': return {L:xh,R:curve(h,x),ll:'x*h',rr:'h*x'};
+      case 'assoc': return {L:assocL,R:assocR,ll:'(x*h)*g',rr:'x*(h*g)'};
+      case 'dist': return {L:distL,R:distR,ll:'x*(h₁+h₂)',rr:'x*h₁+x*h₂'};
+      case 'shift': {
+        const T1=1,T2=1,lf=t=>x(t-T2),rf=t=>sigs.rect.fn(t-T1),L=pg.map(t=>conv(lf,rf,t)),R=pg.map(t=>interp(baseRect,t-T1-T2));
+        return {L,R,ll:'shift inputs',rr:'shift output'};
+      }
+      case 'impulse': {
+        const L=pg.map(t=>x(t-shift)),R=L.slice();return {L,R,ll:`x*δ(t−T)`,rr:'x(t−T)'};
+      }
+      case 'area': return {L:xh,R:xh.map(v=>v),ll:`area y ≈ ${areaY.toFixed(2)}`,rr:`area x × area h ≈ ${(areaX*areaH).toFixed(2)}`};
+      case 'step': {
+        const R=pg.map(t=>{let sum=0;for(const tau of pg){if(tau<=t)sum+=x(tau)*step}return sum});return {L:stepCurve,R,ll:'x*u',rr:'∫x(τ)dτ'};
+      }
+      case 'diff': return {L:diffL,R:diffR,ll:'d(x*h)/dt',rr:'x*(dh/dt)'};
+    }
+  }
+  function smallPlot(id,arr,label,col=C.cyan){
+    const cv=document.getElementById(id);if(!cv)return;const d=Math.min(devicePixelRatio||1,1.5),w=Math.max(180,cv.clientWidth),hh=cv.clientHeight||105;
+    if(cv.width!==Math.round(w*d)||cv.height!==Math.round(hh*d)){cv.width=Math.round(w*d);cv.height=Math.round(hh*d)}
+    const q=cv.getContext('2d');q.setTransform(d,0,0,d,0,0);q.clearRect(0,0,w,hh);const m=Math.max(1,Math.max(...arr.map(v=>Math.abs(v)||0))),L=24,R=6,Tp=7,B=18,sx=t=>L+(t+6)/12*(w-L-R),sy=y=>(hh-B)/2-y/m*((hh-B-Tp)*.38);
+    q.strokeStyle='rgba(170,175,185,.22)';q.lineWidth=1;q.beginPath();q.moveTo(L,sy(0));q.lineTo(w-R,sy(0));q.moveTo(sx(0),Tp);q.lineTo(sx(0),hh-B);q.stroke();
+    q.strokeStyle=col;q.lineWidth=1.8;q.beginPath();arr.forEach((y,k)=>{const xx=sx(pg[k]),yy=sy(y);k?q.lineTo(xx,yy):q.moveTo(xx,yy)});q.stroke();
+  }
+  let running=true,raf=0,last=performance.now(),phase=0;
+  function draw(){props.forEach((p,i)=>{const d=dataFor(p,phase);document.getElementById('pl'+i).textContent=d.ll;document.getElementById('pr'+i).textContent=d.rr;smallPlot('prL'+i,d.L,d.ll,C.blue);smallPlot('prR'+i,d.R,d.rr,C.cyan)})}
+  function tick(now){if(!running)return;const elapsed=Math.min(.08,(now-last)/1000);last=now;phase=(phase+elapsed*.5/10)%1;draw();raf=requestAnimationFrame(tick)}
+  document.getElementById('propPlay').onclick=()=>{if(running)return;running=true;last=performance.now();raf=requestAnimationFrame(tick)};
+  document.getElementById('propStop').onclick=()=>{running=false;if(raf)cancelAnimationFrame(raf);raf=0};
+  draw();raf=requestAnimationFrame(tick);
  }
  function bank(){
   const B=[],add=(q,choices,answer,why,tex='')=>B.push({q,choices,answer,why,tex});

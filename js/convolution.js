@@ -228,7 +228,7 @@ window.Convolution=(()=>{
   const xh=curve(x,h),hx=curve(h,x),hg=curve(h,g),assocL=pg.map(t=>conv(z=>interp(xh,z),g,t)),assocR=pg.map(t=>conv(x,z=>interp(hg,z),t));
   const sumh=t=>h(t)+h2(t),distL=curve(x,sumh),xh2=curve(x,h2),distR=xh.map((v,i)=>v+xh2[i]);
   const xx=curve(x,sigs.rect.fn),stepY=curve(x,sigs.step.fn);
-  const dh=t=>{const e=.015;return(h(t+e)-h(t-e))/(2*e)},diffR=curve(x,dh),diffL=xh.map((v,i,a)=>i===0?(a[1]-v)/ds:i===160?(v-a[i-1])/ds:(a[i+1]-a[i-1])/(2*ds));
+  const xd=sigs.gauss.fn,hd=t=>Math.exp(-.5*t*t),dhd=t=>-t*Math.exp(-.5*t*t),yd=curve(xd,hd),diffR=curve(xd,dhd),diffL=yd.map((v,i,a)=>i===0?(a[1]-v)/ds:i===160?(v-a[i-1])/ds:(a[i+1]-a[i-1])/(2*ds));
   const area=a=>a.reduce((q,v)=>q+v*ds,0),ax=pg.map(x),ah=pg.map(h),areaX=area(ax),areaH=area(ah),areaY=area(xh);
 
   function plot(id,a,col=C.cyan,marker=null,fillTo=null){
@@ -239,24 +239,30 @@ window.Convolution=(()=>{
     q.strokeStyle=col;q.lineWidth=1.8;q.beginPath();a.forEach((y,k)=>{const X=sx(pg[k]),Y=sy(y);k?q.lineTo(X,Y):q.moveTo(X,Y)});q.stroke();
     if(marker!==null){q.strokeStyle=C.gold;q.setLineDash([3,3]);q.beginPath();q.moveTo(sx(marker),T);q.lineTo(sx(marker),H-B);q.stroke();q.setLineDash([])}
   }
-  function impulsePlot(id,T0){const a=pg.map(()=>0);plot(id,a,C.gold);const cv=document.getElementById(id),q=cv.getContext('2d'),d=Math.min(devicePixelRatio||1,1.5),w=cv.clientWidth,H=cv.clientHeight||112,L=23,R=6,T=7,B=17,sx=t=>L+(t+6)/12*(w-L-R);q.save();q.scale(d,d);q.strokeStyle=C.gold;q.fillStyle=C.gold;q.lineWidth=2;q.beginPath();q.moveTo(sx(T0),H-B-35);q.lineTo(sx(T0),H-B);q.stroke();q.beginPath();q.arc(sx(T0),H-B-35,3,0,Math.PI*2);q.fill();q.restore()}
+  function impulsePlot(id,T0){const cv=document.getElementById(id);if(!cv)return;const d=Math.min(devicePixelRatio||1,1.5),w=Math.max(180,cv.clientWidth),H=cv.clientHeight||112;if(cv.width!==Math.round(w*d)||cv.height!==Math.round(H*d)){cv.width=Math.round(w*d);cv.height=Math.round(H*d)}const q=cv.getContext('2d');q.setTransform(d,0,0,d,0,0);q.clearRect(0,0,w,H);const L=23,R=6,Tp=7,B=17,sx=t=>L+(t+6)/12*(w-L-R),base=(H-B)/2;q.strokeStyle='rgba(170,175,185,.22)';q.lineWidth=1;q.beginPath();q.moveTo(L,base);q.lineTo(w-R,base);q.moveTo(sx(0),Tp);q.lineTo(sx(0),H-B);q.stroke();const top=base-36;q.strokeStyle=C.gold;q.fillStyle=C.gold;q.lineWidth=2;q.beginPath();q.moveTo(sx(T0),base);q.lineTo(sx(T0),top);q.stroke();q.beginPath();q.arc(sx(T0),top,3,0,Math.PI*2);q.fill();}
   const err=(a,b)=>Math.max(...a.map((v,i)=>Math.abs(v-b[i])));
-  document.getElementById('commA').textContent='convolve x with h';document.getElementById('commB').textContent='swap → convolve h with x';
-  document.getElementById('assocA').textContent='first x*h, then convolve with g';document.getElementById('assocB').textContent='first h*g, then convolve with x';
-  document.getElementById('distA').textContent='add h₁+h₂ first, then convolve';document.getElementById('distB').textContent='convolve separately, then add';
+  document.getElementById('commA').innerHTML='<span class="proc-x">x(t)</span> → <span class="proc-h">h(t)</span> → convolve';
+  document.getElementById('commB').innerHTML='<span class="proc-h">h(t)</span> → <span class="proc-x">x(t)</span> → convolve';
+  document.getElementById('assocA').innerHTML='① x*h &nbsp;→&nbsp; ② (x*h)*g';
+  document.getElementById('assocB').innerHTML='① h*g &nbsp;→&nbsp; ② x*(h*g)';
+  document.getElementById('distA').innerHTML='① h₁+h₂ &nbsp;→&nbsp; ② x*(h₁+h₂)';
+  document.getElementById('distB').innerHTML='① x*h₁ and x*h₂ &nbsp;→&nbsp; ② add';
   document.getElementById('commCheck').textContent='✓ Same output';document.getElementById('assocCheck').textContent='✓ Same output';document.getElementById('distCheck').textContent='✓ Same output';document.getElementById('diffCheck').textContent='✓ Same final result';
   document.getElementById('areaXn').textContent=`Area x ≈ ${areaX.toFixed(2)}`;document.getElementById('areaHn').textContent=`Area h ≈ ${areaH.toFixed(2)}`;document.getElementById('areaYn').textContent=`Area y ≈ ${areaY.toFixed(2)}`;document.getElementById('areaCheck').textContent=`✓ ${areaX.toFixed(2)} × ${areaH.toFixed(2)} ≈ ${areaY.toFixed(2)}`;
 
   let running=true,raf=0,last=performance.now(),phase=0;
   function draw(){
-    plot('commL',xh,C.blue);plot('commR',hx,C.cyan);plot('assocL',assocL,C.blue);plot('assocR',assocR,C.cyan);plot('distL',distL,C.blue);plot('distR',distR,C.cyan);
+    const compareMarker=-4+phase*8;
+    plot('commL',xh,C.cyan,compareMarker);plot('commR',hx,C.cyan,compareMarker);
+    plot('assocL',assocL,C.cyan,compareMarker);plot('assocR',assocR,C.cyan,compareMarker);
+    plot('distL',distL,C.cyan,compareMarker);plot('distR',distR,C.cyan,compareMarker);
     const shift=phase*3,T1=shift*.45,T2=shift*.55,total=T1+T2,shifted=pg.map(t=>interp(xx,t-total));plot('shiftBase',xx,C.blue);plot('shiftMoved',shifted,C.cyan);document.getElementById('shiftText').textContent=`T₁ = ${T1.toFixed(2)}, T₂ = ${T2.toFixed(2)} → output shift = ${(total).toFixed(2)}`;
     const impT=-3+phase*6,impOut=pg.map(t=>x(t-impT));impulsePlot('impulseIn',impT);plot('impulseOut',impOut,C.cyan,impT);document.getElementById('impulseText').textContent=`T = ${impT.toFixed(2)}: the impulse moves, and x(t) follows by the same shift.`;
     plot('areaX',ax,C.blue,null,6);plot('areaH',ah,C.green,null,6);plot('areaY',xh,C.cyan,null,6);
     const scan=-3+phase*7;plot('stepX',ax,C.blue,scan,scan);plot('stepU',pg.map(sigs.step.fn),C.green);const partial=stepY.map((v,i)=>pg[i]<=scan?v:NaN);plot('stepY',partial.map(v=>Number.isFinite(v)?v:0),C.cyan,scan);document.getElementById('stepText').textContent=`Accumulating x(τ) up to t = ${scan.toFixed(2)} builds y(t).`;
-    plot('diffL',diffL,C.blue);plot('diffR',diffR,C.cyan);
+    plot('diffL',diffL,C.cyan,compareMarker);plot('diffR',diffR,C.cyan,compareMarker);
   }
-  function tick(now){if(!running)return;const e=Math.min(.08,(now-last)/1000);last=now;phase=(phase+e*.05)%1;draw();raf=requestAnimationFrame(tick)}
+  function tick(now){if(!running)return;const e=Math.min(.08,(now-last)/1000);last=now;phase=(phase+e*.1)%1;draw();raf=requestAnimationFrame(tick)}
   document.getElementById('propPlay').onclick=()=>{if(running)return;running=true;last=performance.now();raf=requestAnimationFrame(tick)};
   document.getElementById('propStop').onclick=()=>{running=false;if(raf)cancelAnimationFrame(raf);raf=0};
   draw();raf=requestAnimationFrame(tick);

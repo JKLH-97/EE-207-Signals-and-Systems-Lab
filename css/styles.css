@@ -737,3 +737,9 @@ textarea,
 /* Convolution test equations follow the frozen test equation size. */
 #convolution .conv-test-eq,
 #convolution .conv-test-eq .katex{font-size:16px!important}
+
+/* v32 — Convolution-only refinements. HOME + LTI frozen. */
+#convolution #timeInput,#convolution #stExact{background:#fff!important;color:#16181d!important;border-color:#cfd2d8!important}
+#convolution .step-equation{min-height:46px;margin:4px 0 8px}
+#convolution .step-equation .math,#convolution .step-equation .katex{font-size:14px!important}
+#convolution #cscore .score{color:var(--accent)!important;font-size:22px;font-weight:700}

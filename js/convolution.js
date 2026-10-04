@@ -199,63 +199,64 @@ window.Convolution=(()=>{
  }
  function renderProperties(c){
   stop();
-  const props=[
-   {name:'Commutative',eq:'x(t)*h(t)=h(t)*x(t)',desc:'Interchanging the input and impulse response does not change the output.',kind:'comm'},
-   {name:'Associative',eq:'[x(t)*h(t)]*g(t)=x(t)*[h(t)*g(t)]',desc:'Three convolutions may be grouped in either order.',kind:'assoc'},
-   {name:'Distributive',eq:'x(t)*[h_1(t)+h_2(t)]=x(t)*h_1(t)+x(t)*h_2(t)',desc:'Convolution distributes over addition.',kind:'dist'},
-   {name:'Time shift',eq:'h(t-T_1)*x(t-T_2)=y(t-T_1-T_2)',desc:'Shifts applied to the two convolved signals add at the output.',kind:'shift'},
-   {name:'Convolution with impulse',eq:'x(t)*\\delta(t-T)=x(t-T)',desc:'A shifted impulse reproduces the signal with the same shift.',kind:'impulse'},
-   {name:'Area',eq:'\\int y(t)dt=\\left[\\int x(t)dt\\right]\\left[\\int h(t)dt\\right]',desc:'The output area equals the product of the two input areas.',kind:'area'},
-   {name:'Convolution with step',eq:'x(t)*u(t)=\\int_{-\\infty}^{t}x(\\tau)d\\tau',desc:'A unit-step impulse response acts as an ideal integrator.',kind:'step'},
-   {name:'Differentiation',eq:'\\frac{d}{dt}y(t)=x(t)*\\frac{d}{dt}h(t)',desc:'Differentiation can be transferred through convolution.',kind:'diff'}
+  const cards=[
+    ['Commutative','x(t)*h(t)=h(t)*x(t)','Swap the two signals. The convolution output does not change.','comm'],
+    ['Associative','[x(t)*h(t)]*g(t)=x(t)*[h(t)*g(t)]','Change the grouping of three signals. Both paths end at the same output.','assoc'],
+    ['Distributive','x(t)*[h_1(t)+h_2(t)]=x(t)*h_1(t)+x(t)*h_2(t)','Add before convolution or convolve separately and add afterward.','dist'],
+    ['Time shift','h(t-T_1)*x(t-T_2)=y(t-T_1-T_2)','Shifting the two input signals shifts the output by the sum of the two delays.','shift'],
+    ['Convolution with impulse','x(t)*\\delta(t-T)=x(t-T)','A moving impulse acts like a copy-and-shift operator.','impulse'],
+    ['Area','\\int y(t)dt=\\left[\\int x(t)dt\\right]\\left[\\int h(t)dt\\right]','The total area of the output equals the product of the two input areas.','area'],
+    ['Convolution with step','x(t)*u(t)=\\int_{-\\infty}^{t}x(\\tau)d\\tau','Convolution with a step accumulates the input: it behaves as an integrator.','step'],
+    ['Differentiation','\\frac{d}{dt}y(t)=x(t)*\\frac{d}{dt}h(t)','Differentiate after convolution or differentiate one signal before convolution. The final results agree.','diff']
   ];
-  c.innerHTML=`<div class="properties-heading"><div><h2 class="section-title">Properties</h2><p class="muted">Small animated comparisons show what each property means graphically.</p></div><div class="property-global-controls"><span>Speed 0.5×</span><button class="btn" id="propPlay">Play</button><button class="btn secondary" id="propStop">Stop</button></div></div><div class="property-grid animated-properties">${props.map((p,i)=>`<article class="property-card animated-property"><span class="module-number">${String(i+1).padStart(2,'0')}</span><h3>${p.name}</h3>${math(p.eq,'conv-property-eq')}<p>${p.desc}</p><div class="property-comparison"><div><span class="property-side-label" id="pl${i}">Left side</span><canvas id="prL${i}"></canvas></div><div class="property-equals">=</div><div><span class="property-side-label" id="pr${i}">Right side</span><canvas id="prR${i}"></canvas></div></div></article>`).join('')}</div>`;
+  const visual=k=>{
+    if(['comm','assoc','dist'].includes(k))return `<div class="prop-paths"><div><b>PATH A</b><div class="prop-process" id="${k}A"></div><canvas id="${k}L"></canvas></div><div class="property-equals">=</div><div><b>PATH B</b><div class="prop-process" id="${k}B"></div><canvas id="${k}R"></canvas></div></div><div class="prop-check" id="${k}Check"></div>`;
+    if(k==='shift')return `<div class="prop-signal-row"><div><b>Original output</b><canvas id="shiftBase"></canvas></div><div class="prop-arrow">→</div><div><b>Shifted output</b><canvas id="shiftMoved"></canvas></div></div><div class="prop-explanation-live" id="shiftText"></div>`;
+    if(k==='impulse')return `<div class="prop-signal-row"><div><b>Moving impulse δ(t−T)</b><canvas id="impulseIn"></canvas></div><div class="prop-arrow">→</div><div><b>Copied signal x(t−T)</b><canvas id="impulseOut"></canvas></div></div><div class="prop-explanation-live" id="impulseText"></div>`;
+    if(k==='area')return `<div class="prop-three"><div><b>x(t)</b><canvas id="areaX"></canvas><span id="areaXn"></span></div><div><b>h(t)</b><canvas id="areaH"></canvas><span id="areaHn"></span></div><div><b>y(t)=x*h</b><canvas id="areaY"></canvas><span id="areaYn"></span></div></div><div class="prop-check" id="areaCheck"></div>`;
+    if(k==='step')return `<div class="prop-three"><div><b>Input x(t)</b><canvas id="stepX"></canvas></div><div><b>Step u(t)</b><canvas id="stepU"></canvas></div><div><b>Accumulated output</b><canvas id="stepY"></canvas></div></div><div class="prop-progress"><span id="stepText"></span></div>`;
+    return `<div class="prop-paths"><div><b>PATH A</b><div class="prop-process">x*h → differentiate output</div><canvas id="diffL"></canvas></div><div class="property-equals">=</div><div><b>PATH B</b><div class="prop-process">differentiate h → x*(dh/dt)</div><canvas id="diffR"></canvas></div></div><div class="prop-check" id="diffCheck"></div>`;
+  };
+  c.innerHTML=`<div class="properties-heading"><div><h2 class="section-title">Properties</h2><p class="muted">Follow each visual story to see what the property means.</p></div><div class="property-global-controls"><button class="btn" id="propPlay">Play</button><button class="btn secondary" id="propStop">Stop</button></div></div><div class="property-learning-grid">${cards.map((p,i)=>`<article class="property-card didactic-property"><span class="module-number">${String(i+1).padStart(2,'0')}</span><h3>${p[0]}</h3>${math(p[1],'conv-property-eq')}<p>${p[2]}</p>${visual(p[3])}</article>`).join('')}</div>`;
   typeset(c);
 
-  const pg=Array.from({length:161},(_,i)=>-6+i*12/160),step=12/160;
-  const conv=(f,g,t)=>{let sum=0;for(const tau of pg)sum+=f(tau)*g(t-tau)*step;return sum};
-  const curve=(f,g)=>pg.map(t=>conv(f,g,t));
-  const interp=(arr,t)=>{const u=(t+6)/12*160,i=Math.floor(u),a=u-i;if(i<0||i>=160)return 0;return arr[i]*(1-a)+arr[i+1]*a};
-  const x=sigs.rect.fn,h=sigs.decay.fn,g=sigs.tri.fn;
-  const xh=curve(x,h),hg=curve(h,g),xg=curve(x,g);
-  const assocL=pg.map(t=>conv(z=>interp(xh,z),g,t)),assocR=pg.map(t=>conv(x,z=>interp(hg,z),t));
-  const h2=sigs.tri.fn,sumh=t=>h(t)+h2(t),distL=curve(x,sumh),xh2=curve(x,h2),distR=xh.map((v,i)=>v+xh2[i]);
-  const baseRect=curve(x,sigs.rect.fn);
-  const stepCurve=curve(x,sigs.step.fn);
-  const diffH=t=>{const e=.01;return (h(t+e)-h(t-e))/(2*e)},diffR=curve(x,diffH);
-  const diffL=xh.map((v,i,a)=>i===0?(a[1]-v)/(12/160):i===a.length-1?(v-a[i-1])/(12/160):(a[i+1]-a[i-1])/(24/160));
-  const areaX=pg.reduce((q,t)=>q+x(t)*step,0),areaH=pg.reduce((q,t)=>q+h(t)*step,0),areaY=xh.reduce((q,v)=>q+v*step,0);
+  const pg=Array.from({length:161},(_,i)=>-6+i*12/160),ds=12/160;
+  const x=sigs.rect.fn,h=sigs.decay.fn,g=sigs.tri.fn,h2=sigs.tri.fn;
+  const conv=(f,q,t)=>{let sum=0;for(const tau of pg)sum+=f(tau)*q(t-tau)*ds;return sum};
+  const curve=(f,q)=>pg.map(t=>conv(f,q,t));
+  const interp=(a,t)=>{const z=(t+6)/12*160,i=Math.floor(z),r=z-i;if(i<0||i>=160)return 0;return a[i]*(1-r)+a[i+1]*r};
+  const xh=curve(x,h),hx=curve(h,x),hg=curve(h,g),assocL=pg.map(t=>conv(z=>interp(xh,z),g,t)),assocR=pg.map(t=>conv(x,z=>interp(hg,z),t));
+  const sumh=t=>h(t)+h2(t),distL=curve(x,sumh),xh2=curve(x,h2),distR=xh.map((v,i)=>v+xh2[i]);
+  const xx=curve(x,sigs.rect.fn),stepY=curve(x,sigs.step.fn);
+  const dh=t=>{const e=.015;return(h(t+e)-h(t-e))/(2*e)},diffR=curve(x,dh),diffL=xh.map((v,i,a)=>i===0?(a[1]-v)/ds:i===160?(v-a[i-1])/ds:(a[i+1]-a[i-1])/(2*ds));
+  const area=a=>a.reduce((q,v)=>q+v*ds,0),ax=pg.map(x),ah=pg.map(h),areaX=area(ax),areaH=area(ah),areaY=area(xh);
 
-  function dataFor(p,phase){
-    const shift=-4+phase*10; /* continuously moves from -4 to +6 */
-    switch(p.kind){
-      case 'comm': return {L:xh,R:curve(h,x),ll:'x*h',rr:'h*x'};
-      case 'assoc': return {L:assocL,R:assocR,ll:'(x*h)*g',rr:'x*(h*g)'};
-      case 'dist': return {L:distL,R:distR,ll:'x*(h₁+h₂)',rr:'x*h₁+x*h₂'};
-      case 'shift': {
-        const T1=1,T2=1,lf=t=>x(t-T2),rf=t=>sigs.rect.fn(t-T1),L=pg.map(t=>conv(lf,rf,t)),R=pg.map(t=>interp(baseRect,t-T1-T2));
-        return {L,R,ll:'shift inputs',rr:'shift output'};
-      }
-      case 'impulse': {
-        const L=pg.map(t=>x(t-shift)),R=L.slice();return {L,R,ll:`x*δ(t−T)`,rr:'x(t−T)'};
-      }
-      case 'area': return {L:xh,R:xh.map(v=>v),ll:`area y ≈ ${areaY.toFixed(2)}`,rr:`area x × area h ≈ ${(areaX*areaH).toFixed(2)}`};
-      case 'step': {
-        const R=pg.map(t=>{let sum=0;for(const tau of pg){if(tau<=t)sum+=x(tau)*step}return sum});return {L:stepCurve,R,ll:'x*u',rr:'∫x(τ)dτ'};
-      }
-      case 'diff': return {L:diffL,R:diffR,ll:'d(x*h)/dt',rr:'x*(dh/dt)'};
-    }
+  function plot(id,a,col=C.cyan,marker=null,fillTo=null){
+    const cv=document.getElementById(id);if(!cv)return;const d=Math.min(devicePixelRatio||1,1.5),w=Math.max(180,cv.clientWidth),H=cv.clientHeight||112;if(cv.width!==Math.round(w*d)||cv.height!==Math.round(H*d)){cv.width=Math.round(w*d);cv.height=Math.round(H*d)}
+    const q=cv.getContext('2d');q.setTransform(d,0,0,d,0,0);q.clearRect(0,0,w,H);const m=Math.max(1,Math.max(...a.map(v=>Math.abs(v)||0))),L=23,R=6,T=7,B=17,sx=t=>L+(t+6)/12*(w-L-R),sy=y=>(H-B)/2-y/m*((H-B-T)*.38);
+    q.strokeStyle='rgba(170,175,185,.22)';q.lineWidth=1;q.beginPath();q.moveTo(L,sy(0));q.lineTo(w-R,sy(0));q.moveTo(sx(0),T);q.lineTo(sx(0),H-B);q.stroke();
+    if(fillTo!==null){q.fillStyle='rgba(78,215,207,.12)';q.beginPath();q.moveTo(sx(-6),sy(0));a.forEach((y,k)=>{if(pg[k]<=fillTo)q.lineTo(sx(pg[k]),sy(y))});q.lineTo(sx(Math.min(6,fillTo)),sy(0));q.closePath();q.fill()}
+    q.strokeStyle=col;q.lineWidth=1.8;q.beginPath();a.forEach((y,k)=>{const X=sx(pg[k]),Y=sy(y);k?q.lineTo(X,Y):q.moveTo(X,Y)});q.stroke();
+    if(marker!==null){q.strokeStyle=C.gold;q.setLineDash([3,3]);q.beginPath();q.moveTo(sx(marker),T);q.lineTo(sx(marker),H-B);q.stroke();q.setLineDash([])}
   }
-  function smallPlot(id,arr,label,col=C.cyan){
-    const cv=document.getElementById(id);if(!cv)return;const d=Math.min(devicePixelRatio||1,1.5),w=Math.max(180,cv.clientWidth),hh=cv.clientHeight||105;
-    if(cv.width!==Math.round(w*d)||cv.height!==Math.round(hh*d)){cv.width=Math.round(w*d);cv.height=Math.round(hh*d)}
-    const q=cv.getContext('2d');q.setTransform(d,0,0,d,0,0);q.clearRect(0,0,w,hh);const m=Math.max(1,Math.max(...arr.map(v=>Math.abs(v)||0))),L=24,R=6,Tp=7,B=18,sx=t=>L+(t+6)/12*(w-L-R),sy=y=>(hh-B)/2-y/m*((hh-B-Tp)*.38);
-    q.strokeStyle='rgba(170,175,185,.22)';q.lineWidth=1;q.beginPath();q.moveTo(L,sy(0));q.lineTo(w-R,sy(0));q.moveTo(sx(0),Tp);q.lineTo(sx(0),hh-B);q.stroke();
-    q.strokeStyle=col;q.lineWidth=1.8;q.beginPath();arr.forEach((y,k)=>{const xx=sx(pg[k]),yy=sy(y);k?q.lineTo(xx,yy):q.moveTo(xx,yy)});q.stroke();
-  }
+  function impulsePlot(id,T0){const a=pg.map(()=>0);plot(id,a,C.gold);const cv=document.getElementById(id),q=cv.getContext('2d'),d=Math.min(devicePixelRatio||1,1.5),w=cv.clientWidth,H=cv.clientHeight||112,L=23,R=6,T=7,B=17,sx=t=>L+(t+6)/12*(w-L-R);q.save();q.scale(d,d);q.strokeStyle=C.gold;q.fillStyle=C.gold;q.lineWidth=2;q.beginPath();q.moveTo(sx(T0),H-B-35);q.lineTo(sx(T0),H-B);q.stroke();q.beginPath();q.arc(sx(T0),H-B-35,3,0,Math.PI*2);q.fill();q.restore()}
+  const err=(a,b)=>Math.max(...a.map((v,i)=>Math.abs(v-b[i])));
+  document.getElementById('commA').textContent='convolve x with h';document.getElementById('commB').textContent='swap → convolve h with x';
+  document.getElementById('assocA').textContent='first x*h, then convolve with g';document.getElementById('assocB').textContent='first h*g, then convolve with x';
+  document.getElementById('distA').textContent='add h₁+h₂ first, then convolve';document.getElementById('distB').textContent='convolve separately, then add';
+  document.getElementById('commCheck').textContent='✓ Same output';document.getElementById('assocCheck').textContent='✓ Same output';document.getElementById('distCheck').textContent='✓ Same output';document.getElementById('diffCheck').textContent='✓ Same final result';
+  document.getElementById('areaXn').textContent=`Area x ≈ ${areaX.toFixed(2)}`;document.getElementById('areaHn').textContent=`Area h ≈ ${areaH.toFixed(2)}`;document.getElementById('areaYn').textContent=`Area y ≈ ${areaY.toFixed(2)}`;document.getElementById('areaCheck').textContent=`✓ ${areaX.toFixed(2)} × ${areaH.toFixed(2)} ≈ ${areaY.toFixed(2)}`;
+
   let running=true,raf=0,last=performance.now(),phase=0;
-  function draw(){props.forEach((p,i)=>{const d=dataFor(p,phase);document.getElementById('pl'+i).textContent=d.ll;document.getElementById('pr'+i).textContent=d.rr;smallPlot('prL'+i,d.L,d.ll,C.blue);smallPlot('prR'+i,d.R,d.rr,C.cyan)})}
-  function tick(now){if(!running)return;const elapsed=Math.min(.08,(now-last)/1000);last=now;phase=(phase+elapsed*.5/10)%1;draw();raf=requestAnimationFrame(tick)}
+  function draw(){
+    plot('commL',xh,C.blue);plot('commR',hx,C.cyan);plot('assocL',assocL,C.blue);plot('assocR',assocR,C.cyan);plot('distL',distL,C.blue);plot('distR',distR,C.cyan);
+    const shift=phase*3,T1=shift*.45,T2=shift*.55,total=T1+T2,shifted=pg.map(t=>interp(xx,t-total));plot('shiftBase',xx,C.blue);plot('shiftMoved',shifted,C.cyan);document.getElementById('shiftText').textContent=`T₁ = ${T1.toFixed(2)}, T₂ = ${T2.toFixed(2)} → output shift = ${(total).toFixed(2)}`;
+    const impT=-3+phase*6,impOut=pg.map(t=>x(t-impT));impulsePlot('impulseIn',impT);plot('impulseOut',impOut,C.cyan,impT);document.getElementById('impulseText').textContent=`T = ${impT.toFixed(2)}: the impulse moves, and x(t) follows by the same shift.`;
+    plot('areaX',ax,C.blue,null,6);plot('areaH',ah,C.green,null,6);plot('areaY',xh,C.cyan,null,6);
+    const scan=-3+phase*7;plot('stepX',ax,C.blue,scan,scan);plot('stepU',pg.map(sigs.step.fn),C.green);const partial=stepY.map((v,i)=>pg[i]<=scan?v:NaN);plot('stepY',partial.map(v=>Number.isFinite(v)?v:0),C.cyan,scan);document.getElementById('stepText').textContent=`Accumulating x(τ) up to t = ${scan.toFixed(2)} builds y(t).`;
+    plot('diffL',diffL,C.blue);plot('diffR',diffR,C.cyan);
+  }
+  function tick(now){if(!running)return;const e=Math.min(.08,(now-last)/1000);last=now;phase=(phase+e*.05)%1;draw();raf=requestAnimationFrame(tick)}
   document.getElementById('propPlay').onclick=()=>{if(running)return;running=true;last=performance.now();raf=requestAnimationFrame(tick)};
   document.getElementById('propStop').onclick=()=>{running=false;if(raf)cancelAnimationFrame(raf);raf=0};
   draw();raf=requestAnimationFrame(tick);

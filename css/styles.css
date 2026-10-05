@@ -886,3 +886,10 @@ textarea,
 #laplace .html-frac>span:first-child{border-bottom:1px solid currentColor;padding:0 4px 2px}#laplace .html-frac>span:last-child{padding:2px 4px 0}
 #laplace .circuit-normal-kvl{border-top:1px solid var(--border);padding-top:10px;margin-top:8px;font-size:19px}
 #laplace #solvePz{margin:7px 0 8px}
+
+/* v49 — circuit calculator */
+#laplace .circuit-input-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:10px 0}
+#laplace .circuit-input-grid label{font-size:13px;color:var(--text-secondary)}
+#laplace .circuit-input-grid input{display:block;width:100%;margin-top:4px;background:#fff!important;color:#16181d!important;font-size:14px!important}
+#laplace .circuit-result{margin:12px 0}#laplace .circuit-result .katex{font-size:14px!important}
+@media(max-width:760px){#laplace .circuit-input-grid{grid-template-columns:1fr 1fr}}

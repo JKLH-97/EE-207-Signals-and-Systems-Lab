@@ -831,3 +831,19 @@ textarea,
 #laplace .exam-toolbar{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:12px}
 #laplace #lapScore .score{color:var(--accent)!important;font-size:22px;font-weight:700}
 @media(max-width:760px){#laplace .circuit-rel-grid,#laplace .circuit-transform-grid{grid-template-columns:1fr}#laplace .exam-toolbar{flex-direction:column}}
+
+/* v44 — Laplace Concept examples + Transform Explorer controls only */
+#laplace .lap-explore-kicker{margin-top:34px;color:var(--accent);font-size:14px;font-weight:800;letter-spacing:2px}
+#laplace .lap-examples-heading{font-size:30px!important;line-height:1.05;margin:5px 0 28px;color:var(--text-primary)}
+#laplace .lap-examples-intro{font-size:14px;line-height:1.55;color:var(--text-secondary);max-width:520px;margin-bottom:16px}
+#laplace .lap-examples-grid .lap-example-card{text-align:left;padding:26px!important;min-height:195px}
+#laplace .lap-examples-grid .module-number{color:var(--accent);font-size:14px!important}
+#laplace .lap-examples-grid .lap-example-card h3{font-size:18px!important;color:var(--text-primary);margin:12px 0}
+#laplace .lap-examples-grid .lap-example-card .math,#laplace .lap-examples-grid .lap-example-card .katex{font-size:14px!important;color:var(--text-primary)}
+#laplace .lap-examples-grid .lap-example-card p{font-size:14px!important;color:var(--text-secondary);line-height:1.5}
+#laplace .lap-examples-grid .example-link{color:var(--accent);font-size:13px!important}
+#laplace .lap-live-param{margin-top:9px}
+#laplace .lap-live-param>label{display:block;font-size:14px;color:var(--text-secondary);margin-bottom:4px}
+#laplace .lap-live-param>label b{color:var(--accent);font-size:14px}
+#laplace .lap-live-param input[type=range]{display:block;width:100%;accent-color:var(--accent);margin:4px 0 6px}
+#laplace .lap-live-param input[type=number]{width:100%;background:#fff!important;color:#16181d!important;border-color:#cfd2d8!important;font-size:14px!important}

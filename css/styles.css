@@ -967,3 +967,16 @@ textarea,
 #filters .exam-toolbar{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
 #filters #filScore .score{color:var(--accent)!important;font-size:22px;font-weight:700}
 @media(max-width:800px){#filters .filter-compare-grid,#filters .compare-controls{grid-template-columns:1fr}}
+
+/* v64 — Filters aligned with frozen chapter UI */
+#filters .filter-control input[type="range"]{width:100%;accent-color:#ff5a5f!important;margin:7px 0 8px}
+#filters .filter-control input[type="range"]::-moz-range-thumb{background:#ff5a5f!important;border:none}
+#filters .filter-control label b{color:#ff5a5f!important;font-size:14px}
+#filters .filter-control label span{color:var(--text-muted)!important;font-size:11px}
+#filters .filter-control input[type="number"]{display:block!important;width:100%!important;background:#fff!important;color:#16181d!important;border:1px solid #cfd2d8!important;border-radius:6px;font-size:14px!important;padding:8px 10px!important}
+#filters .filter-kicker{color:#ff4d57!important;font-size:14px!important;font-weight:800!important;letter-spacing:2px!important}
+#filters .filter-ex-title{font-size:30px!important;line-height:1.05!important;margin:5px 0 20px!important}
+#filters .filter-example .module-number{color:#ff4d57!important;font-size:14px!important}
+#filters .filter-example .math,#filters .filter-example .katex{font-size:14px!important}
+#filters .filter-example p{font-size:14px!important;color:var(--text-secondary)!important}
+#filters .control-panel .btn{margin-top:10px}

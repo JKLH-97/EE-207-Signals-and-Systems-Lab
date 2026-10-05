@@ -809,3 +809,25 @@ textarea,
 .chapter-shell{padding:22px 28px 40px}.chapter-kicker{text-align:center;color:var(--accent);font-size:13px;letter-spacing:.2em;font-weight:800}.chapter-title{text-align:center;font-family:Georgia,serif;font-size:60px;line-height:1;margin:20px 0 12px}.chapter-subtitle{text-align:center;color:var(--text-secondary);font-size:14px;margin-bottom:24px}.chapter-tabs{display:flex;gap:8px;overflow-x:auto;border-bottom:1px solid var(--border);margin-bottom:26px}.chapter-tab{flex:1;min-width:130px;background:transparent;color:var(--text-secondary);border:0;border-bottom:2px solid transparent;padding:13px 10px;font-size:14px;font-weight:700;cursor:pointer}.chapter-tab.active{color:var(--accent);border-color:var(--accent);background:rgba(255,77,87,.06)}
 #laplace .section-title,#fourier .section-title,#filters .section-title,#sampling .section-title{font-size:20px!important;margin:0 0 14px}.concept-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.concept-card,.analysis-card,.step-card,.plot-card,.control-panel{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}.concept-card h3,.analysis-card h3,.step-card h3,.plot-card h4{font-size:16px;margin:0 0 10px}.concept-card p,.analysis-card p,.step-card p,.muted,.hint{font-size:14px;color:var(--text-secondary);line-height:1.5}.math .katex{font-size:16px}.lab-layout{display:grid;grid-template-columns:minmax(0,2.3fr) minmax(260px,.7fr);gap:14px;align-items:start}.dual-plot{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.plot-card canvas{width:100%;height:210px;display:block}.control-panel{position:sticky;top:14px}.control-panel label{display:block;font-size:14px;margin-bottom:14px}.control-panel input[type=range],.control-panel select,.control-panel input[type=number]{width:100%;margin-top:6px}.control-panel select,.control-panel input[type=number]{background:#fff;color:#16181d;border:1px solid #cfd2d8;border-radius:6px;padding:8px;font-size:13px}.step-stack{display:grid;gap:12px}.ok{color:#58d68d}.bad{color:#ff4d57}.property-learning-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.property-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}.property-card h3{font-size:18px}.property-card p{font-size:14px;color:var(--text-secondary)}#laplace .score,#fourier .score,#filters .score,#sampling .score{color:var(--accent);font-size:22px;font-weight:800}
 @media(max-width:900px){.lab-layout,.dual-plot,.concept-grid,.property-learning-grid{grid-template-columns:1fr}.control-panel{position:static}.chapter-title{font-size:42px}}
+
+/* v43 — Laplace-only refinements. Home, LTI and Convolution remain frozen. */
+#laplace .lap-example-card h3{font-size:18px!important}
+#laplace .lap-example-card p{font-size:14px!important;line-height:1.5}
+#laplace .lap-example-card .math,#laplace .lap-example-card .katex{font-size:14px!important}
+#laplace .lap-example-card .example-link{font-size:13px!important}
+#laplace .circuit-foundation{margin-bottom:14px}
+#laplace .circuit-rel-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:10px 0}
+#laplace .circuit-rel-grid>div{border:1px solid var(--border);border-radius:8px;padding:9px;background:rgba(255,255,255,.02)}
+#laplace .circuit-rel-grid span{display:block;font-size:13px;color:var(--text-secondary);font-weight:700}
+#laplace .circuit-rel-grid .math,#laplace .circuit-rel-grid .katex{font-size:14px!important}
+#laplace .lap-circuit-kvl .katex{font-size:16px!important}
+#laplace .circuit-transform-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#laplace .circuit-transform-grid>div{border:1px solid var(--border);border-radius:8px;padding:7px}
+#laplace .circuit-transform-grid .katex{font-size:14px!important}
+#laplace .pfe-custom{margin-top:10px}
+#laplace .mini-input-row{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+#laplace .coefficient-step{border-left:2px solid var(--accent);padding:6px 10px;margin:7px 0;background:rgba(255,77,87,.04)}
+#laplace .coefficient-step>.math{margin:2px 0}
+#laplace .exam-toolbar{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:12px}
+#laplace #lapScore .score{color:var(--accent)!important;font-size:22px;font-weight:700}
+@media(max-width:760px){#laplace .circuit-rel-grid,#laplace .circuit-transform-grid{grid-template-columns:1fr}#laplace .exam-toolbar{flex-direction:column}}

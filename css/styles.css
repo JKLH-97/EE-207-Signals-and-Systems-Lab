@@ -980,3 +980,10 @@ textarea,
 #filters .filter-example .math,#filters .filter-example .katex{font-size:14px!important}
 #filters .filter-example p{font-size:14px!important;color:var(--text-secondary)!important}
 #filters .control-panel .btn{margin-top:10px}
+
+/* v65 — Compare Filters uses standard left-content / right-controls layout */
+#filters .compare-filter-layout{align-items:start}
+#filters .compare-filter-layout .filter-compare-grid{min-width:0}
+#filters .compare-filter-layout .compare-controls{display:block!important;margin-top:0!important;position:sticky;top:14px}
+#filters .compare-filter-layout .compare-controls .filter-control{width:100%}
+@media(max-width:980px){#filters .compare-filter-layout .compare-controls{position:static}}

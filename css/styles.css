@@ -934,3 +934,7 @@ textarea,
 #fourier .four-control input[type=number]{width:100%;background:#fff!important;color:#16181d!important;font-size:14px!important}
 #fourier .exam-toolbar{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
 #fourier #fScore .score{color:var(--accent)!important;font-size:22px;font-weight:700}
+
+/* v58 — Fourier interaction expansion */
+#fourier #customControls input,#fourier #pieceControls input,#fourier #customH select{background:#fff!important;color:#16181d!important;font-size:14px!important}
+#fourier #spPreview,#fourier #piecePreview{margin:7px 0 10px}

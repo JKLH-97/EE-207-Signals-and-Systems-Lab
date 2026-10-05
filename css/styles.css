@@ -906,3 +906,8 @@ textarea,
 #laplace .circuit-try-panel .circuit-input-grid{grid-template-columns:1fr 1fr}
 #laplace .circuit-try-panel .plot-card{margin-top:10px}
 @media(max-width:980px){#laplace .circuit-work-layout{grid-template-columns:1fr}#laplace .circuit-try-panel{position:static}}
+
+/* v52 */
+#laplace .circuit-try-panel .try-own-title{color:var(--accent)!important}
+#laplace .circuit-try-panel label{display:block;margin-bottom:8px}
+#laplace .circuit-try-panel input{background:#fff!important;color:#16181d!important}

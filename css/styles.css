@@ -873,3 +873,16 @@ textarea,
 #laplace .equation-live-preview{margin:7px 0 10px;padding:7px 9px;border:1px solid rgba(46,204,113,.35);border-radius:7px;background:rgba(46,204,113,.05);color:#2ecc71;font-size:13px;min-height:32px;overflow-x:auto}
 #laplace .lap-live-param input[type=range]{accent-color:#ff8a3d!important}
 #laplace #solvePfe{margin-top:8px}
+
+/* v48 — definitive Laplace equation layout fixes */
+#laplace .lap-current-pair{margin-top:12px;border-top:1px solid var(--border);padding-top:10px;overflow-x:auto}
+#laplace .lap-current-pair .katex{font-size:14px!important}
+#laplace .circuit-normal-list{display:grid;grid-template-columns:1fr;gap:9px;margin:10px 0}
+#laplace .circuit-normal-list>div{border:1px solid var(--border);border-radius:8px;padding:12px 14px;min-width:0}
+#laplace .circuit-label{display:block;font-size:13px;font-weight:700;color:var(--text-secondary);margin-bottom:8px}
+#laplace .normal-equation{display:block!important;width:100%!important;white-space:nowrap!important;word-break:normal!important;overflow-wrap:normal!important;overflow-x:auto!important;text-align:center;font-family:"Times New Roman",serif;font-size:18px;line-height:1.9;color:var(--text-primary)}
+#laplace .normal-equation sub{font-size:.7em;vertical-align:-.3em}#laplace .normal-equation sup{font-size:.7em}
+#laplace .html-frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.05;margin:0 4px}
+#laplace .html-frac>span:first-child{border-bottom:1px solid currentColor;padding:0 4px 2px}#laplace .html-frac>span:last-child{padding:2px 4px 0}
+#laplace .circuit-normal-kvl{border-top:1px solid var(--border);padding-top:10px;margin-top:8px;font-size:19px}
+#laplace #solvePz{margin:7px 0 8px}

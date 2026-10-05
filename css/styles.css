@@ -862,3 +862,14 @@ textarea,
 #laplace .circuit-rel-grid .math,#laplace .circuit-rel-grid .katex-display{width:100%!important;max-width:none!important;overflow-x:auto!important;text-align:center!important}
 #laplace .circuit-rel-grid .katex{font-size:14px!important;white-space:nowrap!important}
 #laplace #pzExpr,#laplace #pfeExpr{background:#fff!important;color:#16181d!important;font-size:14px!important}
+
+/* v47 — Laplace requested fixes only */
+#laplace .circuit-equation-list{display:grid;grid-template-columns:1fr;gap:8px;margin:10px 0}
+#laplace .circuit-equation-list>div{border:1px solid var(--border);border-radius:8px;padding:10px;min-width:0}
+#laplace .circuit-equation-list span{display:block;font-size:13px;color:var(--text-secondary);font-weight:700;margin-bottom:4px}
+#laplace .circuit-eq,#laplace .circuit-kvl{display:block;width:100%;overflow-x:auto;overflow-y:hidden;text-align:center;white-space:nowrap}
+#laplace .circuit-eq .katex,#laplace .circuit-kvl .katex{font-size:14px!important;white-space:nowrap!important}
+#laplace .circuit-kvl{border-top:1px solid var(--border);padding-top:10px;margin-top:8px}
+#laplace .equation-live-preview{margin:7px 0 10px;padding:7px 9px;border:1px solid rgba(46,204,113,.35);border-radius:7px;background:rgba(46,204,113,.05);color:#2ecc71;font-size:13px;min-height:32px;overflow-x:auto}
+#laplace .lap-live-param input[type=range]{accent-color:#ff8a3d!important}
+#laplace #solvePfe{margin-top:8px}

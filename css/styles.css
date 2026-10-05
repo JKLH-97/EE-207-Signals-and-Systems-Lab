@@ -920,3 +920,17 @@ textarea,
 #laplace .lap-pz-summary .math{border:1px solid var(--border);border-radius:7px;padding:7px;min-width:0;overflow-x:auto}
 #laplace .lap-pz-summary .katex{font-size:14px!important}
 @media(max-width:650px){#laplace .lap-pz-summary{grid-template-columns:1fr}}
+
+/* v57 — Fourier chapter aligned to frozen project design */
+#fourier .four-kicker{margin-top:34px;color:var(--accent);font-size:14px;font-weight:800;letter-spacing:2px}
+#fourier .four-ex-title{font-size:30px!important;line-height:1.05;margin:5px 0 20px}
+#fourier .four-example{cursor:pointer}
+#fourier .four-example:hover{border-color:var(--accent)}
+#fourier .four-control{margin:9px 0}
+#fourier .four-control label{display:block;font-size:14px;color:var(--text-secondary);margin-bottom:4px}
+#fourier .four-control label b{color:var(--accent)}
+#fourier .range-limits{float:right;color:var(--text-muted);font-size:11px}
+#fourier .four-control input[type=range]{display:block;width:100%;accent-color:#ff8a3d!important;margin:5px 0}
+#fourier .four-control input[type=number]{width:100%;background:#fff!important;color:#16181d!important;font-size:14px!important}
+#fourier .exam-toolbar{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+#fourier #fScore .score{color:var(--accent)!important;font-size:22px;font-weight:700}

@@ -898,3 +898,11 @@ textarea,
 #laplace .try-own-title{color:#ff8a3d!important}
 #laplace #lapCustom input,#laplace #pzCustom input{background:#fff!important;color:#16181d!important;font-size:14px!important}
 #laplace #solveLapExpr{margin:7px 0 8px}
+
+/* v51 */
+#laplace .try-own-title{color:var(--accent)!important}
+#laplace .circuit-work-layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:14px;align-items:start}
+#laplace .circuit-try-panel{position:sticky;top:14px}
+#laplace .circuit-try-panel .circuit-input-grid{grid-template-columns:1fr 1fr}
+#laplace .circuit-try-panel .plot-card{margin-top:10px}
+@media(max-width:980px){#laplace .circuit-work-layout{grid-template-columns:1fr}#laplace .circuit-try-panel{position:static}}

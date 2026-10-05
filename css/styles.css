@@ -914,3 +914,9 @@ textarea,
 
 /* v53 custom parser status */
 #laplace .custom-status{font-size:12px;color:var(--text-secondary);margin:-3px 0 7px;min-height:16px}
+
+/* v56 — Pole/zero information integrated into Transform Explorer */
+#laplace .lap-pz-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+#laplace .lap-pz-summary .math{border:1px solid var(--border);border-radius:7px;padding:7px;min-width:0;overflow-x:auto}
+#laplace .lap-pz-summary .katex{font-size:14px!important}
+@media(max-width:650px){#laplace .lap-pz-summary{grid-template-columns:1fr}}

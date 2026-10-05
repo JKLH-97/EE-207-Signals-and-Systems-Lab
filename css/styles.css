@@ -847,3 +847,11 @@ textarea,
 #laplace .lap-live-param>label b{color:var(--accent);font-size:14px}
 #laplace .lap-live-param input[type=range]{display:block;width:100%;accent-color:var(--accent);margin:4px 0 6px}
 #laplace .lap-live-param input[type=number]{width:100%;background:#fff!important;color:#16181d!important;border-color:#cfd2d8!important;font-size:14px!important}
+/* v45 — Laplace examples intentionally reuse the frozen LTI example-card language. */
+#laplace .example-grid .lap-example-card{padding:21px!important;min-height:0;text-align:left}
+#laplace .example-grid .lap-example-card .module-number{color:var(--accent);font-size:13px!important}
+#laplace .example-grid .lap-example-card .math{padding:8px 0!important;border:0!important;background:transparent!important;text-align:left!important}
+#laplace .example-grid .lap-example-card .math,#laplace .example-grid .lap-example-card .katex{font-size:14px!important;color:var(--text)!important}
+#laplace .example-grid .lap-example-card p{color:var(--muted)!important;font-size:13px!important;line-height:1.5}
+#laplace .eyebrow{margin-top:50px}
+#laplace .eyebrow + .section-title{margin-top:8px;margin-bottom:24px}

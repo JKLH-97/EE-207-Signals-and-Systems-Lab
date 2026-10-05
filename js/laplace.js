@@ -36,30 +36,44 @@ function compileTimeSignal(expr){
  }catch(_){return null}
 }
 function recognizeLaplace(expr){
- let src=String(expr||'').replace(/−/g,'-').replace(/\s/g,'');
- // Normalize natural classroom notation: cos(t), sin(t), exp(-t), 2t, etc.
- src=src.replace(/(\d)(t)/g,'$1*$2').replace(/cos\(t\)/g,'cos(1*t)').replace(/sin\(t\)/g,'sin(1*t)').replace(/exp\(-t\)/g,'exp(-1*t)').replace(/exp\(t\)/g,'exp(1*t)');
- // Split a top-level sum into transformable terms (linearity).
- const splitTerms=x=>{let out=[],d=0,start=0;for(let i=1;i<x.length;i++){let c=x[i];if(c==='(')d++;else if(c===')')d--;else if(d===0&&(c==='+'||c==='-')){out.push(x.slice(start,i));start=i}}out.push(x.slice(start));return out.filter(Boolean)};
- const one=term=>{
-   let e=term,amp=1,m;
-   m=e.match(/^([+-]?(?:\d+(?:\.\d*)?|\.\d+))\*(.+)$/);if(m){amp=+m[1];e=m[2]}
-   else if(e[0]==='-'){amp=-1;e=e.slice(1)}else if(e[0]==='+')e=e.slice(1);
-   if(e==='u(t)')return{X:`\\frac{${amp}}{s}`,p:[[0,0]],z:[]};
-   if(e==='t*u(t)')return{X:`\\frac{${amp}}{s^2}`,p:[[0,0],[0,0]],z:[]};
-   if((m=e.match(/^exp\(([+-]?(?:\d+(?:\.\d*)?|\.\d+))\*t\)\*u\(t\)$/))){let c=+m[1];return{X:`\\frac{${amp}}{s${c<0?'+':'-'}${Math.abs(c)}}`,p:[[c,0]],z:[]}}
-   if((m=e.match(/^sin\(([+-]?(?:\d+(?:\.\d*)?|\.\d+))\*t\)\*u\(t\)$/))){let q=+m[1];return{X:`\\frac{${(amp*q).toFixed(3)}}{s^2+${(q*q).toFixed(3)}}`,p:[[0,q],[0,-q]],z:[]}}
-   if((m=e.match(/^cos\(([+-]?(?:\d+(?:\.\d*)?|\.\d+))\*t\)\*u\(t\)$/))){let q=+m[1];return{X:`\\frac{${amp}s}{s^2+${(q*q).toFixed(3)}}`,p:[[0,q],[0,-q]],z:[[0,0]]}}
-   return null
+ const trimPoly=p=>{while(p.length>1&&Math.abs(p[p.length-1])<1e-10)p.pop();return p};
+ const add=(a,b)=>{let n=Math.max(a.length,b.length),r=Array(n).fill(0);for(let i=0;i<n;i++)r[i]=(a[i]||0)+(b[i]||0);return trimPoly(r)};
+ const mul=(a,b)=>{let r=Array(a.length+b.length-1).fill(0);a.forEach((x,i)=>b.forEach((y,j)=>r[i+j]+=x*y));return trimPoly(r)};
+ const deriv=p=>p.length<2?[0]:p.slice(1).map((x,i)=>x*(i+1));
+ const scale=(p,k)=>p.map(x=>x*k);
+ const rat=(N,D)=>({N:trimPoly(N),D:trimPoly(D)});
+ const radd=(a,b)=>rat(add(mul(a.N,b.D),mul(b.N,a.D)),mul(a.D,b.D));
+ const rscale=(a,k)=>rat(scale(a.N,k),a.D.slice());
+ const rderiv=a=>rat(add(mul(deriv(a.N),a.D),scale(mul(a.N,deriv(a.D)),-1)),mul(a.D,a.D));
+ const shiftS=(a,c)=>{ // F(s-c): polynomial substitution s -> s-c
+   const sub=p=>{let out=[0],pow=[1];for(let i=0;i<p.length;i++){out=add(out,scale(pow,p[i]));pow=mul(pow,[-c,1])}return out};return rat(sub(a.N),sub(a.D))};
+ const fmtPoly=p=>{let out='';for(let i=p.length-1;i>=0;i--){let c=p[i];if(Math.abs(c)<1e-8)continue;let sign=c<0?'-':(out?'+':''),v=Math.abs(c),coef=(Math.abs(v-1)<1e-8&&i>0)?'':(+v.toFixed(5)).toString(),term=i===0?coef:i===1?`${coef}s`:`${coef}s^{${i}}`;out+=sign+term}return out||'0'};
+ const roots=(p)=>{p=trimPoly(p.slice());let n=p.length-1;if(n===1)return [[-p[0]/p[1],0]];if(n===2){let [c,b,a]=p,d=b*b-4*a*c;if(d>=0)return [[(-b+Math.sqrt(d))/(2*a),0],[(-b-Math.sqrt(d))/(2*a),0]];return [[-b/(2*a),Math.sqrt(-d)/(2*a)],[-b/(2*a),-Math.sqrt(-d)/(2*a)]]}return []};
+ const split=x=>{let o=[],d=0,st=0;for(let i=1;i<x.length;i++){if(x[i]==='(')d++;else if(x[i]===')')d--;else if(!d&&(x[i]=='+'||x[i]=='-')){o.push(x.slice(st,i));st=i}}o.push(x.slice(st));return o.filter(Boolean)};
+ const parseTerm=t=>{
+   let sign=1;if(t[0]==='+')t=t.slice(1);else if(t[0]==='-'){sign=-1;t=t.slice(1)}
+   let amp=1,m=t.match(/^((?:\d+(?:\.\d*)?|\.\d+))\*(.+)$/);if(m){amp=+m[1];t=m[2]}amp*=sign;
+   // pull t or t^n multiplier
+   let n=0;let tm=t.match(/^t(?:\^(\d+))?\*(.+)$/);if(tm){n=tm[1]?+tm[1]:1;t=tm[2]}
+   let R=null;
+   if(t==='u(t)')R=rat([1],[0,1]);
+   else if((m=t.match(/^exp\(([+-]?(?:\d+(?:\.\d*)?|\.\d+))\*t\)\*u\(t\)$/))){let c=+m[1];R=rat([1],[-c,1])}
+   else if((m=t.match(/^sin\(([+-]?(?:\d+(?:\.\d*)?|\.\d+))\*t\)\*u\(t\)$/))){let q=+m[1];R=rat([q],[q*q,0,1])}
+   else if((m=t.match(/^cos\(([+-]?(?:\d+(?:\.\d*)?|\.\d+))\*t\)\*u\(t\)$/))){let q=+m[1];R=rat([0,1],[q*q,0,1])}
+   // exp(c t) multiplying sin/cos/other recognized base
+   else if((m=t.match(/^exp\(([+-]?(?:\d+(?:\.\d*)?|\.\d+))\*t\)\*(.+)$/))){let base=parseTerm(m[2]);if(base)R=shiftS(base,+m[1])}
+   if(!R)return null;
+   for(let k=0;k<n;k++)R=rscale(rderiv(R),-1); // L{t^n f}=(-1)^n d^nF/ds^n
+   return rscale(R,amp)
  };
- // Whole expression first.
- let r=one(src);if(r)return r;
- // Common factor u(t): (term1+term2)*u(t)
- let common=src.match(/^\((.+)\)\*u\(t\)$/);
- if(common){let terms=splitTerms(common[1]),rs=terms.map(t=>one(`${t}*u(t)`));if(rs.every(Boolean))return{X:rs.map((q,i)=>(i&&terms[i][0]!=='-'?'+':'')+q.X).join(''),p:rs.flatMap(q=>q.p),z:[]}}
- // Sum where every term already contains u(t)
- let terms=splitTerms(src),rs=terms.map(one);if(terms.length>1&&rs.every(Boolean))return{X:rs.map((q,i)=>(i&&terms[i][0]!=='-'?'+':'')+q.X).join(''),p:rs.flatMap(q=>q.p),z:[]};
- return null
+ let src=String(expr||'').replace(/−/g,'-').replace(/\s/g,'').replace(/(\d)(t)/g,'$1*$2')
+   .replace(/cos\(t\)/g,'cos(1*t)').replace(/sin\(t\)/g,'sin(1*t)').replace(/exp\(-t\)/g,'exp(-1*t)').replace(/exp\(t\)/g,'exp(1*t)');
+ // common u(t): distribute into parenthesized sum
+ let cm=src.match(/^\((.+)\)\*u\(t\)$/);if(cm)src=split(cm[1]).map(q=>`${q}*u(t)`).join('+').replace(/\+\-/g,'-');
+ let terms=split(src),R=null;
+ for(let t of terms){let q=parseTerm(t);if(!q)return null;R=R?radd(R,q):q}
+ let X=`\\frac{${fmtPoly(R.N)}}{${fmtPoly(R.D)}}`,poles=roots(R.D),zeros=roots(R.N);
+ return{X,p:poles,z:zeros,N:R.N,D:R.D}
 }
 function explorer(b){b.innerHTML=`<h2 class="section-title">Transform Explorer</h2><p class="muted">Compare the causal signal in time with its Laplace expression and finite poles/zeros in the s-plane.</p><div class="lab-layout"><div><div class="dual-plot"><div class="plot-card"><h4>Time domain — x(t)</h4><canvas id="lapTime"></canvas></div><div class="plot-card"><h4>s-plane — poles × and zeros ○</h4><canvas id="lapSPlane"></canvas></div></div><div class="analysis-card" id="lapDerive"></div></div><aside class="control-panel"><label>Signal<select id="lapSig">${pairs.map((p,i)=>`<option value="${i}">${p.name}</option>`).join('')}<option value="custom">Build custom signal</option></select></label><div id="lapCustom" hidden><label>Custom x(t)<input id="lapExpr" type="text" value="exp(-2*t)*u(t)"></label><div id="lapExprPreview" class="equation-live-preview"></div><div id="lapCustomStatus" class="custom-status"></div><button class="btn" id="solveLapExpr" type="button">Transform & graph</button><p class="hint">Examples: exp(-2*t)*u(t), sin(3*t)*u(t), cos(2*t)*u(t), u(t), t*u(t).</p></div>
 <div class="lap-live-param" id="lapAControl"><label>a = <b id="lapAv">1</b></label><input id="lapARange" type="range" min="-6" max="6" step=".25" value="1"><input id="lapA" type="number" value="1" step=".25" aria-label="Exact a"></div>

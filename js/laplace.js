@@ -36,14 +36,29 @@ function compileTimeSignal(expr){
  }catch(_){return null}
 }
 function recognizeLaplace(expr){
- let e=String(expr||'').replace(/−/g,'-').replace(/\s/g,'').replace(/(\d)(t)/g,'$1*$2').replace(/^\+/,'');
- let amp=1,m=e.match(/^([+-]?(?:\d+(?:\.\d*)?|\.\d+))\*(.+)$/);
- if(m){amp=+m[1];e=m[2]}
- if(e==='u(t)')return{X:`\\frac{${amp}}{s}`,p:[[0,0]],z:[]};
- if(e==='t*u(t)'||e==='t*u(t)')return{X:`\\frac{${amp}}{s^2}`,p:[[0,0],[0,0]],z:[]};
- if((m=e.match(/^exp\(([+-]?(?:\d+(?:\.\d*)?|\.\d+))\*t\)\*u\(t\)$/))){let c=+m[1];return{X:`\\frac{${amp}}{s${c<0?'+':'-'}${Math.abs(c)}}`,p:[[c,0]],z:[]}}
- if((m=e.match(/^sin\(([+-]?(?:\d+(?:\.\d*)?|\.\d+))\*t\)\*u\(t\)$/))){let q=+m[1];return{X:`\\frac{${(amp*q).toFixed(3)}}{s^2+${(q*q).toFixed(3)}}`,p:[[0,q],[0,-q]],z:[]}}
- if((m=e.match(/^cos\(([+-]?(?:\d+(?:\.\d*)?|\.\d+))\*t\)\*u\(t\)$/))){let q=+m[1];return{X:`\\frac{${amp}s}{s^2+${(q*q).toFixed(3)}}`,p:[[0,q],[0,-q]],z:[[0,0]]}}
+ let src=String(expr||'').replace(/−/g,'-').replace(/\s/g,'');
+ // Normalize natural classroom notation: cos(t), sin(t), exp(-t), 2t, etc.
+ src=src.replace(/(\d)(t)/g,'$1*$2').replace(/cos\(t\)/g,'cos(1*t)').replace(/sin\(t\)/g,'sin(1*t)').replace(/exp\(-t\)/g,'exp(-1*t)').replace(/exp\(t\)/g,'exp(1*t)');
+ // Split a top-level sum into transformable terms (linearity).
+ const splitTerms=x=>{let out=[],d=0,start=0;for(let i=1;i<x.length;i++){let c=x[i];if(c==='(')d++;else if(c===')')d--;else if(d===0&&(c==='+'||c==='-')){out.push(x.slice(start,i));start=i}}out.push(x.slice(start));return out.filter(Boolean)};
+ const one=term=>{
+   let e=term,amp=1,m;
+   m=e.match(/^([+-]?(?:\d+(?:\.\d*)?|\.\d+))\*(.+)$/);if(m){amp=+m[1];e=m[2]}
+   else if(e[0]==='-'){amp=-1;e=e.slice(1)}else if(e[0]==='+')e=e.slice(1);
+   if(e==='u(t)')return{X:`\\frac{${amp}}{s}`,p:[[0,0]],z:[]};
+   if(e==='t*u(t)')return{X:`\\frac{${amp}}{s^2}`,p:[[0,0],[0,0]],z:[]};
+   if((m=e.match(/^exp\(([+-]?(?:\d+(?:\.\d*)?|\.\d+))\*t\)\*u\(t\)$/))){let c=+m[1];return{X:`\\frac{${amp}}{s${c<0?'+':'-'}${Math.abs(c)}}`,p:[[c,0]],z:[]}}
+   if((m=e.match(/^sin\(([+-]?(?:\d+(?:\.\d*)?|\.\d+))\*t\)\*u\(t\)$/))){let q=+m[1];return{X:`\\frac{${(amp*q).toFixed(3)}}{s^2+${(q*q).toFixed(3)}}`,p:[[0,q],[0,-q]],z:[]}}
+   if((m=e.match(/^cos\(([+-]?(?:\d+(?:\.\d*)?|\.\d+))\*t\)\*u\(t\)$/))){let q=+m[1];return{X:`\\frac{${amp}s}{s^2+${(q*q).toFixed(3)}}`,p:[[0,q],[0,-q]],z:[[0,0]]}}
+   return null
+ };
+ // Whole expression first.
+ let r=one(src);if(r)return r;
+ // Common factor u(t): (term1+term2)*u(t)
+ let common=src.match(/^\((.+)\)\*u\(t\)$/);
+ if(common){let terms=splitTerms(common[1]),rs=terms.map(t=>one(`${t}*u(t)`));if(rs.every(Boolean))return{X:rs.map((q,i)=>(i&&terms[i][0]!=='-'?'+':'')+q.X).join(''),p:rs.flatMap(q=>q.p),z:[]}}
+ // Sum where every term already contains u(t)
+ let terms=splitTerms(src),rs=terms.map(one);if(terms.length>1&&rs.every(Boolean))return{X:rs.map((q,i)=>(i&&terms[i][0]!=='-'?'+':'')+q.X).join(''),p:rs.flatMap(q=>q.p),z:[]};
  return null
 }
 function explorer(b){b.innerHTML=`<h2 class="section-title">Transform Explorer</h2><p class="muted">Compare the causal signal in time with its Laplace expression and finite poles/zeros in the s-plane.</p><div class="lab-layout"><div><div class="dual-plot"><div class="plot-card"><h4>Time domain — x(t)</h4><canvas id="lapTime"></canvas></div><div class="plot-card"><h4>s-plane — poles × and zeros ○</h4><canvas id="lapSPlane"></canvas></div></div><div class="analysis-card" id="lapDerive"></div></div><aside class="control-panel"><label>Signal<select id="lapSig">${pairs.map((p,i)=>`<option value="${i}">${p.name}</option>`).join('')}<option value="custom">Build custom signal</option></select></label><div id="lapCustom" hidden><label>Custom x(t)<input id="lapExpr" type="text" value="exp(-2*t)*u(t)"></label><div id="lapExprPreview" class="equation-live-preview"></div><div id="lapCustomStatus" class="custom-status"></div><button class="btn" id="solveLapExpr" type="button">Transform & graph</button><p class="hint">Examples: exp(-2*t)*u(t), sin(3*t)*u(t), cos(2*t)*u(t), u(t), t*u(t).</p></div>
@@ -64,7 +79,7 @@ function explorer(b){b.innerHTML=`<h2 class="section-title">Transform Explorer</
  if(p.kind==='sin'){base=t=>t>=0?Math.sin(bv*t):0;baseTex=`\\frac{${bv.toFixed(2)}}{s^2+${(bv*bv).toFixed(2)}}`;poles=[[0,bv],[0,-bv]]}
  }
  let arg=T<0?`t+${Math.abs(T).toFixed(2)}`:`t-${T.toFixed(2)}`,df=T<0?`e^{+${Math.abs(T).toFixed(2)}s}`:`e^{-${T.toFixed(2)}s}`,y=x.map(t=>base(t-T));let X=T===0?baseTex:`${df}\\left(${baseTex}\\right)`;let sigTex=custom?appliedLapExpr:p.kind==='exp'?`e^{-${a.toFixed(2)}(${arg})}u(${arg})`:p.kind==='cos'?`\\cos(${bv.toFixed(2)}(${arg}))u(${arg})`:p.kind==='sin'?`\\sin(${bv.toFixed(2)}(${arg}))u(${arg})`:T===0?p.name:`x_0(${arg})`;
- lapDerive.innerHTML=`<h3>Current experiment</h3>${math(`X(s)=${X}`)}<p><b>a = ${a.toFixed(2)}</b> controls the exponential example; <b>b = ${bv.toFixed(2)}</b> controls sine/cosine frequency; <b>T = ${T.toFixed(2)}</b> shifts the waveform.</p><p>The finite pole-zero locations come from the rational part of X(s). The delay factor does not move them.</p><div class="lap-current-pair">${math(`${sigTex}\\;\\xleftrightarrow{\\mathcal L}\\;${X}`)}</div>`;plot('lapTime',[[y,'x(t)',C.blue]],-6,8);sp(poles,zeros);typeset(b)};
+ lapDerive.innerHTML=`<h3>Current experiment</h3>${math(`X(s)=${X}`)}<p>${custom?`<b>T = ${T.toFixed(2)}</b> shifts the custom waveform.`:`<b>a = ${a.toFixed(2)}</b> controls the exponential example; <b>b = ${bv.toFixed(2)}</b> controls sine/cosine frequency; <b>T = ${T.toFixed(2)}</b> shifts the waveform.`}</p><p>The finite pole-zero locations come from the rational part of X(s). The delay factor does not move them.</p><div class="lap-current-pair">${math(`${sigTex}\\;\\xleftrightarrow{\\mathcal L}\\;${X}`)}</div>`;plot('lapTime',[[y,'x(t)',C.blue]],-6,8);sp(poles,zeros);typeset(b)};
  const pairsCtl=[['lapARange','lapA'],['lapBRange','lapB'],['lapTRange','lapT']];
  pairsCtl.forEach(([r,n])=>{let rr=document.getElementById(r),nn=document.getElementById(n);rr.oninput=()=>{nn.value=rr.value;draw()};nn.oninput=()=>{let v=+nn.value;if(Number.isFinite(v)&&v>=-6&&v<=6)rr.value=v;draw()}});
  lapSig.onchange=()=>{lapCustom.hidden=lapSig.value!=='custom';draw()};lapExpr.oninput=()=>{lapExprPreview.textContent=`x(t) = ${lapExpr.value}`};const applyLapExpr=()=>{appliedLapExpr=lapExpr.value;draw()};lapExpr.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();applyLapExpr()}};solveLapExpr.onclick=applyLapExpr;lapExprPreview.textContent=`x(t) = ${lapExpr.value}`;if(Number.isInteger(window.laplaceExample)){lapSig.value=window.laplaceExample;window.laplaceExample=null}draw()} 

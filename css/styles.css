@@ -944,3 +944,11 @@ textarea,
 #fourier .segment-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin:9px 0}
 #fourier .segment-grid b{display:block;font-size:11px;color:var(--text-muted)}
 #fourier .segment-grid input,#fourier #hExpr,#fourier #paExpr{width:100%;background:#fff!important;color:#16181d!important;font-size:14px!important}
+
+/* v60 Fourier robustness + interactivity */
+#fourier .segment-actions{display:flex;gap:7px;margin:8px 0}
+#fourier .four-harm-table{margin-top:12px;border:1px solid var(--border);border-radius:8px;padding:10px;overflow-x:auto}
+#fourier .four-table-row{display:grid;grid-template-columns:50px repeat(4,minmax(90px,1fr));gap:6px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px}
+#fourier .four-table-row.head{font-weight:700;color:var(--text-secondary)}
+#fourier .prop-card{cursor:pointer}#fourier .prop-card:hover{border-color:var(--accent)}
+#fourier #ftExpr{background:#fff!important;color:#16181d!important;font-size:14px!important}

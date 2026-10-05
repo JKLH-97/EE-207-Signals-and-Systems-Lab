@@ -987,3 +987,19 @@ textarea,
 #filters .compare-filter-layout .compare-controls{display:block!important;margin-top:0!important;position:sticky;top:14px}
 #filters .compare-filter-layout .compare-controls .filter-control{width:100%}
 @media(max-width:980px){#filters .compare-filter-layout .compare-controls{position:static}}
+
+/* v66 Sampling redesign */
+#sampling .sampling-kicker{margin-top:34px;color:var(--accent);font-size:14px;font-weight:800;letter-spacing:2px}
+#sampling .sampling-ex-title{font-size:30px!important;line-height:1.05;margin:5px 0 20px}
+#sampling .sampling-example{cursor:pointer}#sampling .sampling-example:hover{border-color:var(--accent)}
+#sampling .sampling-example .module-number{color:var(--accent);font-size:14px}
+#sampling .sampling-example .math,#sampling .sampling-example .katex{font-size:14px!important}
+#sampling .sampling-control{margin:9px 0}
+#sampling .sampling-control label{display:block;font-size:14px;color:var(--text-secondary)}
+#sampling .sampling-control label b{color:#ff5a5f!important}
+#sampling .sampling-control label span{float:right;color:var(--text-muted);font-size:11px}
+#sampling .sampling-control input[type=range]{display:block;width:100%;accent-color:#ff5a5f!important;margin:7px 0 8px}
+#sampling .sampling-control input[type=number]{display:block;width:100%;background:#fff!important;color:#16181d!important;border:1px solid #cfd2d8!important;border-radius:6px;font-size:14px!important;padding:8px 10px!important}
+#sampling .control-panel .btn{margin-top:10px}
+#sampling .exam-toolbar{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+#sampling #samScore .score{color:var(--accent)!important;font-size:22px;font-weight:700}

@@ -855,3 +855,10 @@ textarea,
 #laplace .example-grid .lap-example-card p{color:var(--muted)!important;font-size:13px!important;line-height:1.5}
 #laplace .eyebrow{margin-top:50px}
 #laplace .eyebrow + .section-title{margin-top:8px;margin-bottom:24px}
+
+/* v46 — Laplace fixes */
+#laplace .circuit-rel-grid{grid-template-columns:1fr!important}
+#laplace .circuit-rel-grid>div{min-width:0!important;width:100%!important}
+#laplace .circuit-rel-grid .math,#laplace .circuit-rel-grid .katex-display{width:100%!important;max-width:none!important;overflow-x:auto!important;text-align:center!important}
+#laplace .circuit-rel-grid .katex{font-size:14px!important;white-space:nowrap!important}
+#laplace #pzExpr,#laplace #pfeExpr{background:#fff!important;color:#16181d!important;font-size:14px!important}

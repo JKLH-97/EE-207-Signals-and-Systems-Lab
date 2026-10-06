@@ -1071,3 +1071,10 @@ input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none!important;appe
 input[type="range"]::-moz-range-track{height:6px!important;border-radius:999px!important;background:#8a8a8a!important;border:1px solid rgba(255,255,255,.28)!important}
 input[type="range"]::-moz-range-progress{height:6px!important;border-radius:999px!important;background:#ff4d57!important}
 input[type="range"]::-moz-range-thumb{width:18px!important;height:18px!important;border-radius:50%!important;background:#ff4d57!important;border:none!important}
+
+/* v76 restored approved Sampling interactions */
+#sampling #specExpr,#sampling #aliasExpr{width:100%;background:#fff!important;color:#16181d!important;font-size:14px!important}
+#sampling .nyquist-challenge{margin-top:12px}
+#sampling .nyquist-challenge h3{color:var(--accent)}
+#sampling .nyquist-challenge .btn{margin-right:7px;margin-top:7px}
+#sampling .alias-map-row{display:grid;grid-template-columns:1fr 30px 1fr 90px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px}

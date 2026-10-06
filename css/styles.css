@@ -1034,3 +1034,17 @@ textarea,
 .question-category{font-size:11px;font-weight:800;letter-spacing:1.3px;color:var(--accent);margin-bottom:6px}
 .mini-question-graph{height:54px;border:1px solid var(--border);border-radius:7px;margin:7px 0 10px;display:flex;align-items:center;justify-content:center;gap:18px;color:var(--text-secondary);font-size:12px;background:rgba(255,255,255,.015)}
 .mini-question-graph .wave-glyph{font-size:24px;color:#4ed7cf;letter-spacing:3px}
+
+/* v72 convolution restoration + real test graphs */
+#convolution .conv-example-click{cursor:pointer;position:relative;transition:border-color .15s}
+#convolution .conv-example-click:hover{border-color:var(--accent)}
+#convolution .conv-example-open{color:var(--accent);font-size:11px;font-weight:800;letter-spacing:1px;margin-bottom:6px}
+#convolution .conv-live-layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:14px;align-items:start}
+#convolution .conv-live-main .conv-live-grid{display:grid!important;grid-template-columns:1fr!important;gap:10px!important}
+#convolution .conv-live-controls{position:sticky;top:14px}
+#convolution .conv-live-controls .conv-mode-row{display:grid;grid-template-columns:1fr;gap:6px}
+#convolution .conv-live-controls .live-toolbar{display:grid!important;grid-template-columns:1fr 1fr!important;gap:7px!important}
+#convolution .conv-live-controls .live-toolbar label,#convolution .conv-live-controls .conv-exact-time,#convolution .conv-live-controls #timeValue{grid-column:1/-1}
+#convolution .test-graph-card{border:1px solid var(--border);border-radius:8px;padding:7px;margin:7px 0 10px}
+#convolution .test-graph-card canvas{width:100%;height:150px}
+@media(max-width:980px){#convolution .conv-live-layout{grid-template-columns:1fr}#convolution .conv-live-controls{position:static}}

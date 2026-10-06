@@ -1060,3 +1060,6 @@ input[type="range"]::-moz-range-thumb{background:#ff4d57!important;border:none!i
 #convolution .conv-step-controls .conv-mode-row{display:grid;grid-template-columns:1fr;gap:6px}
 .test-graph-card{border:1px solid var(--border);border-radius:8px;padding:7px;margin:7px 0 10px}.test-graph-card canvas{width:100%;height:150px}
 @media(max-width:980px){#convolution .conv-step-layout{grid-template-columns:1fr}#convolution .conv-step-controls{position:static}}
+
+/* v74 range-limit display: minimum at left, maximum at right */
+.global-range-limits{display:flex!important;justify-content:space-between!important;width:100%!important;text-align:initial!important;color:var(--text-muted)!important;font-size:11px!important;line-height:1.15!important;margin-top:1px!important;padding:0 1px!important;box-sizing:border-box!important}

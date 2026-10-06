@@ -1063,3 +1063,11 @@ input[type="range"]::-moz-range-thumb{background:#ff4d57!important;border:none!i
 
 /* v74 range-limit display: minimum at left, maximum at right */
 .global-range-limits{display:flex!important;justify-content:space-between!important;width:100%!important;text-align:initial!important;color:var(--text-muted)!important;font-size:11px!important;line-height:1.15!important;margin-top:1px!important;padding:0 1px!important;box-sizing:border-box!important}
+
+/* v75 definitive slider appearance — EXPLORE red-orange */
+input[type="range"]{-webkit-appearance:none!important;appearance:none!important;height:18px!important;background:transparent!important;accent-color:#ff4d57!important}
+input[type="range"]::-webkit-slider-runnable-track{height:6px!important;border-radius:999px!important;background:linear-gradient(to right,#ff4d57 0%,#ff4d57 var(--range-p,50%),#8a8a8a var(--range-p,50%),#8a8a8a 100%)!important;border:1px solid rgba(255,255,255,.28)!important}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none!important;appearance:none!important;width:18px!important;height:18px!important;border-radius:50%!important;background:#ff4d57!important;border:none!important;margin-top:-7px!important}
+input[type="range"]::-moz-range-track{height:6px!important;border-radius:999px!important;background:#8a8a8a!important;border:1px solid rgba(255,255,255,.28)!important}
+input[type="range"]::-moz-range-progress{height:6px!important;border-radius:999px!important;background:#ff4d57!important}
+input[type="range"]::-moz-range-thumb{width:18px!important;height:18px!important;border-radius:50%!important;background:#ff4d57!important;border:none!important}

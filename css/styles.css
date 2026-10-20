@@ -1100,3 +1100,10 @@ input[type="range"]::-moz-range-thumb{width:18px!important;height:18px!important
 #fourier .fs-build-card #fsBuildEquation{overflow-x:auto;padding:8px 0}
 #fourier .fs-build-card .katex-display{font-size:14px!important;overflow-x:auto;overflow-y:hidden}
 #fourier .fs-legend .fs-blue::before{border-top:2px dashed #4c8dff!important;background:none!important}
+
+/* v79: harmonic navigation and numerical synthesis */
+#fourier .fs-harmonic-buttons{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#fourier .fs-numerical-sum{margin:12px 0;padding:10px 12px;border:1px solid rgba(46,204,113,.25);border-radius:8px;overflow-x:auto}
+#fourier .fs-numerical-sum h4{font-size:14px;color:#58d68d;margin:0 0 6px}
+#fourier .fs-numerical-sum .math{font-size:14px!important;color:#58d68d}
+@media(max-width:680px){#fourier .fs-harmonic-buttons{flex-direction:column;align-items:stretch}}

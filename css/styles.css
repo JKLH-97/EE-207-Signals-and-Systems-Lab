@@ -1078,3 +1078,17 @@ input[type="range"]::-moz-range-thumb{width:18px!important;height:18px!important
 #sampling .nyquist-challenge h3{color:var(--accent)}
 #sampling .nyquist-challenge .btn{margin-right:7px;margin-top:7px}
 #sampling .alias-map-row{display:grid;grid-template-columns:1fr 30px 1fr 90px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px}
+
+/* v77 Fourier Series demo — preserve established layout/colors */
+#fourier .fs-legend{display:flex;gap:18px;margin-top:6px;font-size:12px;color:var(--text-secondary)}
+#fourier .fs-blue:before,#fourier .fs-teal:before{content:"";display:inline-block;width:17px;height:3px;vertical-align:middle;margin-right:6px;background:#4c8dff}
+#fourier .fs-teal:before{background:#4ed7cf}
+#fourier .fs-stats{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;font-size:13px}
+#fourier .fs-stats span{padding:6px 9px;border:1px solid var(--border);border-radius:6px}
+#fourier .fs-table-wrap{overflow:auto;max-height:380px}
+#fourier .fs-coeff-table{border-collapse:collapse;width:100%;min-width:620px;font-size:12px}
+#fourier .fs-coeff-table td,#fourier .fs-coeff-table th{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.12);text-align:left;white-space:nowrap}
+#fourier .fs-coeff-table th{position:sticky;top:0;background:#1a1d24}
+#fourier .fs-coeff-table .fs-selected{color:#58d68d}
+#fourier #fsExpr{width:100%;background:#fff!important;color:#16181d!important;font-size:14px!important}
+#fourier #fsSummary .math{font-size:14px!important}

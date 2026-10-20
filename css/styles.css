@@ -1092,3 +1092,11 @@ input[type="range"]::-moz-range-thumb{width:18px!important;height:18px!important
 #fourier .fs-coeff-table .fs-selected{color:#58d68d}
 #fourier #fsExpr{width:100%;background:#fff!important;color:#16181d!important;font-size:14px!important}
 #fourier #fsSummary .math{font-size:14px!important}
+
+/* v78 Fourier weighted sum teaching enhancement */
+#fourier .fs-build-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#fourier .fs-build-heading h3{margin:0}
+#fourier .fs-build-heading .hint{margin:5px 0}
+#fourier .fs-build-card #fsBuildEquation{overflow-x:auto;padding:8px 0}
+#fourier .fs-build-card .katex-display{font-size:14px!important;overflow-x:auto;overflow-y:hidden}
+#fourier .fs-legend .fs-blue::before{border-top:2px dashed #4c8dff!important;background:none!important}

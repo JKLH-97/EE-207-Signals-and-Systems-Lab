@@ -24,27 +24,60 @@ const den=t=>{let p=t.p;let factor=Math.abs(p.im)<.00005?(p.re<0?`(s+${fmt(-p.re
 const factorial=n=>{let x=1;for(let i=2;i<=n;i++)x*=i;return x};
 const ctex=c=>Math.abs(c.im)<.00005?fmt(c.re):`(${fmt(c.re)}${c.im<0?'-':'+'}j${fmt(Math.abs(c.im))})`;
 const frac=t=>`\\frac{${ctex(t.c)}}{${den(t)}}`;
-// Show the actual coefficient substitution, not only a generic residue rule.
-const cval=(v)=>Math.abs(v.im)<.00005?fmt(v.re):ctex(v);
+// Numerical substitution of actual polynomial values, including repeated poles.
+// Complex synthetic division and Taylor coefficients give transparent arithmetic.
+const C=(re=0,im=0)=>({re,im});
+const ca=(a,b)=>C(a.re+b.re,a.im+b.im);
+const cs=(a,b)=>C(a.re-b.re,a.im-b.im);
+const cm=(a,b)=>C(a.re*b.re-a.im*b.im,a.re*b.im+a.im*b.re);
+const cd=(a,b)=>{let d=b.re*b.re+b.im*b.im;if(d<1e-20)throw Error('Singular coefficient calculation.');return C((a.re*b.re+a.im*b.im)/d,(a.im*b.re-a.re*b.im)/d)};
+const near=x=>Math.abs(x)<.00005?0:x;
+const cv=z=>Math.abs(z.im)<.00005?fmt(z.re):`\\left(${fmt(z.re)}${z.im<0?'-':'+'}${fmt(Math.abs(z.im))}j\\right)`;
+const cp=p=>p.map(x=>C(x));
+const cdiv=(arr,p)=>{let n=arr.length-1,quot=Array(n);quot[n-1]=arr[n];for(let i=n-2;i>=0;i--)quot[i]=ca(arr[i+1],cm(p,quot[i+1]));return {q:quot,r:ca(arr[0],cm(p,quot[0]))}};
+const deriv=p=>p.slice(1).map((v,i)=>cm(v,C(i+1)));
+const peval=(arr,p)=>arr.reduceRight((v,x)=>ca(cm(v,p),x),C());
+const fact=n=>{let x=1;for(let k=2;k<=n;k++)x*=k;return x};
+const cleanSign=x=>x.replace(/\\left\(0\\right\)/g,'0');
 const coeffWork=(t,i,m)=>{
   const g=m.groups.find(g=>Math.hypot(g.p.re-t.p.re,g.p.im-t.p.im)<.01);
-  const mult=g?g.m:1,order=mult-t.k,letter=`A_{${i+1}}`,p=t.p;
-  const at=ctex(p),factor=den({...t,k:1});
-  const fSymbol=`\\left[${factor}^{${mult}}\\frac{${poly(m.rem)}}{${poly(m.d)}}\\right]`;
-  const derivative=order===0?'':`\\frac{d^{${order}}}{ds^{${order}}}`;
-  const rawDerivative=ctex({re:t.c.re*factorial(order),im:t.c.im*factorial(order)});
-  const numeric=`${letter}=${order?`\\frac{1}{${factorial(order)}}\\left(${rawDerivative}\\right)`:`${rawDerivative}`}=${ctex(t.c)}`;
-  if(mult===1&&Math.abs(p.im)<1e-6){
-    // For a simple pole D(s)=(s-p)D_other(s), evaluate N(p)/D_other(p).
-    const evalPoly=(a,x)=>a.reduceRight((acc,v)=>acc*x+v,0);
-    const dOther=m.d.reduce((sum,v,k)=>k?sum+k*v*Math.pow(p.re,k-1):sum,0);
-    const nValue=evalPoly(m.rem,p.re);
-    if(Number.isFinite(dOther)&&Math.abs(dOther)>1e-10){
-      return math(`${letter}=\\left.${factor}X_{\\mathrm{proper}}(s)\\right|_{s=${at}}=\\frac{${fmt(nValue)}}{${fmt(dOther)}}=${ctex(t.c)}`);
-    }
+  if(!g)return math(`A_{${i+1}}=${ctex(t.c)}`);
+  const p=g.p,mult=g.m,order=mult-t.k,letter=`A_{${i+1}}`,at=cv(p);
+  let other=cp(m.d);
+  for(let j=0;j<mult;j++){const res=cdiv(other,p);other=res.q;}
+  const nPoly=cp(m.rem),N=peval(nPoly,p),D=peval(other,p);
+  if(Math.hypot(D.re,D.im)<1e-9)return math(`${letter}=${ctex(t.c)}`);
+  const vals=[];let np=nPoly,dp=other;
+  for(let k=0;k<=order;k++){
+    vals.push({n:cd(peval(np,p),C(fact(k))),d:cd(peval(dp,p),C(fact(k)))});
+    np=deriv(np);dp=deriv(dp);
   }
-  const formula=order?`${letter}=\\frac{1}{${factorial(order)}}\\left.\\frac{d^{${order}}}{ds^{${order}}}${fSymbol}\\right|_{s=${at}}`: `${letter}=\\left.${fSymbol}\\right|_{s=${at}}`;
-  return math(formula)+math(numeric);
+  const f=[];
+  for(let k=0;k<=order;k++){
+    let v=vals[k].n;
+    for(let j=1;j<=k;j++)v=cs(v,cm(vals[j].d,f[k-j]));
+    f.push(cd(v,vals[0].d));
+  }
+  const result=cv(t.c), lines=[];
+  if(mult===1){
+    lines.push(math(`${letter}=\\left.\\frac{R(s)}{D'(s)}\\right|_{s=${at}}`));
+    lines.push(math(`${letter}=\\frac{${cv(N)}}{${cv(D)}}=${result}`));
+  }else{
+    lines.push(math(`${letter}=\\frac{1}{${fact(order)}}\\left.\\frac{d^{${order}}}{ds^{${order}}}\\left[\\frac{R(s)}{D(s)/${den({...t,k:mult})}}\\right]\\right|_{s=${at}}`));
+    lines.push(math(`F(s)=\\frac{R(s)}{D(s)/${den({...t,k:mult})}},\\quad F(${at})=\\frac{${cv(N)}}{${cv(D)}}=${cv(f[0])}`));
+    if(order===1){
+      const n1=peval(deriv(nPoly),p),d1=peval(deriv(other),p);
+      lines.push(math(`R'(${at})=${cv(n1)},\\quad D_{\\mathrm{other}}'(${at})=${cv(d1)}`));
+      lines.push(math(`F'(${at})=\\frac{(${cv(n1)})(${cv(D)})-(${cv(N)})(${cv(d1)})}{(${cv(D)})^2}=${cv(f[1])}`));
+    }else if(order>1){
+      for(let k=1;k<=order;k++){
+        const terms=[cv(vals[k].n)];for(let j=1;j<=k;j++)terms.push(`-(${cv(vals[j].d)})(${cv(f[k-j])})`);
+        lines.push(math(`\\frac{F^{(${k})}(${at})}{${fact(k)}}=\\frac{${terms.join('')}}{${cv(D)}}=${cv(f[k])}`));
+      }
+    }
+    lines.push(math(`${letter}=\\frac{F^{(${order})}(${at})}{${fact(order)}}=${cv(f[order])}\\approx ${result}`));
+  }
+  return `<div class="pfe-coefficient-title">Coefficient ${i+1} — ${esc(den(t))}</div>`+lines.join('');
 };
 
 const form=t=>`\\frac{A_{${t.idx}}}{${den(t)}}`;
@@ -60,6 +93,6 @@ function solve(){try{model=E.decompose(inp.value);let m=model,degreeN=m.n.length
 let classification=degreeN<degreeD?'STRICTLY PROPER':degreeN===degreeD?'PROPER (EQUAL DEGREES)':'IMPROPER';
 document.getElementById('pfeV81Classification').innerHTML=`<b class="pfe-class-result">m = ${degreeN}, n = ${degreeD} → ${classification}</b><p>${degreeN<degreeD?'No division needed: proceed to pole identification.':'Perform polynomial long division to obtain Q(s) + R(s)/D(s), where degree R < degree D.'}</p>`;
 let list=m.terms.map((t,i)=>({...t,idx:i+1}));let symbolic=list.map(form).join('+')||'0',numeric=list.map(frac).join('+').replace(/\+\-/g,'-')||'0';let inverseText=inverse(m);let derivative=m.groups.some(g=>g.m>1),complexCase=m.groups.some(g=>Math.abs(g.p.im)>1e-5);
-cards=[card('1. Original rational function',math(`X(s)=\\frac{${num}}{${denom}}`)),card('2. Polynomial division and poles',(hasPoly?math(`X(s)=${polyQ}+\\frac{${poly(m.rem)}}{${denom}}`):'')+`<p><b>Pole categories:</b> ${m.groups.some(g=>Math.abs(g.p.im)<1e-5&&g.m===1)?"distinct/simple real; ":""}${m.groups.some(g=>Math.abs(g.p.im)<1e-5&&g.m>1)?"repeated real; ":""}${m.groups.some(g=>Math.abs(g.p.im)>=1e-5&&g.m===1)?"distinct complex; ":""}${m.groups.some(g=>Math.abs(g.p.im)>=1e-5&&g.m>1)?"repeated complex; ":""}</p><p>Detected poles and multiplicities:</p><div class="pfe-poles-list">${groupInfo(m)}</div>`),card('3. Choose the expansion form',math(`X(s)=${hasPoly?polyQ+'+':''}${symbolic}`)),card('4. Calculate the coefficients',`<div class="pfe-method">${derivative?math('B_j=\\frac{1}{(m-j)!}\\left.\\frac{d^{m-j}}{ds^{m-j}}[(s-p)^mR(s)/D(s)]\\right|_{s=p}') : math('A_i=\\left. (s-p_i)X(s)\\right|_{s=p_i}')}</div>`+list.map((t,i)=>`<div class="coefficient-step">${coeffWork(t,i,m)}</div>` ).join('')),card('5. Final partial-fraction expansion',math(`X(s)=${hasPoly?polyQ+'+':''}${numeric}`)+''),card('6. Inverse Laplace transform',math(`${hasPoly?'x_{\\mathrm{regular}}(t)':'x(t)'}=\\left[${inverseText}\\right]u(t)`)+''),card('7. Verify the result',`<p class="${m.maxError<1e-6?'ok':'bad'}">Maximum relative residual: ${m.maxError.toExponential(2)}</p>`)];status.innerHTML='<p class="ok">Valid rational expression. Decomposition completed.</p>';show();verification.innerHTML=`<h3>Numerical verification</h3><p>Maximum relative residual: <b>${m.maxError.toExponential(2)}</b></p>`;splot(m);let t=Array.from({length:361},(_,i)=>i*8/360);plot('pfeTime',[{y:t.map(x=>Math.max(-1e6,Math.min(1e6,E.timeValue(m,x)))),color:'#4ed7cf'}],0,8,'x(t)');}catch(err){document.getElementById('pfeV81Classification').innerHTML='<p class="bad">Classification unavailable until X(s) is valid.</p>';status.innerHTML=`<p class="bad">${esc(err.message)}</p>`;steps.innerHTML=card('Check your expression',`<p>${esc(err.message)}</p><p>Examples: (2*s+3)/(s+1)^2, (s+2)/(s^2+2*s+5), (s^3+1)/(s^2+3*s+2).</p>`);verification.innerHTML='';cards=[];}}
+cards=[card('1. Original rational function',math(`X(s)=\\frac{${num}}{${denom}}`)),card('2. Polynomial division and poles',(hasPoly?math(`X(s)=${polyQ}+\\frac{${poly(m.rem)}}{${denom}}`):'')+`<p><b>Pole categories:</b> ${m.groups.some(g=>Math.abs(g.p.im)<1e-5&&g.m===1)?"distinct/simple real; ":""}${m.groups.some(g=>Math.abs(g.p.im)<1e-5&&g.m>1)?"repeated real; ":""}${m.groups.some(g=>Math.abs(g.p.im)>=1e-5&&g.m===1)?"distinct complex; ":""}${m.groups.some(g=>Math.abs(g.p.im)>=1e-5&&g.m>1)?"repeated complex; ":""}</p><p>Detected poles and multiplicities:</p><div class="pfe-poles-list">${groupInfo(m)}</div>`),card('3. Choose the expansion form',math(`X(s)=${hasPoly?polyQ+'+':''}${symbolic}`)),card('4. Calculate the coefficients',`<p class="pfe-short-intro">Values substituted into each coefficient equation:</p>`+list.map((t,i)=>`<div class="coefficient-step">${coeffWork(t,i,m)}</div>`).join('')),card('5. Final partial-fraction expansion',math(`X(s)=${hasPoly?polyQ+'+':''}${numeric}`)+''),card('6. Inverse Laplace transform',math(`${hasPoly?'x_{\\mathrm{regular}}(t)':'x(t)'}=\\left[${inverseText}\\right]u(t)`)+''),card('7. Verify the result',`<p class="${m.maxError<1e-6?'ok':'bad'}">Maximum relative residual: ${m.maxError.toExponential(2)}</p>`)];status.innerHTML='<p class="ok">Valid rational expression. Decomposition completed.</p>';show();verification.innerHTML=`<h3>Numerical verification</h3><p>Maximum relative residual: <b>${m.maxError.toExponential(2)}</b></p>`;splot(m);let t=Array.from({length:361},(_,i)=>i*8/360);plot('pfeTime',[{y:t.map(x=>Math.max(-1e6,Math.min(1e6,E.timeValue(m,x)))),color:'#4ed7cf'}],0,8,'x(t)');}catch(err){document.getElementById('pfeV81Classification').innerHTML='<p class="bad">Classification unavailable until X(s) is valid.</p>';status.innerHTML=`<p class="bad">${esc(err.message)}</p>`;steps.innerHTML=card('Check your expression',`<p>${esc(err.message)}</p><p>Examples: (2*s+3)/(s+1)^2, (s+2)/(s^2+2*s+5), (s^3+1)/(s^2+3*s+2).</p>`);verification.innerHTML='';cards=[];}}
 const caseButtons=[...b.querySelectorAll('[data-pfe-case]')];const markCase=i=>caseButtons.forEach((btn,j)=>{let active=j===i;btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',String(active))});caseButtons.forEach((btn,i)=>btn.addEventListener('click',()=>{sel.value='case';inp.value=examples[i][1];markCase(i);preview.textContent='X(s) = '+inp.value;solve()}));sel.onchange=()=>{markCase(-1);if(sel.value!=='custom'&&sel.value!=='case')inp.value=examples[+sel.value][1];preview.textContent='X(s) = '+inp.value;solve()};inp.oninput=()=>{markCase(-1);sel.value='custom';preview.textContent='X(s) = '+inp.value;status.textContent='Press Enter or Calculate to solve.'};inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();solve();inp.blur()}};document.getElementById('pfeV80Solve').onclick=solve;preview.textContent='X(s) = '+inp.value;markCase(0);solve();}
 return{render,examples};})();

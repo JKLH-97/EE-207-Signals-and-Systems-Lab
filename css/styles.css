@@ -1107,3 +1107,14 @@ input[type="range"]::-moz-range-thumb{width:18px!important;height:18px!important
 #fourier .fs-numerical-sum h4{font-size:14px;color:#58d68d;margin:0 0 6px}
 #fourier .fs-numerical-sum .math{font-size:14px!important;color:#58d68d}
 @media(max-width:680px){#fourier .fs-harmonic-buttons{flex-direction:column;align-items:stretch}}
+/* v80 Partial Fractions: retain the chapter's established controls and typography */
+#laplace .pfe-v80-layout{align-items:start}
+#laplace .pfe-v80-main{min-width:0}
+#laplace .pfe-v80-layout input[type=text]{background:#fff!important;color:#171717!important;width:100%!important;font-size:14px!important}
+#laplace .pfe-v80-layout .equation-live-preview{color:#2ecc71!important;overflow-wrap:anywhere}
+#laplace .pfe-step-nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+#laplace .pfe-step-nav .btn{font-size:12px;padding:8px}
+#laplace .pfe-poles-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+#laplace .pfe-pole-item{padding:8px;border:1px solid rgba(150,150,150,.25);border-radius:7px;display:flex;flex-direction:column;gap:4px}
+#laplace .pfe-pole-item span{font-size:11px;color:var(--text-muted)}
+#laplace .pfe-v80-main .math{overflow-x:auto}

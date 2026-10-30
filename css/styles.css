@@ -1135,3 +1135,6 @@ input[type="range"]::-moz-range-thumb{width:18px!important;height:18px!important
 .pfe-case-button.active{border-color:#ff4d57;background:rgba(255,77,87,.13);box-shadow:inset 0 0 0 1px rgba(255,77,87,.3)}
 @media(max-width:900px){.pfe-case-buttons{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:500px){.pfe-case-buttons{grid-template-columns:1fr}}
+
+/* v84: center the eight pole-case button labels consistently. */
+.pfe-case-button{display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.35}

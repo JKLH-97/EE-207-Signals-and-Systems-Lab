@@ -1138,3 +1138,9 @@ input[type="range"]::-moz-range-thumb{width:18px!important;height:18px!important
 
 /* v84: center the eight pole-case button labels consistently. */
 .pfe-case-button{display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.35}
+
+/* v85: clear numerical coefficient derivations */
+.pfe-coefficient-title{font-weight:700;color:#ff545b;margin:4px 0 8px}
+.pfe-short-intro{margin:4px 0 10px}
+.coefficient-step{padding:12px 8px;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,.12);overflow-x:auto}
+.coefficient-step .math{max-width:100%;overflow-x:auto;padding:5px 0}

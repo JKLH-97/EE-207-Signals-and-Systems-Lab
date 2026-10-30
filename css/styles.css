@@ -1127,3 +1127,11 @@ input[type="range"]::-moz-range-thumb{width:18px!important;height:18px!important
 .pfe-class-grid span{display:block;color:#b9bdc8;font-size:12px}
 .pfe-classification .analysis-card{margin-top:12px}
 .pfe-class-result{color:#42d4a3}
+
+/* v83: interactive eight-case selector in Partial Fractions only */
+.pfe-case-buttons{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.pfe-case-button{display:block;width:100%;min-height:55px;text-align:left;padding:12px 14px;border:1px solid rgba(160,170,185,.25);border-radius:12px;background:rgba(255,255,255,.025);color:inherit;font:inherit;cursor:pointer;transition:border-color .15s,background .15s}
+.pfe-case-button:hover,.pfe-case-button:focus-visible{border-color:#ff4d57;background:rgba(255,77,87,.07);outline:none}
+.pfe-case-button.active{border-color:#ff4d57;background:rgba(255,77,87,.13);box-shadow:inset 0 0 0 1px rgba(255,77,87,.3)}
+@media(max-width:900px){.pfe-case-buttons{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:500px){.pfe-case-buttons{grid-template-columns:1fr}}

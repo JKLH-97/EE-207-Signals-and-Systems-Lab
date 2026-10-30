@@ -1118,3 +1118,12 @@ input[type="range"]::-moz-range-thumb{width:18px!important;height:18px!important
 #laplace .pfe-pole-item{padding:8px;border:1px solid rgba(150,150,150,.25);border-radius:7px;display:flex;flex-direction:column;gap:4px}
 #laplace .pfe-pole-item span{font-size:11px;color:var(--text-muted)}
 #laplace .pfe-v80-main .math{overflow-x:auto}
+
+/* v81: Chapter 3 Section 3.5 teaching sequence */
+.pfe-explore{color:#ff4d57;font-weight:800;letter-spacing:.12em;font-size:12px;margin-bottom:8px}
+.pfe-class-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}
+.pfe-class-grid>div{padding:11px;border:1px solid rgba(170,180,195,.25);border-radius:9px;background:rgba(255,255,255,.025);font-size:13px}
+.pfe-class-grid b{display:block;color:#ff4d57;margin-bottom:4px}
+.pfe-class-grid span{display:block;color:#b9bdc8;font-size:12px}
+.pfe-classification .analysis-card{margin-top:12px}
+.pfe-class-result{color:#42d4a3}

@@ -1,4 +1,4 @@
-// EE-207 v88: shared A, B, C coefficient labels for Step 3 and Step 4.
+// EE-207 v89: verified consistent Step 3/4 residue labels, including conjugate poles.
 window.EE207PFELab=(function(){
 const E=window.EE207PFE;
 const examples=[
@@ -34,51 +34,52 @@ const cm=(a,b)=>C(a.re*b.re-a.im*b.im,a.re*b.im+a.im*b.re);
 const cdiv=(arr,p)=>{let n=arr.length-1,quot=Array(n);quot[n-1]=arr[n];for(let i=n-2;i>=0;i--)quot[i]=ca(arr[i+1],cm(p,quot[i+1]));return {q:quot,r:ca(arr[0],cm(p,quot[0]))}};
 const coefficientLabels=m=>m.terms.map((_,i)=>'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[i]||`A_{${i+1}}`);
 const coefficientWork=m=>{
-  const terms=m.terms, variables=[], used=new Set();
-  const quotient=(t)=>{let q=m.d.map(v=>C(v));for(let k=0;k<t.k;k++)q=cdiv(q,t.p).q;return q};
-  const same=(a,b)=>Math.abs(a-b)<.0005;
-  const almostReal=z=>Math.abs(z.im)<.005;
-  const letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const realPoly=arr=>arr.map(z=>Math.abs(z.re)<.00001?0:z.re);
-  const combine=(a,b,op)=>Array.from({length:Math.max(a.length,b.length)},(_,i)=>op(a[i]||C(),b[i]||C()));
-  for(let i=0;i<terms.length;i++){
-    if(used.has(i))continue;
-    const t=terms[i],q=quotient(t);
-    if(almostReal(t.p)){
-      used.add(i);variables.push({name:letters[variables.length]||`A_{${variables.length+1}}`,basis:realPoly(q),value:t.c.re});
-    }else{
-      const j=terms.findIndex((v,k)=>k!==i&&!used.has(k)&&v.k===t.k&&same(v.p.re,t.p.re)&&same(v.p.im,-t.p.im));
-      if(j<0)return '<p class="bad">Unable to pair complex poles for coefficient matching.</p>';
-      used.add(i);used.add(j);const qq=quotient(terms[j]);
-      const sum=combine(q,qq,ca),diff=combine(q,qq,(u,v)=>cm(C(0,1),cs(u,v)));
-      const first=letters[variables.length]||`A_{${variables.length+1}}`;
-      variables.push({name:first,basis:realPoly(sum),value:t.c.re});
-      const second=letters[variables.length]||`A_{${variables.length+1}}`;
-      variables.push({name:second,basis:realPoly(diff),value:t.c.im});
-    }
+  const terms=m.terms, labels=coefficientLabels(m);
+  if(!terms.length)return math('R(s)=0');
+  const hasComplex=terms.some(t=>Math.abs(t.p.im)>0.0005);
+  // For real poles, use a blackboard-style polynomial identity and coefficient comparison.
+  // For complex poles, retain the same residue names as Step 3, rather than
+  // relabeling their real/imaginary components (which was misleading in v88).
+  if(hasComplex){
+    const lines=['<div class="pfe-coefficient-title">Find the coefficients</div>'];
+    const used=new Set();
+    terms.forEach((t,i)=>{
+      if(used.has(i))return;
+      const j=terms.findIndex((u,k)=>k!==i&&!used.has(k)&&u.k===t.k&&Math.abs(u.p.re-t.p.re)<0.002&&Math.abs(u.p.im+t.p.im)<0.002&&Math.abs(t.p.im)>0.0005);
+      if(j>=0){
+        used.add(i);used.add(j);
+        lines.push(math(`${labels[i]}=${ctex(t.c)},\\qquad ${labels[j]}=${ctex(terms[j].c)}`));
+        lines.push('<p class="hint">Conjugate poles have conjugate coefficients.</p>');
+      }else{
+        used.add(i);
+        lines.push(math(`${labels[i]}=${ctex(t.c)}`));
+      }
+    });
+    if(terms.some(t=>t.k>1))lines.push('<p class="hint">Repeated poles require one coefficient for each denominator power.</p>');
+    return lines.join('');
   }
-  if(!variables.length)return math('R(s)=0');
+  const C=(re=0,im=0)=>({re,im});
+  const ca=(a,b)=>C(a.re+b.re,a.im+b.im);
+  const cm=(a,b)=>C(a.re*b.re-a.im*b.im,a.re*b.im+a.im*b.re);
+  const cdiv=(arr,p)=>{let n=arr.length-1,quot=Array(n);quot[n-1]=arr[n];for(let i=n-2;i>=0;i--)quot[i]=ca(arr[i+1],cm(p,quot[i+1]));return quot};
+  const variables=terms.map((t,i)=>{
+    let q=m.d.map(v=>C(v));for(let k=0;k<t.k;k++)q=cdiv(q,t.p);
+    return{name:labels[i],basis:q.map(v=>v.re),value:t.c.re};
+  });
+  const rhs=variables.map(v=>`${v.name}\\left(${poly(v.basis)}\\right)`).join('+').replace(/\+\-/g,'-');
   const degree=Math.max(m.rem.length,...variables.map(v=>v.basis.length));
-  const termPoly=(arr)=>poly(arr);
-  const rhs=variables.map(v=>`${v.name}\\left(${termPoly(v.basis)}\\right)`).join('+').replace(/\+\-/g,'-');
-  const lines=[`<div class="pfe-coefficient-title">Clear the denominators</div>`,math(`${poly(m.rem)}=${rhs}`),`<div class="pfe-coefficient-title">Match coefficients of equal powers of s</div>`];
-  const eq=[];
+  const lines=['<div class="pfe-coefficient-title">Clear the denominators</div>',math(`${poly(m.rem)}=${rhs}`),'<div class="pfe-coefficient-title">Compare equal powers of s</div>'];
   for(let k=degree-1;k>=0;k--){
     const parts=[];
-    variables.forEach(v=>{const x=v.basis[k]||0;if(Math.abs(x)<.0001)return;const coeff=fmt(Math.abs(x),3),part=(Math.abs(Math.abs(x)-1)<.0001?'':coeff)+v.name;parts.push({sign:x<0?'-':'+',part})});
-    const target=m.rem[k]||0;
-    if(!parts.length){if(Math.abs(target)>.0001)eq.push(`${fmt(target,3)}=0`);continue}
-    let expression=parts.map((x,i)=>(i===0?(x.sign==='-'?'-':''):x.sign)+x.part).join('');
-    eq.push(`${fmt(target,3)}=${expression}`);
+    variables.forEach(v=>{let x=v.basis[k]||0;if(Math.abs(x)<.0001)return;let factor=Math.abs(Math.abs(x)-1)<.0001?'':fmt(Math.abs(x),3);parts.push({sign:x<0?'-':'+',text:factor+v.name})});
+    if(!parts.length)continue;
+    let expression=parts.map((x,i)=>(i===0?(x.sign==='-'?'-':''):x.sign)+x.text).join('');
+    lines.push(math(`${fmt(m.rem[k]||0,3)}=${expression}`));
   }
-  // Show the independent coefficient equations. Avoid repeated 0=0 rows.
-  lines.push(...eq.slice(0,Math.min(7,eq.length)).map(x=>math(x)));
-  lines.push('<div class="pfe-coefficient-title">Solve for the coefficients</div>');
-  lines.push(...variables.map(v=>math(`${v.name}=${fmt(v.value,4)}`)));
-  if(terms.some(t=>Math.abs(t.p.im)>.0005))lines.push('<p class="hint">For conjugate poles, the real-valued coefficient equations are grouped together.</p>');
+  lines.push('<div class="pfe-coefficient-title">Solve</div>');
+  variables.forEach(v=>lines.push(math(`${v.name}=${fmt(v.value,4)}`)));
   return lines.join('');
 };
-
 const form=t=>`\\frac{${t.label||`A_{${t.idx}}`}}{${den(t)}}`;
 const groupInfo=m=>m.groups.map(g=>`<div class="pfe-pole-item"><b>${esc(complex(g.p))}</b><span>Multiplicity ${g.m}</span></div>`).join('');
 function plot(id,curves,xmin,xmax,ylabel){let cv=document.getElementById(id);if(!cv)return;let W=Math.max(320,cv.clientWidth),H=cv.clientHeight||225,d=Math.min(window.devicePixelRatio||1,1.5);cv.width=W*d;cv.height=H*d;let q=cv.getContext('2d');q.setTransform(d,0,0,d,0,0);q.clearRect(0,0,W,H);let vals=curves.flatMap(c=>c.y.filter(Number.isFinite)),mag=Math.max(1,...vals.map(Math.abs)),L=52,R=15,T=20,B=34,sx=x=>L+(x-xmin)/(xmax-xmin)*(W-L-R),sy=y=>(H-B+T)/2-y/mag*(H-B-T)*.43;q.strokeStyle='rgba(170,180,195,.35)';q.beginPath();q.moveTo(L,sy(0));q.lineTo(W-R,sy(0));if(xmin<0&&xmax>0){q.moveTo(sx(0),T);q.lineTo(sx(0),H-B)}q.stroke();q.font='10px Arial';q.fillStyle='#aab0bb';for(let i=0;i<=6;i++){let x=xmin+i*(xmax-xmin)/6;q.fillText(fmt(x,1),sx(x)-9,H-11)}[-mag,0,mag].forEach(y=>q.fillText(fmt(y,1),3,sy(y)+3));q.fillText(ylabel,5,12);curves.forEach(c=>{q.strokeStyle=c.color;q.lineWidth=2;q.beginPath();c.y.forEach((y,i)=>{let x=xmin+i*(xmax-xmin)/(c.y.length-1);i?q.lineTo(sx(x),sy(y)):q.moveTo(sx(x),sy(y))});q.stroke()})}
